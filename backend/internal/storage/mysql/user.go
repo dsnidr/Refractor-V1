@@ -73,7 +73,26 @@ func (r *userRepo) FindOne(args refractor.FindArgs) (*refractor.User, error) {
 }
 
 func (r *userRepo) FindMany(args refractor.FindArgs) ([]*refractor.User, error) {
-	panic("implement me")
+	query, values := buildFindQuery("Users", args)
+
+	rows, err := r.db.Query(query, values...)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	var foundUsers []*refractor.User
+
+	for rows.Next() {
+		user := &refractor.User{}
+
+		if err := r.scanRows(rows, user); err != nil {
+			return nil, wrapError(err)
+		}
+
+		foundUsers = append(foundUsers, user)
+	}
+
+	return foundUsers, nil
 }
 
 func (r *userRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.User, error) {
