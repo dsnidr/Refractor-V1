@@ -96,7 +96,22 @@ func (r *userRepo) FindMany(args refractor.FindArgs) ([]*refractor.User, error) 
 }
 
 func (r *userRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.User, error) {
-	panic("implement me")
+	query, values := buildUpdateQuery("Users", id, "UserID", args)
+
+	_, err := r.db.Exec(query, values...)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	query = "SELECT * FROM Users WHERE UserID = ?;"
+	row := r.db.QueryRow(query, id)
+
+	updatedUser := &refractor.User{}
+	if err = r.scanRow(row, updatedUser); err != nil {
+		return nil, wrapError(err)
+	}
+
+	return updatedUser, nil
 }
 
 func (r *userRepo) FindAll() ([]*refractor.User, error) {
