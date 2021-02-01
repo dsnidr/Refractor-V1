@@ -115,7 +115,27 @@ func (r *userRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.User,
 }
 
 func (r *userRepo) FindAll() ([]*refractor.User, error) {
-	panic("implement me")
+	query := "SELECT * FROM Users;"
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	var users []*refractor.User
+
+	for rows.Next() {
+		user := &refractor.User{}
+
+		err := r.scanRows(rows, user)
+		if err != nil {
+			return nil, wrapError(err)
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (r *userRepo) GetCount() int {
