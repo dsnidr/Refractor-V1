@@ -1,10 +1,10 @@
-module backend
+module github.com/sniddunc/refractor
 
 go 1.15
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/fatih/color v1.10.0 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/fatih/color v1.10.0
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect

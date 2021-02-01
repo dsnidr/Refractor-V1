@@ -30,3 +30,12 @@ type UserService interface {
 type UserHandler interface {
 	GetOwnUserInfo(c echo.Context) error
 }
+
+type UserInfo struct {
+	ID                  int64  `json:"id"`
+	Email               string `json:"email"`
+	Username            string `json:"username"`
+	Activated           bool   `json:"activated"`
+	AccessLevel         int    `json:"accessLevel"`
+	NeedsPasswordChange bool   `json:"needsPasswordChange"`
+}

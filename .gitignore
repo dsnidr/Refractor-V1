@@ -1,0 +1,14 @@
+/server/.idea/**/workspace.xml
+/server/.idea/workspace.xml
+/server/.idea/**/tasks.xml
+/server/.idea/**/usage.statistics.xml
+/server/.idea/**/dictionaries
+/server/.idea/**/shelf
+
+logs/
+
+.env
+
+*.db
+
+data/
