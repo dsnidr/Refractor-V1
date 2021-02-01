@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/sniddunc/refractor/refractor"
 )
 
 func Setup(db *sql.DB) error {
@@ -36,4 +37,16 @@ func Setup(db *sql.DB) error {
 	}
 
 	return tx.Commit()
+}
+
+// MySQL query builder and helper functions
+func wrapError(err error) error {
+	switch err {
+	case nil:
+		return err
+	case sql.ErrNoRows:
+		return refractor.ErrNotFound
+	default:
+		return err
+	}
 }

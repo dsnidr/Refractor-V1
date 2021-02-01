@@ -16,7 +16,22 @@ func NewUserRepository(db *sql.DB) refractor.UserRepository {
 }
 
 func (r *userRepo) Create(user *refractor.User) error {
-	panic("implement me")
+	query := "INSERT INTO Users (Username, Email, Password) VALUES (?, ?, ?);"
+
+	res, err := r.db.Exec(query, user.Username, user.Email, user.Password)
+	if err != nil {
+		return wrapError(err)
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return wrapError(err)
+	}
+
+	// Update UserID on passed in user
+	user.UserID = id
+
+	return nil
 }
 
 func (r *userRepo) FindByID(id int64) (*refractor.User, error) {
