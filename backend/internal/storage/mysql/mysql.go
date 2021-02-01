@@ -82,3 +82,21 @@ func buildFindQuery(table string, args map[string]interface{}) (string, []interf
 
 	return query, values
 }
+
+func buildUpdateQuery(table string, id int64, idName string, args map[string]interface{}) (string, []interface{}) {
+	var query string = fmt.Sprintf("UPDATE %s SET ", table)
+	var values []interface{}
+
+	// Build query
+	for key, val := range args {
+		query += key + " = ?, "
+		values = append(values, val)
+	}
+
+	values = append(values, id)
+
+	// Cut off trailing comma and space
+	query = query[:len(query)-2] + fmt.Sprintf(" WHERE %s = ?;", idName)
+
+	return query, values
+}
