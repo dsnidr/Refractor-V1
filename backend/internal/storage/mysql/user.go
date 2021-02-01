@@ -139,7 +139,17 @@ func (r *userRepo) FindAll() ([]*refractor.User, error) {
 }
 
 func (r *userRepo) GetCount() int {
-	panic("implement me")
+	query := "SELECT COUNT(1) AS Count FROM Users;"
+
+	var userCount int
+
+	row := r.db.QueryRow(query)
+
+	if err := row.Scan(&userCount); err != nil {
+		return 0
+	}
+
+	return userCount
 }
 
 // Scan helpers
