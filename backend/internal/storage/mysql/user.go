@@ -48,7 +48,15 @@ func (r *userRepo) FindByID(id int64) (*refractor.User, error) {
 }
 
 func (r *userRepo) Exists(args refractor.FindArgs) (bool, error) {
-	panic("implement me")
+	query, values := buildExistsQuery("Users", args)
+
+	var exists bool
+
+	if err := r.db.QueryRow(query, values...).Scan(&exists); err != nil {
+		return false, wrapError(err)
+	}
+
+	return exists, nil
 }
 
 func (r *userRepo) FindOne(args refractor.FindArgs) (*refractor.User, error) {
