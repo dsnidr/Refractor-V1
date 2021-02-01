@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/pkg/env"
 	logger "github.com/sniddunc/refractor/pkg/log"
 	"log"
@@ -38,6 +39,7 @@ func main() {
 }
 
 func setupDatabase(connString string) (*sql.DB, error) {
+	// for now, just assume we're using mysql since it's the only database type supported on initial release.
 	db, err := sql.Open("mysql", connString)
 	if err != nil {
 		return db, err
@@ -47,7 +49,9 @@ func setupDatabase(connString string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	// TODO: Run database setup scripts
+	if err := mysql.Setup(db); err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }
