@@ -1,8 +1,8 @@
 package refractor
 
 import (
-	"backend/pkg/config"
 	"errors"
+	"github.com/sniddunc/refractor/pkg/config"
 	"net/http"
 	"net/url"
 )

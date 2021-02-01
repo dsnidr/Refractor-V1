@@ -1,8 +1,8 @@
 package params
 
 import (
-	"backend/pkg/config"
 	"fmt"
+	"github.com/sniddunc/refractor/pkg/config"
 	"net/url"
 )
 

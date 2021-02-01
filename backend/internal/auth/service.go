@@ -24,7 +24,7 @@ func NewAuthService(userRepo refractor.UserRepository, logger log.Logger, jwtSec
 	}
 }
 
-func (s *authService) LogInUser(body params.LoginParams) (*jwt.TokenPair, *refractor.ServiceResponse) {
+func (s *authService) LogInUser(body params.LoginParams) (*refractor.TokenPair, *refractor.ServiceResponse) {
 	// Check if an account with the provided username exists
 	args := refractor.FindArgs{
 		"Username": body.Username,
@@ -80,11 +80,14 @@ func (s *authService) LogInUser(body params.LoginParams) (*jwt.TokenPair, *refra
 	s.log.Info("User %s (%d) logged in", foundUser.Username, foundUser.UserID)
 
 	// All ok. Send back success message and tokens
-	return tokenPair, &refractor.ServiceResponse{
-		Success:    true,
-		StatusCode: http.StatusOK,
-		Message:    "Successfully logged in",
-	}
+	return &refractor.TokenPair{
+			AuthToken:    tokenPair.AuthToken,
+			RefreshToken: tokenPair.RefreshToken,
+		}, &refractor.ServiceResponse{
+			Success:    true,
+			StatusCode: http.StatusOK,
+			Message:    "Successfully logged in",
+		}
 }
 
 func (s *authService) RefreshUser(refreshToken string) *refractor.ServiceResponse {
