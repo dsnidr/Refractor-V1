@@ -66,3 +66,19 @@ func buildExistsQuery(table string, args map[string]interface{}) (string, []inte
 
 	return query, values
 }
+
+func buildFindQuery(table string, args map[string]interface{}) (string, []interface{}) {
+	var query string = fmt.Sprintf("SELECT * FROM %s WHERE ", table)
+	var values []interface{}
+
+	// Build query
+	for key, val := range args {
+		query += key + " = ? AND "
+		values = append(values, val)
+	}
+
+	// Cut off trailing AND
+	query = query[:len(query)-5] + ";"
+
+	return query, values
+}

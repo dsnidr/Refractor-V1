@@ -60,7 +60,16 @@ func (r *userRepo) Exists(args refractor.FindArgs) (bool, error) {
 }
 
 func (r *userRepo) FindOne(args refractor.FindArgs) (*refractor.User, error) {
-	panic("implement me")
+	query, values := buildFindQuery("Users", args)
+
+	foundUser := &refractor.User{}
+
+	row := r.db.QueryRow(query, values...)
+	if err := r.scanRow(row, foundUser); err != nil {
+		return nil, wrapError(err)
+	}
+
+	return foundUser, nil
 }
 
 func (r *userRepo) FindMany(args refractor.FindArgs) ([]*refractor.User, error) {
