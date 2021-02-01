@@ -35,7 +35,16 @@ func (r *userRepo) Create(user *refractor.User) error {
 }
 
 func (r *userRepo) FindByID(id int64) (*refractor.User, error) {
-	panic("implement me")
+	query := "SELECT * FROM Users WHERE UserID = ?;"
+
+	row := r.db.QueryRow(query, id)
+
+	foundUser := &refractor.User{}
+	if err := r.scanRow(row, foundUser); err != nil {
+		return nil, wrapError(err)
+	}
+
+	return foundUser, nil
 }
 
 func (r *userRepo) Exists(args refractor.FindArgs) (bool, error) {
