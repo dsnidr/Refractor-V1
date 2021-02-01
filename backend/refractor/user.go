@@ -1,6 +1,9 @@
 package refractor
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/sniddunc/refractor/internal/params"
+)
 
 type User struct {
 	UserID              int64  `json:"id"`
@@ -25,6 +28,7 @@ type UserRepository interface {
 
 type UserService interface {
 	GetUserInfo(id int64) (*User, *ServiceResponse)
+	CreateUser(body params.CreateUserParams) (*User, *ServiceResponse)
 }
 
 type UserHandler interface {
