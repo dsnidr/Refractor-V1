@@ -3,7 +3,6 @@ package refractor
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/sniddunc/refractor/internal/params"
-	"github.com/sniddunc/refractor/pkg/jwt"
 )
 
 type AuthHandler interface {
@@ -13,6 +12,6 @@ type AuthHandler interface {
 }
 
 type AuthService interface {
-	LogInUser(body params.LoginParams) (*jwt.TokenPair, *ServiceResponse)
+	LogInUser(body params.LoginParams) (*TokenPair, *ServiceResponse)
 	RefreshUser(refreshToken string) *ServiceResponse
 }

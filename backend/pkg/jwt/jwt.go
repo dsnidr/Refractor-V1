@@ -20,10 +20,9 @@ type RefreshClaims struct {
 	jwt.StandardClaims
 }
 
-// TokenPair represents a pair of JWTs
 type TokenPair struct {
-	AuthToken    string `json:"authToken"`
-	RefreshToken string `json:"refreshToken"`
+	AuthToken    string
+	RefreshToken string
 }
 
 // GenerateAuthTokens generates an authorization and a refresh token
