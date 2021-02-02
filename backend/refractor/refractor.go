@@ -22,6 +22,24 @@ type ServiceResponse struct {
 	ValidationErrors url.Values
 }
 
+// Helper equals function for comparing ServiceResponses during testing.
+// It compares the following fields: Success, StatusCode and Message.
+func (sr *ServiceResponse) Equals(res *ServiceResponse) bool {
+	if sr.Success != res.Success {
+		return false
+	}
+
+	if sr.StatusCode != res.StatusCode {
+		return false
+	}
+
+	if sr.Message != res.Message {
+		return false
+	}
+
+	return true
+}
+
 var (
 	// ErrNotFound is used when a record could not be found in storage
 	ErrNotFound = errors.New("record not found")
