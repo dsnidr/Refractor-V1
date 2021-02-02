@@ -8,10 +8,12 @@ import (
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/user"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/env"
 	logger "github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
 	"log"
+	"math"
 	"os"
 )
 
@@ -94,12 +96,24 @@ func setupInitialUser(userService refractor.UserService) error {
 	}
 
 	// Create user
-	_, res := userService.CreateUser(body)
+	newUser, res := userService.CreateUser(body)
 	if !res.Success {
 		return fmt.Errorf("could not create initial user: %s", res.Message)
 	}
 
-	// TODO: Update user to make them a super-admin
+	// Make user a superadmin
+	_, res = userService.SetUserAccessLevel(params.SetUserAccessLevelParams{
+		UserID:      newUser.UserID,
+		AccessLevel: config.AL_SUPERADMIN,
+		UserMeta: &params.UserMeta{
+			UserID:      0,
+			AccessLevel: math.MaxInt32,
+		},
+	})
+
+	if !res.Success {
+		return fmt.Errorf("could not set new user to be a superadmin: %s", res.Message)
+	}
 
 	return nil
 }
