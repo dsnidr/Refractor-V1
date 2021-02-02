@@ -101,7 +101,7 @@ func setupInitialUser(userService refractor.UserService) error {
 		return fmt.Errorf("could not create initial user: %s", res.Message)
 	}
 
-	// Make user a superadmin
+	// Make user a super-admin
 	_, res = userService.SetUserAccessLevel(params.SetUserAccessLevelParams{
 		UserID:      newUser.UserID,
 		AccessLevel: config.AL_SUPERADMIN,
