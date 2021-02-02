@@ -43,8 +43,6 @@ func (r *mockUserRepo) Create(user *refractor.User) error {
 		User:             user,
 	}
 
-	r.users[user.UserID].Password = HashPassword(user.Password)
-
 	return nil
 }
 
