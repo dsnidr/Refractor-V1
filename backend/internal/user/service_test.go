@@ -9,30 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"reflect"
 	"testing"
 )
-
-func TestNewUserService(t *testing.T) {
-	type args struct {
-		userRepo refractor.UserRepository
-		logger   log.Logger
-	}
-	tests := []struct {
-		name string
-		args args
-		want refractor.UserService
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewUserService(tt.args.userRepo, tt.args.logger); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewUserService() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func Test_userService_CreateUser(t *testing.T) {
 	type fields struct {
@@ -85,7 +63,10 @@ func Test_userService_CreateUser(t *testing.T) {
 
 			newUser, res := userService.CreateUser(tt.args.body)
 
-			assert.ObjectsAreEqual(newUser, tt.wantUser)
+			assert.Equal(t, tt.wantUser.UserID, newUser.UserID, "UserIDs are not equal")
+			assert.Equal(t, tt.wantUser.Email, newUser.Email, "Emails are not equal")
+			assert.Equal(t, tt.wantUser.Username, newUser.Username, "Usernames are not equal")
+			assert.Equal(t, tt.wantUser.AccessLevel, newUser.AccessLevel, "AccessLevels are not equal")
 			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
 
 			assert.NoError(t, bcrypt.CompareHashAndPassword([]byte(newUser.Password), []byte(tt.args.body.Password)),
@@ -151,6 +132,76 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 				Message:    "Access level set. Any new access rights will come into effect next time the user logs in",
 			},
 		},
+		{
+			name: "userservice.setaccesslevel.2",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "password",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            "",
+							AccessLevel:         0,
+							Activated:           true,
+							NeedsPasswordChange: true,
+						},
+					},
+				},
+			},
+			args: args{
+				body: params.SetUserAccessLevelParams{
+					UserID:      1,
+					AccessLevel: config.AL_ADMIN,
+					UserMeta: &params.UserMeta{
+						UserID:      2,
+						AccessLevel: config.AL_USER,
+					},
+				},
+			},
+			wantUser: nil,
+			wantRes: &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    "You do not have permission to set the access level of this user",
+			},
+		},
+		{
+			name: "userservice.setaccesslevel.3",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "password",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            "",
+							AccessLevel:         0,
+							Activated:           true,
+							NeedsPasswordChange: true,
+						},
+					},
+				},
+			},
+			args: args{
+				body: params.SetUserAccessLevelParams{
+					UserID:      1,
+					AccessLevel: config.AL_SUPERADMIN,
+					UserMeta: &params.UserMeta{
+						UserID:      2,
+						AccessLevel: config.AL_ADMIN,
+					},
+				},
+			},
+			wantUser: nil,
+			wantRes: &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    "You do not have permission to set the access level of this user",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -160,7 +211,66 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 
 			newUser, res := userService.SetUserAccessLevel(tt.args.body)
 
-			assert.ObjectsAreEqual(newUser, tt.wantUser)
+			assert.Equal(t, tt.wantUser, newUser, "Structs are not equal")
+			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
+		})
+	}
+}
+
+func Test_userService_GetUserInfo(t *testing.T) {
+	type fields struct {
+		mockUsers map[int64]*mock.MockUser
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		userID   int64
+		wantInfo *refractor.UserInfo
+		wantRes  *refractor.ServiceResponse
+	}{
+		{
+			name: "userservice.create.1",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            "password",
+							AccessLevel:         config.AL_ADMIN,
+							Activated:           true,
+							NeedsPasswordChange: true,
+						},
+					},
+				},
+			},
+			userID: 1,
+			wantInfo: &refractor.UserInfo{
+				ID:                  1,
+				Email:               "test@test.com",
+				Username:            "testuser.1",
+				Activated:           true,
+				AccessLevel:         config.AL_ADMIN,
+				NeedsPasswordChange: true,
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "User info retrieved",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockUserRepo := mock.NewMockUserRepository(tt.fields.mockUsers)
+			mockLogger, _ := log.NewLogger(true, false)
+			userService := NewUserService(mockUserRepo, mockLogger)
+
+			userInfo, res := userService.GetUserInfo(tt.userID)
+
+			assert.Equal(t, tt.wantInfo, userInfo, "Structs are not equal")
 			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
 		})
 	}

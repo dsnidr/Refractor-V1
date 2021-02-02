@@ -27,8 +27,8 @@ type UserRepository interface {
 }
 
 type UserService interface {
-	GetUserInfo(id int64) (*User, *ServiceResponse)
 	CreateUser(body params.CreateUserParams) (*User, *ServiceResponse)
+	GetUserInfo(id int64) (*UserInfo, *ServiceResponse)
 	SetUserAccessLevel(body params.SetUserAccessLevelParams) (*User, *ServiceResponse)
 }
 

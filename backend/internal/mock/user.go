@@ -28,7 +28,8 @@ func GetMockUsers() map[int64]*MockUser {
 }
 
 type mockUserRepo struct {
-	users map[int64]*MockUser
+	users  map[int64]*MockUser
+	nextID int64
 }
 
 func NewMockUserRepository(mockUsers map[int64]*MockUser) refractor.UserRepository {
@@ -38,10 +39,13 @@ func NewMockUserRepository(mockUsers map[int64]*MockUser) refractor.UserReposito
 }
 
 func (r *mockUserRepo) Create(user *refractor.User) error {
-	r.users[user.UserID] = &MockUser{
+	id := int64(len(r.users) + 1)
+	r.users[id] = &MockUser{
 		UnhashedPassword: user.Password,
 		User:             user,
 	}
+
+	user.UserID = id
 
 	return nil
 }
