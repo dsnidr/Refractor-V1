@@ -90,13 +90,42 @@ func (s *userService) CreateUser(body params.CreateUserParams) (*refractor.User,
 	}
 }
 
-func (s *userService) GetUserInfo(id int64) (*refractor.User, *refractor.ServiceResponse) {
-	panic("implement me")
+func (s *userService) GetUserInfo(id int64) (*refractor.UserInfo, *refractor.ServiceResponse) {
+	foundUser, err := s.repo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not retrieve user by ID: %d. Error: %v", id, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	userInfo := &refractor.UserInfo{
+		ID:                  foundUser.UserID,
+		Email:               foundUser.Email,
+		Username:            foundUser.Username,
+		Activated:           foundUser.Activated,
+		AccessLevel:         foundUser.AccessLevel,
+		NeedsPasswordChange: foundUser.NeedsPasswordChange,
+	}
+
+	return userInfo, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "User info retrieved",
+	}
 }
 
+// SetUserAccessLevel sets a user's access level. The user kicking off this interaction must be at least an admin, and
+// must have a higher access level than the user whose access level they're updating.
 func (s *userService) SetUserAccessLevel(body params.SetUserAccessLevelParams) (*refractor.User, *refractor.ServiceResponse) {
 	// Make sure the setter user is an admin or higher
-	if body.UserMeta.AccessLevel < config.AL_ADMIN {
+	if body.UserMeta.AccessLevel < config.AL_ADMIN || body.AccessLevel >= body.UserMeta.AccessLevel {
 		s.log.Warn("Non-admin user with ID: %d and Access Level: %d tried to set the access level of user ID: %d to: %d",
 			body.UserMeta.UserID, body.UserMeta.AccessLevel, body.UserID, body.AccessLevel)
 
