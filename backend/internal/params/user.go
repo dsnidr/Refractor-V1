@@ -7,6 +7,14 @@ import (
 	"net/url"
 )
 
+// UserMeta is a struct intended to be attached to other param structs. Its purpose is to provide user metadata
+// on the user who is sending a request.
+type UserMeta struct {
+	UserID      int64
+	AccessLevel int
+}
+
+// CreateUserParams holds the data we expect when creating a new user.
 type CreateUserParams struct {
 	Email           string `json:"email" form:"email"`
 	Username        string `json:"username" form:"username"`
@@ -34,6 +42,30 @@ func (body *CreateUserParams) Validate() (bool, url.Values) {
 
 	if body.Password != body.PasswordConfirm {
 		errors.Set("passwordConfirm", "Passwords don't match")
+	}
+
+	return len(errors) == 0, errors
+}
+
+// SetUserAccessLevelParams holds the data we expect when setting a user's access level to a new value.
+type SetUserAccessLevelParams struct {
+	UserID      int64 `json:"id" form:"id"`
+	AccessLevel int   `json:"accessLevel" form:"accessLevel"`
+	*UserMeta
+}
+
+// Validate validates the data inside the attached struct
+func (body *SetUserAccessLevelParams) Validate() (bool, url.Values) {
+	errors := url.Values{}
+
+	if body.UserID < 1 {
+		errors.Set("id", "Invalid user ID provided")
+	}
+
+	if body.AccessLevel < config.AL_USER {
+		errors.Set("accessLevel", "Invalid access level provided")
+	} else if body.AccessLevel > config.AL_ADMIN {
+		errors.Set("accessLevel", fmt.Sprintf("Maximum value of access level is %d", config.AL_ADMIN))
 	}
 
 	return len(errors) == 0, errors
