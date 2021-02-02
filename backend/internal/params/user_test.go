@@ -1,6 +1,7 @@
 package params
 
 import (
+	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 
@@ -102,6 +103,45 @@ func TestCreateUserParams_Validate(t *testing.T) {
 			if got != tt.want {
 				t.Errorf("CreateUserParams.Validate() got = %v, want %v, errors %v", got, tt.want, errors)
 			}
+		})
+	}
+}
+
+func TestSetUserAccessLevelParams_Validate(t *testing.T) {
+	type fields struct {
+		UserID       int64
+		AccessLevel  int
+		SetterUserID int64
+		UserMeta     *UserMeta
+	}
+	tests := []struct {
+		name      string
+		fields    fields
+		wantValid bool
+	}{
+		{
+			name: "params.user.setaccesslevel.1",
+			fields: fields{
+				UserID:      1,
+				AccessLevel: config.AL_USER,
+				UserMeta: &UserMeta{
+					UserID:      2,
+					AccessLevel: config.AL_ADMIN,
+				},
+			},
+			wantValid: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body := &SetUserAccessLevelParams{
+				UserID:      tt.fields.UserID,
+				AccessLevel: tt.fields.AccessLevel,
+				UserMeta:    tt.fields.UserMeta,
+			}
+			valid, _ := body.Validate()
+
+			assert.Equal(t, valid, tt.wantValid, "valid = %v and tt.wantValid = %v should be equal", valid, tt.wantValid)
 		})
 	}
 }
