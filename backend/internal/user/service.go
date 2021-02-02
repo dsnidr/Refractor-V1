@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
 	"golang.org/x/crypto/bcrypt"
@@ -91,4 +92,61 @@ func (s *userService) CreateUser(body params.CreateUserParams) (*refractor.User,
 
 func (s *userService) GetUserInfo(id int64) (*refractor.User, *refractor.ServiceResponse) {
 	panic("implement me")
+}
+
+func (s *userService) SetUserAccessLevel(body params.SetUserAccessLevelParams) (*refractor.User, *refractor.ServiceResponse) {
+	// Make sure the setter user is an admin or higher
+	if body.UserMeta.AccessLevel < config.AL_ADMIN {
+		s.log.Warn("Non-admin user with ID: %d and Access Level: %d tried to set the access level of user ID: %d to: %d",
+			body.UserMeta.UserID, body.UserMeta.AccessLevel, body.UserID, body.AccessLevel)
+
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    "You do not have permission to set the access level of this user",
+		}
+	}
+
+	// Find the target user in storage
+	foundUser, err := s.repo.FindByID(body.UserID)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not get user by ID from repo. UserID: %d Error: %v", body.UserID, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	// Ensure that the updating user has a higher access level than the original user
+	if body.UserMeta.AccessLevel <= foundUser.AccessLevel {
+		s.log.Warn("User with ID: %d tried to set the access level of user ID: %d without having a higher access level",
+			body.UserMeta.UserID, body.UserID)
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    "You do not have permission to set the access level of this user",
+		}
+	}
+
+	// Update the access level of the target user
+	args := refractor.UpdateArgs{
+		"AccessLevel": body.AccessLevel,
+	}
+
+	updatedUser, err := s.repo.Update(body.UserID, args)
+	if err != nil {
+		s.log.Error("Could not set the new access level of %d for user with ID: %d. Error: %v", body.AccessLevel, body.UserID, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return updatedUser, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Access level set. Any new access rights will come into effect next time the user logs in",
+	}
 }
