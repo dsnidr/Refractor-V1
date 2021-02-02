@@ -1,7 +1,7 @@
 package params
 
 import (
-	"backend/pkg/config"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"

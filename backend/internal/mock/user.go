@@ -18,7 +18,7 @@ func GetMockUsers() map[int64]*MockUser {
 				UserID:              1,
 				Email:               "test@test.com",
 				Username:            "tester",
-				Password:            hashPassword("password"),
+				Password:            HashPassword("password"),
 				AccessLevel:         0,
 				Activated:           false,
 				NeedsPasswordChange: false,
@@ -43,7 +43,7 @@ func (r *mockUserRepo) Create(user *refractor.User) error {
 		User:             user,
 	}
 
-	r.users[user.UserID].Password = hashPassword(user.Password)
+	r.users[user.UserID].Password = HashPassword(user.Password)
 
 	return nil
 }
@@ -171,7 +171,7 @@ func (r *mockUserRepo) GetCount() int {
 	return len(r.users)
 }
 
-func hashPassword(password string) string {
+func HashPassword(password string) string {
 	hashAndSalt, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hashAndSalt)
 }

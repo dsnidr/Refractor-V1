@@ -129,7 +129,7 @@ func TestSetUserAccessLevelParams_Validate(t *testing.T) {
 					AccessLevel: config.AL_ADMIN,
 				},
 			},
-			wantValid: false,
+			wantValid: true,
 		},
 	}
 	for _, tt := range tests {
@@ -139,9 +139,9 @@ func TestSetUserAccessLevelParams_Validate(t *testing.T) {
 				AccessLevel: tt.fields.AccessLevel,
 				UserMeta:    tt.fields.UserMeta,
 			}
-			valid, _ := body.Validate()
+			valid, errors := body.Validate()
 
-			assert.Equal(t, valid, tt.wantValid, "valid = %v and tt.wantValid = %v should be equal", valid, tt.wantValid)
+			assert.Equal(t, valid, tt.wantValid, "valid = %v and tt.wantValid = %v should be equal.\nErrors: %v", valid, tt.wantValid, errors)
 		})
 	}
 }
