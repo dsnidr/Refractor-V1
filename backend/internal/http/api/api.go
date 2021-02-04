@@ -41,6 +41,8 @@ func NewAPI(handlers *Handlers, port string, logger log.Logger) *API {
 		Handlers: handlers,
 	}
 
+	api.setupRoutes()
+
 	return api
 }
 

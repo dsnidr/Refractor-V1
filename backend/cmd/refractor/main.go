@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/sniddunc/refractor/internal/auth"
 	"github.com/sniddunc/refractor/internal/http/api"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
@@ -30,6 +31,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	secureMode := os.Getenv("SECURE") == "true"
+
 	// Get port if defined
 	var port string = ":5000"
 	if portVal := os.Getenv("PORT"); portVal != "" {
@@ -51,6 +54,10 @@ func main() {
 	// Set up application components
 	userRepo := mysql.NewUserRepository(db)
 	userService := user.NewUserService(userRepo, loggerInst)
+	userHandler := api.NewUserHandler(userService)
+
+	authService := auth.NewAuthService(userRepo, loggerInst, os.Getenv("JWT_SECRET"))
+	authHandler := api.NewAuthHandler(authService, secureMode)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
@@ -63,8 +70,8 @@ func main() {
 
 	// API Setup
 	apiHandlers := &api.Handlers{
-		AuthHandler: nil,
-		UserHandler: nil,
+		AuthHandler: authHandler,
+		UserHandler: userHandler,
 	}
 
 	// Done. Begin serving.
