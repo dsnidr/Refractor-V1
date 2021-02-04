@@ -13,5 +13,5 @@ type AuthHandler interface {
 
 type AuthService interface {
 	LogInUser(body params.LoginParams) (*TokenPair, *ServiceResponse)
-	RefreshUser(refreshToken string) *ServiceResponse
+	RefreshUser(refreshToken string) (*TokenPair, *ServiceResponse)
 }
