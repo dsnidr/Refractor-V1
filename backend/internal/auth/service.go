@@ -90,8 +90,66 @@ func (s *authService) LogInUser(body params.LoginParams) (*refractor.TokenPair, 
 		}
 }
 
-func (s *authService) RefreshUser(refreshToken string) *refractor.ServiceResponse {
-	panic("not implemented")
+func (s *authService) RefreshUser(refreshToken string) (*refractor.TokenPair, *refractor.ServiceResponse) {
+	// Read refresh token from cookie
+	if refreshToken == "" {
+		return nil, &refractor.ServiceResponse{
+			Success:    true,
+			StatusCode: http.StatusBadRequest,
+			Message:    config.MessageUnableRefreshCreds,
+		}
+	}
+
+	// Parse token within cookie
+	claims, err := jwt.ExtractRefreshClaims(refreshToken, s.jwtSecret)
+	if err != nil {
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    config.MessageUnableRefreshCreds,
+		}
+	}
+
+	// Retrieve claimed user to make sure they exist and that their account is still activated
+	user, err := s.repo.FindByID(claims.UserID)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageUnableRefreshCreds,
+			}
+		}
+
+		s.log.Error("Could not find user by ID: %d. Error: %v", claims.UserID, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	if !user.Activated {
+		s.log.Info("Failed refresh attempt on deactivated user account: %s (%d)", user.Username, user.UserID)
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    config.MessageUnableRefreshCreds,
+		}
+	}
+
+	tokenPair, err := getAuthRefreshTokenPair(user, s.jwtSecret)
+	if err != nil {
+		s.log.Error("Could not generate token pair. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	s.log.Info("New auth and refresh tokens have been generated for user %s (%d)", user.Username, user.UserID)
+
+	// Send back response and token pair
+	return &refractor.TokenPair{
+			AuthToken:    tokenPair.AuthToken,
+			RefreshToken: tokenPair.RefreshToken,
+		}, &refractor.ServiceResponse{
+			Success:    true,
+			StatusCode: http.StatusOK,
+		}
 }
 
 func getAuthRefreshTokenPair(user *refractor.User, jwtSecret string) (*jwt.TokenPair, error) {
