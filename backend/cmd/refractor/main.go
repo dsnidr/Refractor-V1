@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/sniddunc/refractor/internal/http/api"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/user"
@@ -27,6 +28,12 @@ func main() {
 		RequireEnv("DB_URI").
 		GetError(); err != nil {
 		log.Fatal(err)
+	}
+
+	// Get port if defined
+	var port string = ":5000"
+	if portVal := os.Getenv("PORT"); portVal != "" {
+		port = fmt.Sprintf(":%s", portVal)
 	}
 
 	// Setup loggerInst
@@ -54,8 +61,19 @@ func main() {
 		loggerInst.Info("Initial user created from environment variables")
 	}
 
+	// API Setup
+	apiHandlers := &api.Handlers{
+		AuthHandler: nil,
+		UserHandler: nil,
+	}
+
 	// Done. Begin serving.
 	loggerInst.Info("Refractor startup complete!")
+
+	API := api.NewAPI(apiHandlers, port, loggerInst)
+	if err := API.ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func setupDatabase(connString string) (*sql.DB, error) {
