@@ -162,6 +162,25 @@ func Test_authHandler_RefreshUser(t *testing.T) {
 			},
 			wantSuccess: true,
 		},
+		{
+			name: "http.api.auth.refreshuser.2",
+			fields: fields{
+				user: &mock.MockUser{
+					UnhashedPassword: "password",
+					User: &refractor.User{
+						UserID:              1,
+						Email:               "test@test.com",
+						Username:            "testuser.1",
+						Password:            mock.HashPassword("password"),
+						AccessLevel:         config.AL_USER,
+						Activated:           false,
+						NeedsPasswordChange: false,
+					},
+				},
+				secure: false,
+			},
+			wantSuccess: false,
+		},
 	}
 	for _, tt := range tests {
 		mockUserRepo := mock.NewMockUserRepository(map[int64]*mock.MockUser{
@@ -206,31 +225,33 @@ func Test_authHandler_RefreshUser(t *testing.T) {
 				t.Fatalf("response.Success was the wrong value. Want = %v Got = %v", tt.wantSuccess, response.Success)
 			}
 
-			// Extract cookie set by the RefreshUser handler
-			cookies := rec.Result().Cookies()
-			var newRefreshToken string
+			if tt.wantSuccess {
+				// Extract cookie set by the RefreshUser handler
+				cookies := rec.Result().Cookies()
+				var newRefreshToken string
 
-			for _, cookie := range cookies {
-				if cookie.Name != "refresh_token" {
-					continue
+				for _, cookie := range cookies {
+					if cookie.Name != "refresh_token" {
+						continue
+					}
+
+					newRefreshToken = cookie.Value
 				}
 
-				newRefreshToken = cookie.Value
-			}
+				if newRefreshToken == "" {
+					assert.Failf(t, "No refresh_token cookie was set for test %s", tt.name)
+				}
 
-			if newRefreshToken == "" {
-				assert.Failf(t, "No refresh_token cookie was set for test %s", tt.name)
-			}
+				// Extract claims from the new refresh token cookie
+				newRefreshClaims, err := jwt.ExtractRefreshClaims(newRefreshToken, testJWTSecret)
+				if err != nil || newRefreshClaims == nil {
+					assert.Failf(t, "Could not extract claims from new refresh_token cookie for test %s", tt.name)
+				}
 
-			// Extract claims from the new refresh token cookie
-			newRefreshClaims, err := jwt.ExtractRefreshClaims(newRefreshToken, testJWTSecret)
-			if err != nil || newRefreshClaims == nil {
-				assert.Failf(t, "Could not extract claims from new refresh_token cookie for test %s", tt.name)
-			}
-
-			// Compare new refresh claims to user info
-			if newRefreshClaims.UserID != tt.fields.user.UserID {
-				assert.Failf(t, "New refresh token claims UserID do not match UserID provided for test %s. Want = %v Got = %v", tt.name, tt.fields.user.UserID, newRefreshClaims.UserID)
+				// Compare new refresh claims to user info
+				if newRefreshClaims != nil && newRefreshClaims.UserID != tt.fields.user.UserID {
+					assert.Failf(t, "New refresh token claims UserID do not match UserID provided for test %s. Want = %v Got = %v", tt.name, tt.fields.user.UserID, newRefreshClaims.UserID)
+				}
 			}
 		})
 	}
