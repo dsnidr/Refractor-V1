@@ -9,6 +9,11 @@ import { getUserInfo } from './api/authApi';
 import { setUser } from './redux/user/userActions';
 import styled from 'styled-components';
 import themes from './themes';
+import UnprotectedRoute from './components/UnprotectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
+
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 
 // Load previously selected theme
 let theme = localStorage.getItem('theme');
@@ -41,7 +46,14 @@ class App extends Component {
 			<AppContainer>
 				<ThemeProvider theme={themes[this.props.theme]}>
 					<Router history={history}>
-						<Switch></Switch>
+						<Switch>
+							<UnprotectedRoute
+								exact
+								path={'/login'}
+								component={Login}
+							/>
+							<ProtectedRoute path={'/'} component={Dashboard} />
+						</Switch>
 					</Router>
 				</ThemeProvider>
 			</AppContainer>
