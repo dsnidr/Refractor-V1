@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Spinner from './components/Spinner';
 
 // Load previously selected theme
 let theme = localStorage.getItem('theme');
@@ -45,6 +46,7 @@ class App extends Component {
 		return (
 			<AppContainer>
 				<ThemeProvider theme={themes[this.props.theme]}>
+					{this.props.isLoading ? <Spinner /> : null}
 					<Router history={history}>
 						<Switch>
 							<UnprotectedRoute
@@ -62,6 +64,7 @@ class App extends Component {
 }
 
 const mapStateToProps = (state) => ({
+	isLoading: state.loading,
 	user: state.user.self,
 	theme: state.theme,
 });

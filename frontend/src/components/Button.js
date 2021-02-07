@@ -2,10 +2,6 @@ import React from 'react';
 import styled, { css, ThemeProvider, withTheme } from 'styled-components';
 import { lighten, darken } from 'polished';
 
-const buildStyledButton = (size, theme) => {
-	return;
-};
-
 const StyledButton = styled.button`
 	${(props) => css`
 		width: 100%;
@@ -18,10 +14,12 @@ const StyledButton = styled.button`
 		border: 1px solid ${props.theme.borderColor};
 		border-radius: ${props.theme.borderRadiusNormal};
 		font-size: 1.6rem;
+
 		:hover {
 			background-color: ${props.theme.hover.backgroundColor};
 			cursor: pointer;
 		}
+
 		:disabled {
 			background-color: ${props.theme.colorDisabled};
 			color: ${props.theme.colorTextDisabled};
@@ -87,7 +85,7 @@ const themes = {
 const Button = (props) => {
 	const theme = props.color ? themes[props.color] : themes.primary;
 
-	let Component = StyledButton;
+	let Component;
 
 	switch (props.size) {
 		case 'small':
@@ -103,7 +101,11 @@ const Button = (props) => {
 
 	return (
 		<ThemeProvider theme={theme(props.theme)}>
-			<Component onClick={props.onClick} disabled={props.disabled}>
+			<Component
+				onClick={props.onClick}
+				disabled={props.disabled}
+				type={props.type ? props.type : 'button'}
+			>
 				{props.children}
 			</Component>
 		</ThemeProvider>

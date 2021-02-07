@@ -3,6 +3,15 @@ import { connect } from 'react-redux';
 import respondTo from '../mixins/respondTo';
 import styled, { css } from 'styled-components';
 import Wrapper from '../components/Wrapper';
+import { Field, Form, Formik } from 'formik';
+import * as Yup from 'yup';
+import TextInput from '../components/TextInput';
+import Alert from '../components/Alert';
+import { ReactComponent as Avatar } from '../assets/avatar.svg';
+import { ReactComponent as Padlock } from '../assets/padlock.svg';
+import Button from '../components/Button';
+import { logIn } from '../redux/user/userActions';
+import { setLoading } from '../redux/loading/loadingActions';
 
 const FormWrapper = styled.form`
 	${(props) => css`
@@ -40,13 +49,117 @@ const HeadingBox = styled.div`
 	`}
 `;
 
+const initialValues = {
+	username: '',
+	password: '',
+};
+
 class Login extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.authError) {
+			nextProps.setLoading(false);
+
+			return {
+				...prevState,
+				serverError: nextProps.authError,
+			};
+		}
+
+		return prevState;
+	}
+
+	submitForm = (values, actions) => {
+		this.props.setLoading(true);
+
+		// Try to log in if no input level errors occurred
+		this.props.logIn({
+			...values,
+		});
+
+		// Make the user wait a second before retrying. This gives them the chance to read error
+		// messages rather than simply spamming the log in button, as we know they will...
+		setTimeout(() => {
+			actions.setSubmitting(false);
+		}, 750);
+	};
+
 	render() {
 		return (
 			<Wrapper>
-				<FormWrapper>
-					<HeadingBox>LOG IN</HeadingBox>
-				</FormWrapper>
+				<Formik
+					initialValues={initialValues}
+					validationSchema={Yup.object({
+						username: Yup.string().required(
+							'Please enter your username'
+						),
+						password: Yup.string()
+							.required('Please enter your password')
+							.min(8, 'This password is too short')
+							.max(80, 'This password is too long'),
+					})}
+					onSubmit={(values, actions) =>
+						this.submitForm(values, actions)
+					}
+				>
+					{({
+						values,
+						errors,
+						isSubmitting,
+						handleReset,
+						handleSubmit,
+					}) => {
+						return (
+							<FormWrapper
+								onReset={handleReset}
+								onSubmit={handleSubmit}
+							>
+								<HeadingBox>LOG IN</HeadingBox>
+								<Alert
+									type="error"
+									message={this.state.serverError}
+								/>
+
+								<Field name="username">
+									{({ field }) => (
+										<TextInput
+											{...field}
+											type="text"
+											icon={<Avatar />}
+											placeholder="Username"
+											error={errors.username}
+										/>
+									)}
+								</Field>
+
+								<Field name="password">
+									{({ field }) => (
+										<TextInput
+											{...field}
+											type="password"
+											icon={<Padlock />}
+											placeholder="Password"
+											error={errors.password}
+										/>
+									)}
+								</Field>
+
+								<Button
+									color="primary"
+									disabled={isSubmitting}
+									type={'submit'}
+								>
+									LOG IN
+								</Button>
+							</FormWrapper>
+						);
+					}}
+				</Formik>
 			</Wrapper>
 		);
 	}
@@ -54,6 +167,9 @@ class Login extends Component {
 
 const mapStateToProps = (state) => ({});
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	logIn: (credentials) => dispatch(logIn(credentials)),
+	setLoading: (isLoading) => dispatch(setLoading(isLoading)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
