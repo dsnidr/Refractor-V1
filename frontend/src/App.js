@@ -5,8 +5,7 @@ import { store, history } from './redux/store';
 import { Router, Switch } from 'react-router';
 import { setTheme } from './redux/theme/themeActions';
 import { css, ThemeProvider } from 'styled-components';
-import { getUserInfo } from './api/authApi';
-import { setUser } from './redux/user/userActions';
+import { getUserInfo, setUser } from './redux/user/userActions';
 import styled from 'styled-components';
 import themes from './themes';
 import UnprotectedRoute from './components/UnprotectedRoute';
@@ -15,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Spinner from './components/Spinner';
+import { decodeToken, destroyToken, getToken } from './utils/tokenUtils';
 
 // Load previously selected theme
 let theme = localStorage.getItem('theme');
@@ -40,6 +40,43 @@ class App extends Component {
 		this.state = {
 			tokenChecked: false,
 		};
+	}
+
+	componentDidMount() {
+		const token = getToken();
+
+		if (token) {
+			// Try to decode token
+			const decoded = decodeToken(token);
+
+			// If token is invalid, destroy it and mark the user as not authenticated and return
+			if (!decoded) {
+				destroyToken();
+				this.props.setUser({ isAuthenticated: false });
+				return;
+			}
+
+			// If token could be decoded, try to get user info.
+			//
+			// If the token is expired, this will kick off our token refresh logic
+			// and if it's still current, it will fetch the user info.
+			//
+			// If the refresh logic fails, the user will be marked as not authenticated by the redux saga.
+			this.props.getUserInfo();
+		} else {
+			// If no token is present, mark the user as not authenticated
+			this.props.setUser({ isAuthenticated: false });
+		}
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		const nextState = prevState;
+
+		if (nextProps.user !== null) {
+			nextState.tokenChecked = true;
+		}
+
+		return nextState;
 	}
 
 	render() {

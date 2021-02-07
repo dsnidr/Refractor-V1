@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/sniddunc/refractor/pkg/jwt"
 	"github.com/sniddunc/refractor/refractor"
 )
 
@@ -16,5 +17,12 @@ func NewUserHandler(userService refractor.UserService) refractor.UserHandler {
 }
 
 func (h *userHandler) GetOwnUserInfo(c echo.Context) error {
-	panic("implement me")
+	claims := c.Get("claims").(*jwt.Claims)
+
+	userInfo, res := h.service.GetUserInfo(claims.UserID)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Payload: userInfo,
+	})
 }
