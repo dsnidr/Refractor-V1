@@ -9,6 +9,13 @@ export default {
 	colorBackgroundDark: '#00A8E8',
 	colorBackgroundAlt: '#202a2e',
 
+	// Text colors
+	colorTextPrimary: '#00A8E8',
+
+	// Border colors
+	colorBorderPrimary: '#e6e6e6',
+	colorBorderSecondary: '#ffffff',
+
 	// Border radius
 	borderRadiusNormal: '3px',
 
