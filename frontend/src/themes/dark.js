@@ -17,6 +17,13 @@ export default {
 
 	// Text colors
 	colorTextPrimary: '#00A8E8',
+	colorTextSecondary: '#e3f7ff',
+	colorTextLight: '#00A8E8',
+	colorTextDanger: '#f7f7f7',
+	colorTextAlert: '#3B3002',
+	colorTextWarning: '#F7DEEE',
+	colorTextSuccess: '#00171F',
+	colorTextDisabled: '#2e3233',
 
 	// Border colors
 	colorBorderPrimary: '#00A8E8',
