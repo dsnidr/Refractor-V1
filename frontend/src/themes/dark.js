@@ -3,6 +3,12 @@ export default {
 	colorPrimary: '#00A8E8',
 	colorPrimaryLight: '#00b9ff',
 	colorPrimaryDark: '#0074a1',
+	colorDanger: '#FF0035',
+	colorAlert: '#F7CB15',
+	colorWarning: '#00A8E8',
+	colorSuccess: '#1fa150',
+	colorAccent: '#00131a',
+	colorDisabled: '#a2b2b8',
 
 	// Background colors
 	colorBackground: '#00171F',
