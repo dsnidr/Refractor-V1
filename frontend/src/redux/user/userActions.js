@@ -15,3 +15,9 @@ export const getUserInfo = () => ({
 	type: GET_USER_INFO,
 	payload: null,
 });
+
+export const CHANGE_USER_PASSWORD = 'CHANGE_USER_PASSWORD';
+export const changePassword = (data) => ({
+	type: CHANGE_USER_PASSWORD,
+	payload: data,
+});
