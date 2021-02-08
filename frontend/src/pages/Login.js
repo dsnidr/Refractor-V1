@@ -12,6 +12,7 @@ import { ReactComponent as Padlock } from '../assets/padlock.svg';
 import Button from '../components/Button';
 import { logIn } from '../redux/user/userActions';
 import { setLoading } from '../redux/loading/loadingActions';
+import { Redirect } from 'react-router';
 
 const FormWrapper = styled.form`
 	${(props) => css`
@@ -101,6 +102,8 @@ class Login extends Component {
 	render() {
 		return (
 			<Wrapper>
+				{this.props.success && <Redirect to={'/'} />}
+
 				<Formik
 					initialValues={initialValues}
 					validationSchema={Yup.object({

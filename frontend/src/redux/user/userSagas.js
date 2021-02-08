@@ -4,6 +4,7 @@ import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { LOG_IN, setUser } from './userActions';
 import { GET_USER_INFO } from './constants';
 import { setErrors } from '../error/errorActions';
+import { setSuccess } from '../success/successActions';
 
 function* logInAsync(action) {
 	try {
@@ -11,6 +12,7 @@ function* logInAsync(action) {
 
 		yield setToken(data.payload);
 		yield getUserInfoAsync();
+		yield put(setSuccess('auth', 'Successfully logged in'));
 	} catch (err) {
 		yield put(setErrors('auth', err.response.data.message));
 	}
