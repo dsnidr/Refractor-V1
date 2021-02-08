@@ -15,9 +15,7 @@ const ProtectedRoute = ({
 		{...rest}
 		render={(props) => {
 			if (user !== null && user.isAuthenticated === true) {
-				console.log('User is authenticated');
 				if (user.needsPasswordChange && !bypassPasswordChange) {
-					console.log('User needs password change');
 					setError(
 						'You need to change your password before accessing the dashboard.'
 					);
@@ -32,14 +30,8 @@ const ProtectedRoute = ({
 					);
 				}
 
-				console.log(
-					'User is logged in and does not need a password change'
-				);
-
 				return <Component {...props} />;
 			}
-
-			console.log('User is not logged in');
 
 			return (
 				<Redirect

@@ -10,6 +10,7 @@ import { setLoading } from '../redux/loading/loadingActions';
 import Alert from '../components/Alert';
 import TextInput from '../components/TextInput';
 import Button from '../components/Button';
+import { changePassword } from '../redux/user/userActions';
 
 const FormWrapper = styled.form`
 	${(props) => css`
@@ -57,27 +58,40 @@ class ChangePassword extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {};
+		this.state = {
+			errors: {},
+			success: {},
+		};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.success) {
+			const {
+				history: { push },
+			} = nextProps;
+
+			setTimeout(() => push('/'), 1500);
+		}
+
+		return prevState;
 	}
 
 	submitForm = (values, actions) => {
 		this.props.setLoading(true);
 
 		// Try to change password if no input level errors occurred
-		// TODO: Route
-		console.log('Changing password');
+		this.props.changePassword(values);
 
 		// Make the user wait a second before retrying. This gives them the chance to read error
-		// messages rather than simply spamming the log in button, as we know they will...
+		// messages rather than simply spamming the reset button, as we know they will...
 		setTimeout(() => {
 			actions.setSubmitting(false);
-		}, 750);
+		}, 1500);
 	};
 
 	render() {
 		return (
 			<Wrapper>
-				{this.props.success && <Redirect to={'/'} />}
 				<Formik
 					initialValues={initialValues}
 					validationSchema={Yup.object({
@@ -109,7 +123,11 @@ class ChangePassword extends Component {
 							onSubmit={handleSubmit}
 						>
 							<HeadingBox>CHANGE PASSWORD</HeadingBox>
-							<Alert type={'error'} message={this.state.errors} />
+							<Alert type={'error'} message={this.props.errors} />
+							<Alert
+								type={'success'}
+								message={this.props.success}
+							/>
 
 							<Field name={'currentPassword'}>
 								{({ field }) => (
@@ -117,7 +135,12 @@ class ChangePassword extends Component {
 										{...field}
 										type={'password'}
 										placeholder={'Current password'}
-										error={errors.currentPassword}
+										error={
+											errors.currentPassword
+												? errors.currentPassword
+												: this.state.errors
+														.currentPassword
+										}
 									/>
 								)}
 							</Field>
@@ -155,10 +178,14 @@ class ChangePassword extends Component {
 	}
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+	success: state.success.changepassword,
+	errors: state.error.changepassword,
+});
 
 const mapDispatchToProps = (dispatch) => ({
 	setLoading: (isLoading) => dispatch(setLoading(isLoading)),
+	changePassword: (data) => dispatch(changePassword(data)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChangePassword);

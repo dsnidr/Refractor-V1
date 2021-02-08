@@ -26,10 +26,18 @@ const SuccessMessage = styled.div`
 `;
 
 const GeneralError = (props) => {
-	const { type, message } = props;
+	let { type, message } = props;
 
 	if (!message) {
 		return null;
+	}
+
+	if (typeof message === 'object') {
+		return null;
+	}
+
+	if (Array.isArray(message)) {
+		message = message[0];
 	}
 
 	switch (type) {
