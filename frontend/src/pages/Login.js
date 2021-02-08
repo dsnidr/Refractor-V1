@@ -62,12 +62,21 @@ class Login extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.authError) {
+		if (nextProps.errors) {
 			nextProps.setLoading(false);
 
 			return {
 				...prevState,
-				serverError: nextProps.authError,
+				errors: nextProps.errors,
+			};
+		}
+
+		if (nextProps.success) {
+			nextProps.setLoading(false);
+
+			return {
+				...prevState,
+				success: nextProps.success,
 			};
 		}
 
@@ -122,7 +131,7 @@ class Login extends Component {
 								<HeadingBox>LOG IN</HeadingBox>
 								<Alert
 									type="error"
-									message={this.state.serverError}
+									message={this.state.errors}
 								/>
 
 								<Field name="username">
@@ -165,7 +174,9 @@ class Login extends Component {
 	}
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+	errors: state.error.auth,
+});
 
 const mapDispatchToProps = (dispatch) => ({
 	logIn: (credentials) => dispatch(logIn(credentials)),
