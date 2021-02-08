@@ -6,6 +6,10 @@ import reportWebVitals from './reportWebVitals';
 import './index.scss';
 import { store } from './redux/store';
 import { Provider } from 'react-redux';
+import { setInterceptors } from './utils/tokenUtils';
+
+// Set axios interceptors
+setInterceptors(store);
 
 ReactDOM.render(
 	<React.StrictMode>
