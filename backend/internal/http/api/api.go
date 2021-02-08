@@ -71,6 +71,7 @@ func (api *API) setupRoutes() {
 	// User endpoints
 	userGroup := apiGroup.Group("/users", jwtMiddleware, AttachClaims())
 	userGroup.GET("/me", api.UserHandler.GetOwnUserInfo)
+	userGroup.POST("/changepassword", api.UserHandler.ChangeUserPassword)
 }
 
 func (api *API) ListenAndServe() error {

@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -272,6 +273,104 @@ func Test_userService_GetUserInfo(t *testing.T) {
 
 			assert.Equal(t, tt.wantInfo, userInfo, "Structs are not equal")
 			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
+		})
+	}
+}
+
+func Test_userService_ChangeUserPassword(t *testing.T) {
+	type fields struct {
+		mockUsers map[int64]*mock.MockUser
+	}
+	type args struct {
+		id   int64
+		body params.ChangeUserPassword
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantRes *refractor.ServiceResponse
+	}{
+		{
+			name: "userservice.changepassword.1",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "password",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            mock.HashPassword("password"),
+							AccessLevel:         config.AL_ADMIN,
+							Activated:           true,
+							NeedsPasswordChange: true,
+						},
+					},
+				},
+			},
+			args: args{
+				id: 1,
+				body: params.ChangeUserPassword{
+					CurrentPassword:    "password",
+					NewPassword:        "newpassword2",
+					NewPasswordConfirm: "newpassword",
+				},
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Password changed",
+			},
+		},
+		{
+			name: "userservice.changepassword.2",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "password",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            mock.HashPassword("password"),
+							AccessLevel:         config.AL_ADMIN,
+							Activated:           true,
+							NeedsPasswordChange: true,
+						},
+					},
+				},
+			},
+			args: args{
+				id: 1,
+				body: params.ChangeUserPassword{
+					CurrentPassword:    "password",
+					NewPassword:        "password",
+					NewPasswordConfirm: "password",
+				},
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				ValidationErrors: url.Values{
+					"newPassword": []string{"You can't re-use your current password"},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockUserRepo := mock.NewMockUserRepository(tt.fields.mockUsers)
+			mockLogger, _ := log.NewLogger(true, false)
+			userService := NewUserService(mockUserRepo, mockLogger)
+
+			updatedUser, res := userService.ChangeUserPassword(tt.args.id, tt.args.body)
+			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
+
+			if tt.wantRes.Success {
+				// Make sure password was changed
+				assert.NoError(t, bcrypt.CompareHashAndPassword([]byte(updatedUser.Password), []byte(tt.args.body.NewPassword)))
+			}
 		})
 	}
 }

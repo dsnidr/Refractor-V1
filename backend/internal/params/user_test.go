@@ -145,3 +145,92 @@ func TestSetUserAccessLevelParams_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestChangeUserPassword_Validate(t *testing.T) {
+	type fields struct {
+		CurrentPassword    string
+		NewPassword        string
+		NewPasswordConfirm string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name: "params.user.changepwd.1",
+			fields: fields{
+				CurrentPassword:    "currentPass (not tested)",
+				NewPassword:        "password",
+				NewPasswordConfirm: "password",
+			},
+			want: true,
+		},
+		{
+			name: "params.user.changepwd.2",
+			fields: fields{
+				CurrentPassword:    "currentPass (not tested)",
+				NewPassword:        strings.Repeat("p", config.PasswordMaxLen),
+				NewPasswordConfirm: strings.Repeat("p", config.PasswordMaxLen),
+			},
+			want: true,
+		},
+		{
+			name: "params.user.changepwd.3",
+			fields: fields{
+				CurrentPassword:    "currentPass (not tested)",
+				NewPassword:        strings.Repeat("p", config.PasswordMinLen),
+				NewPasswordConfirm: strings.Repeat("p", config.PasswordMinLen),
+			},
+			want: true,
+		},
+		{
+			name: "params.user.changepwd.4",
+			fields: fields{
+				CurrentPassword:    "currentPass (not tested)",
+				NewPassword:        strings.Repeat("p", config.PasswordMaxLen+1),
+				NewPasswordConfirm: strings.Repeat("p", config.PasswordMaxLen+1),
+			},
+			want: false,
+		},
+		{
+			name: "params.user.changepwd.5",
+			fields: fields{
+				CurrentPassword:    "currentPass (not tested)",
+				NewPassword:        strings.Repeat("p", config.PasswordMinLen-1),
+				NewPasswordConfirm: strings.Repeat("p", config.PasswordMinLen-1),
+			},
+			want: false,
+		},
+		{
+			name: "params.user.changepwd.6",
+			fields: fields{
+				CurrentPassword:    "currentPass (not tested)",
+				NewPassword:        "passwords",
+				NewPasswordConfirm: "do not match",
+			},
+			want: false,
+		},
+		{
+			name: "params.user.changepwd.7",
+			fields: fields{
+				CurrentPassword:    "currentPass (not tested)",
+				NewPassword:        "2short",
+				NewPasswordConfirm: "2short",
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body := &ChangeUserPassword{
+				CurrentPassword:    tt.fields.CurrentPassword,
+				NewPassword:        tt.fields.NewPassword,
+				NewPasswordConfirm: tt.fields.NewPasswordConfirm,
+			}
+
+			got, _ := body.Validate()
+			assert.Equal(t, tt.want, got, "Validate returned the wrong value")
+		})
+	}
+}

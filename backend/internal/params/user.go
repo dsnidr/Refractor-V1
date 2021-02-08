@@ -70,3 +70,26 @@ func (body *SetUserAccessLevelParams) Validate() (bool, url.Values) {
 
 	return len(errors) == 0, errors
 }
+
+// ChangeUserPassword holds the data we expect when changing a user's password
+type ChangeUserPassword struct {
+	CurrentPassword    string `json:"currentPassword" form:"currentPassword"`
+	NewPassword        string `json:"newPassword" form:"newPassword"`
+	NewPasswordConfirm string `json:"newPasswordConfirm" form:"newPasswordConfirm"`
+}
+
+// Validate validates the data inside the attached struct
+func (body *ChangeUserPassword) Validate() (bool, url.Values) {
+	errors := url.Values{}
+
+	if len(body.NewPassword) < config.PasswordMinLen || len(body.NewPassword) > config.PasswordMaxLen {
+		errors.Set("newPassword", fmt.Sprintf("Password must be between %d and %d characters in length",
+			config.PasswordMinLen, config.PasswordMaxLen))
+	}
+
+	if body.NewPassword != body.NewPasswordConfirm {
+		errors.Set("newPasswordConfirm", "Passwords don't match")
+	}
+
+	return len(errors) == 0, errors
+}
