@@ -10,11 +10,12 @@ import styled from 'styled-components';
 import themes from './themes';
 import UnprotectedRoute from './components/UnprotectedRoute';
 import ProtectedRoute from './components/ProtectedRoute';
+import Spinner from './components/Spinner';
+import { decodeToken, destroyToken, getToken } from './utils/tokenUtils';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import Spinner from './components/Spinner';
-import { decodeToken, destroyToken, getToken } from './utils/tokenUtils';
+import ChangePassword from './pages/ChangePassword';
 
 // Load previously selected theme
 let theme = localStorage.getItem('theme');
@@ -32,6 +33,25 @@ const AppContainer = styled.div`
 		background: ${props.theme.colorBackground};
 	`}
 `;
+
+class DebugRouter extends Router {
+	constructor(props) {
+		super(props);
+		console.log(
+			'initial history is: ',
+			JSON.stringify(this.history, null, 2)
+		);
+		this.history.listen((location, action) => {
+			console.log(
+				`The current URL is ${location.pathname}${location.search}${location.hash}`
+			);
+			console.log(
+				`The last navigation action was ${action}`,
+				JSON.stringify(this.history, null, 2)
+			);
+		});
+	}
+}
 
 class App extends Component {
 	constructor(props) {
@@ -80,7 +100,7 @@ class App extends Component {
 	}
 
 	render() {
-		return (
+		return this.state.tokenChecked ? (
 			<AppContainer>
 				<ThemeProvider theme={themes[this.props.theme]}>
 					{this.props.isLoading ? <Spinner /> : null}
@@ -91,12 +111,18 @@ class App extends Component {
 								path={'/login'}
 								component={Login}
 							/>
+							<ProtectedRoute
+								exact
+								path={'/changepassword'}
+								bypassPasswordChange={true}
+								component={ChangePassword}
+							/>
 							<ProtectedRoute path={'/'} component={Dashboard} />
 						</Switch>
 					</Router>
 				</ThemeProvider>
 			</AppContainer>
-		);
+		) : null;
 	}
 }
 
