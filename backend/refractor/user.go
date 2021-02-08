@@ -30,10 +30,12 @@ type UserService interface {
 	CreateUser(body params.CreateUserParams) (*User, *ServiceResponse)
 	GetUserInfo(id int64) (*UserInfo, *ServiceResponse)
 	SetUserAccessLevel(body params.SetUserAccessLevelParams) (*User, *ServiceResponse)
+	ChangeUserPassword(id int64, body params.ChangeUserPassword) (*User, *ServiceResponse)
 }
 
 type UserHandler interface {
 	GetOwnUserInfo(c echo.Context) error
+	ChangeUserPassword(c echo.Context) error
 }
 
 type UserInfo struct {

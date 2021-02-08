@@ -179,3 +179,68 @@ func (s *userService) SetUserAccessLevel(body params.SetUserAccessLevelParams) (
 		Message:    "Access level set. Any new access rights will come into effect next time the user logs in",
 	}
 }
+
+func (s *userService) ChangeUserPassword(id int64, body params.ChangeUserPassword) (*refractor.User, *refractor.ServiceResponse) {
+	foundUser, err := s.repo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not retrieve user by ID: %d. Error: %v", id, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	// Make sure the current password provided by the user matches their current password
+	hashedPassword := []byte(foundUser.Password)
+
+	if err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(body.CurrentPassword)); err != nil {
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			ValidationErrors: url.Values{
+				"currentPassword": []string{"Incorrect password"},
+			},
+		}
+	}
+
+	// Make sure their new password doesn't match their current password
+	if err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(body.NewPassword)); err == nil {
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			ValidationErrors: url.Values{
+				"newPassword": []string{"You can't re-use your current password"},
+			},
+		}
+	}
+
+	// Hash the new password
+	hashAndSalt, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		s.log.Error("Could not new password hash for user with ID: %d. Error: %v", foundUser.UserID, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	// Update the user in the repository and make sure their NeedsPasswordChange flag is set to false
+	args := refractor.UpdateArgs{
+		"Password":            string(hashAndSalt),
+		"NeedsPasswordChange": false,
+	}
+
+	updatedUser, err := s.repo.Update(foundUser.UserID, args)
+	if err != nil {
+		s.log.Error("Could not update user ID: %d in repository. Error: %v", foundUser.UserID, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return updatedUser, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Password changed",
+	}
+}
