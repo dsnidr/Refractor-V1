@@ -159,8 +159,8 @@ func TestCreateServerParams_Validate(t *testing.T) {
 				Game:         tt.fields.Game,
 				Name:         tt.fields.Name,
 				Address:      tt.fields.Address,
-				RconPort:     tt.fields.RconPort,
-				RconPassword: tt.fields.RconPassword,
+				RCONPort:     tt.fields.RconPort,
+				RCONPassword: tt.fields.RconPassword,
 			}
 
 			got, errors := body.Validate()

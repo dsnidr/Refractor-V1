@@ -1,5 +1,7 @@
 package refractor
 
+import "github.com/sniddunc/refractor/internal/params"
+
 type Server struct {
 	ServerID     int64  `json:"id"`
 	Name         string `json:"name"`
@@ -20,6 +22,7 @@ type ServerRepository interface {
 }
 
 type ServerService interface {
+	CreateServer(body params.CreateServerParams) (*Server, *ServiceResponse)
 }
 
 type ServerHandler interface {

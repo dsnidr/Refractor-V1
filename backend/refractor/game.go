@@ -39,6 +39,7 @@ type GameInfo struct {
 type GameService interface {
 	AddGame(game Game)
 	GetAllGameInfo() ([]*GameInfo, *ServiceResponse)
+	GameExists(name string) (bool, *ServiceResponse)
 }
 
 type GameHandler interface {
