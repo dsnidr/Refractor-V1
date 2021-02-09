@@ -22,6 +22,7 @@ type API struct {
 type Handlers struct {
 	AuthHandler refractor.AuthHandler
 	UserHandler refractor.UserHandler
+	GameHandler refractor.GameHandler
 }
 
 type Response struct {
@@ -72,6 +73,10 @@ func (api *API) setupRoutes() {
 	userGroup := apiGroup.Group("/users", jwtMiddleware, AttachClaims())
 	userGroup.GET("/me", api.UserHandler.GetOwnUserInfo)
 	userGroup.POST("/changepassword", api.UserHandler.ChangeUserPassword)
+
+	// Game endpoints
+	gameGroup := apiGroup.Group("/games", jwtMiddleware, AttachClaims())
+	gameGroup.GET("/", api.GameHandler.GetAllGames)
 }
 
 func (api *API) ListenAndServe() error {

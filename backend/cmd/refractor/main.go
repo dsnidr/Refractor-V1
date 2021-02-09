@@ -6,6 +6,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"github.com/sniddunc/refractor/internal/auth"
+	"github.com/sniddunc/refractor/internal/game"
+	"github.com/sniddunc/refractor/internal/game/mordhau"
 	"github.com/sniddunc/refractor/internal/http/api"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
@@ -27,6 +29,7 @@ func main() {
 	if err := env.RequireEnv("DB_URI").
 		RequireEnv("JWT_SECRET").
 		RequireEnv("DB_URI").
+		RequireEnv("GAME").
 		GetError(); err != nil {
 		log.Fatal(err)
 	}
@@ -52,6 +55,11 @@ func main() {
 	}
 
 	// Set up application components
+	gameService := game.NewGameService()
+	gameService.AddGame(mordhau.NewMordhauGame())
+
+	gameHandler := api.NewGameHandler(gameService)
+
 	userRepo := mysql.NewUserRepository(db)
 	userService := user.NewUserService(userRepo, loggerInst)
 	userHandler := api.NewUserHandler(userService)
@@ -72,6 +80,7 @@ func main() {
 	apiHandlers := &api.Handlers{
 		AuthHandler: authHandler,
 		UserHandler: userHandler,
+		GameHandler: gameHandler,
 	}
 
 	// Done. Begin serving.

@@ -1,5 +1,7 @@
 package refractor
 
+import "github.com/labstack/echo/v4"
+
 type Game interface {
 	GetName() string
 	GameCommands
@@ -17,4 +19,17 @@ type GameCommands interface {
 	GetMuteCommand(args CommandArgs) string
 	GetKickCommand(args CommandArgs) string
 	GetBanCommand(args CommandArgs) string
+}
+
+type GameInfo struct {
+	Name string `json:"name"`
+}
+
+type GameService interface {
+	AddGame(game Game)
+	GetAllGameInfo() ([]*GameInfo, *ServiceResponse)
+}
+
+type GameHandler interface {
+	GetAllGames(c echo.Context) error
 }
