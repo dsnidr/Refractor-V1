@@ -23,6 +23,7 @@ import RequireAccessLevel from '../components/RequireAccessLevel';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import Main from './DashboardPages/Main';
 import { Route, Switch } from 'react-router';
+import { getGames } from '../redux/game/gameActions';
 
 class Dashboard extends Component {
 	constructor(props) {
@@ -31,6 +32,14 @@ class Dashboard extends Component {
 		this.state = {
 			drawerOpen: false,
 		};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.games === null) {
+			nextProps.getGames();
+		}
+
+		return prevState;
 	}
 
 	toggleDrawer = () => {
@@ -51,6 +60,16 @@ class Dashboard extends Component {
 	};
 
 	render() {
+		let { games } = this.props;
+
+		console.log(games);
+
+		if (games === null) {
+			return null;
+		}
+
+		games = Object.values(games);
+
 		return (
 			<>
 				{this.state.drawerOpen ? (
@@ -67,10 +86,13 @@ class Dashboard extends Component {
 							</SidebarItem>
 
 							<div>
-								<SidebarSection>
-									<h1>&#62; servers</h1>
-									{this.getServers()}
-								</SidebarSection>
+								{this.props.games.map((game) => (
+									<SidebarSection key={game.name}>
+										<SidebarItem icon={<SingleServer />}>
+											Test Server
+										</SidebarItem>
+									</SidebarSection>
+								))}
 								<SidebarSection>
 									<h1>&#62; admin</h1>
 									<SidebarItem
@@ -117,9 +139,14 @@ class Dashboard extends Component {
 							</SidebarItem>
 						</div>
 						<div>
-							<SidebarSection>
-								<h1>&#62; servers</h1>
-							</SidebarSection>
+							{games.map((game) => (
+								<SidebarSection key={game.name}>
+									<h1>&#62; {game.name.toLowerCase()}</h1>
+									<SidebarItem icon={<SingleServer />}>
+										Test Server
+									</SidebarItem>
+								</SidebarSection>
+							))}
 							<RequireAccessLevel minAccessLevel={10}>
 								<SidebarSection>
 									<h1>&#62; admin</h1>
@@ -152,8 +179,12 @@ class Dashboard extends Component {
 	}
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+	games: state.game,
+});
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	getGames: () => dispatch(getGames()),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

@@ -43,12 +43,13 @@ export const SidebarSection = styled.div`
 		padding-bottom: 1rem;
 
 		:first-of-type {
-			margin-top: 5rem;
+			margin-top: 2rem;
 		}
 
 		h1 {
 			padding: 0.5rem;
-			margin: 1rem;
+			margin-left: 2rem;
+			margin-bottom: 0.5rem;
 			font-size: 1.2rem;
 			font-weight: 400;
 			color: ${props.theme.colorTextLight};
