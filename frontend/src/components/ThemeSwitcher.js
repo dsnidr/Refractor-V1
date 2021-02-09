@@ -13,7 +13,8 @@ const Switcher = styled.select`
 		color: ${props.theme.colorTextPrimary};
 		border: 1px solid ${props.theme.colorBorderPrimary};
 		border-radius: ${props.theme.borderRadiusNormal};
-		width: 6rem;
+		min-width: 6rem;
+		max-width: 12rem;
 		text-align: center;
 		-webkit-appearance: none;
 		-moz-appearance: none;
