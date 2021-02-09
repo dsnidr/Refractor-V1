@@ -13,8 +13,8 @@ type CreateServerParams struct {
 	Name         string `form:"name"`
 	Game         string `form:"game"`
 	Address      string `form:"address"`
-	RconPort     string `form:"rconPort"`
-	RconPassword string `form:"rconPassword"`
+	RCONPort     string `form:"rconPort"`
+	RCONPassword string `form:"rconPassword"`
 }
 
 // Validate validates the data inside the attached struct
@@ -37,11 +37,11 @@ func (body *CreateServerParams) Validate() (bool, url.Values) {
 
 	// Since port numbers are 16 bit integers, we can check if the provided port is valid by
 	// trying to parse it to an int16.
-	if _, err := strconv.ParseUint(body.RconPort, 10, 16); err != nil {
+	if _, err := strconv.ParseUint(body.RCONPort, 10, 16); err != nil {
 		errors.Set("rconPort", "The provided RCON port was not a valid port number")
 	}
 
-	if len(body.RconPassword) < config.ServerPasswordMinLen || len(body.RconPassword) > config.ServerPasswordMaxLen {
+	if len(body.RCONPassword) < config.ServerPasswordMinLen || len(body.RCONPassword) > config.ServerPasswordMaxLen {
 		errors.Set("rconPassword", fmt.Sprintf("RCON passwords must be between %d and %d characters in length",
 			config.ServerPasswordMinLen, config.ServerPasswordMaxLen))
 	}

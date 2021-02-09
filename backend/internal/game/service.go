@@ -37,3 +37,10 @@ func (s *gameService) GetAllGameInfo() ([]*refractor.GameInfo, *refractor.Servic
 		Message:    fmt.Sprintf("%d games retrieved", len(gameInfoList)),
 	}
 }
+
+func (s *gameService) GameExists(name string) (bool, *refractor.ServiceResponse) {
+	return s.games[name] != nil, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+	}
+}
