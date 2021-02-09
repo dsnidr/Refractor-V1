@@ -2,6 +2,7 @@ package refractor
 
 type Server struct {
 	ServerID     int64  `json:"id"`
+	Name         string `json:"name"`
 	Game         string `json:"game"`
 	Address      string `json:"address"`
 	RCONPort     string `json:"rconPort"`

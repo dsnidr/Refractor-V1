@@ -36,6 +36,26 @@ func Setup(db *sql.DB) error {
 		return fmt.Errorf("could not create Users table. Error: %v", err)
 	}
 
+	// Create servers table
+	if _, err := tx.Exec(`
+		CREATE TABLE IF NOT EXISTS Servers(
+			ServerID INT NOT NULL AUTO_INCREMENT,
+			Game VARCHAR(32) NOT NULL,
+			Name VARCHAR(32) UNIQUE NOT NULL,
+			Address VARCHAR(15) NOT NULL,
+		    RCONPort VARCHAR(5) NOT NULL,
+		    RCONPassword VARCHAR(128) NOT NULL,
+			
+			PRIMARY KEY (ServerID)
+		);
+	`); err != nil {
+		if err = tx.Rollback(); err != nil {
+			return err
+		}
+
+		return fmt.Errorf("could not create Servers table. Error: %v", err)
+	}
+
 	return tx.Commit()
 }
 
