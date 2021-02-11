@@ -3,7 +3,7 @@ package refractor
 import "github.com/labstack/echo/v4"
 
 type GameServer struct {
-	Game    string        `json:"game"`
+	Name    string        `json:"name"`
 	Servers []*ServerInfo `json:"servers"`
 }
 

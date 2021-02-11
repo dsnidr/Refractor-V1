@@ -70,6 +70,8 @@ class Dashboard extends Component {
 
 		games = Object.values(games);
 
+		console.log(games);
+
 		return (
 			<>
 				{this.state.drawerOpen ? (
@@ -142,9 +144,14 @@ class Dashboard extends Component {
 							{games.map((game) => (
 								<SidebarSection key={game.name}>
 									<h1>&#62; {game.name.toLowerCase()}</h1>
-									<SidebarItem icon={<SingleServer />}>
-										Test Server
-									</SidebarItem>
+									{game.servers.map((server) => (
+										<SidebarItem
+											key={server.id}
+											icon={<SingleServer />}
+										>
+											{server.name}
+										</SidebarItem>
+									))}
 								</SidebarSection>
 							))}
 							<RequireAccessLevel minAccessLevel={10}>
