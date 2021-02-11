@@ -20,21 +20,17 @@ func (s *gameService) AddGame(newGame refractor.Game) {
 	s.games[newGame.GetName()] = newGame
 }
 
-func (s *gameService) GetAllGameInfo() ([]*refractor.GameInfo, *refractor.ServiceResponse) {
-	var gameInfoList []*refractor.GameInfo
+func (s *gameService) GetAllGames() ([]refractor.Game, *refractor.ServiceResponse) {
+	var games []refractor.Game
 
-	for _, listGame := range s.games {
-		gameInfo := &refractor.GameInfo{
-			Name: listGame.GetName(),
-		}
-
-		gameInfoList = append(gameInfoList, gameInfo)
+	for _, game := range s.games {
+		games = append(games, game)
 	}
 
-	return gameInfoList, &refractor.ServiceResponse{
+	return games, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
-		Message:    fmt.Sprintf("%d games retrieved", len(gameInfoList)),
+		Message:    fmt.Sprintf("%d games retrieved", len(games)),
 	}
 }
 

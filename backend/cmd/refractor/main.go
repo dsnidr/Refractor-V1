@@ -8,8 +8,10 @@ import (
 	"github.com/sniddunc/refractor/internal/auth"
 	"github.com/sniddunc/refractor/internal/game"
 	"github.com/sniddunc/refractor/internal/game/mordhau"
+	"github.com/sniddunc/refractor/internal/gameserver"
 	"github.com/sniddunc/refractor/internal/http/api"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/internal/server"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/user"
 	"github.com/sniddunc/refractor/pkg/config"
@@ -58,14 +60,19 @@ func main() {
 	gameService := game.NewGameService()
 	gameService.AddGame(mordhau.NewMordhauGame())
 
-	gameHandler := api.NewGameHandler(gameService)
-
 	userRepo := mysql.NewUserRepository(db)
 	userService := user.NewUserService(userRepo, loggerInst)
 	userHandler := api.NewUserHandler(userService)
 
 	authService := auth.NewAuthService(userRepo, loggerInst, os.Getenv("JWT_SECRET"))
 	authHandler := api.NewAuthHandler(authService, secureMode)
+
+	serverRepo := mysql.NewServerRepository(db)
+	serverService := server.NewServerService(serverRepo, gameService, loggerInst)
+	serverHandler := api.NewServerHandler(serverService, loggerInst)
+
+	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
+	gameServerHandler := api.NewGameServerHandler(gameServerService)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
@@ -78,9 +85,10 @@ func main() {
 
 	// API Setup
 	apiHandlers := &api.Handlers{
-		AuthHandler: authHandler,
-		UserHandler: userHandler,
-		GameHandler: gameHandler,
+		AuthHandler:       authHandler,
+		UserHandler:       userHandler,
+		ServerHandler:     serverHandler,
+		GameServerHandler: gameServerHandler,
 	}
 
 	// Done. Begin serving.

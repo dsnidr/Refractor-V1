@@ -21,10 +21,10 @@ type API struct {
 
 // Handlers holds the handlers for the various application domains
 type Handlers struct {
-	AuthHandler   refractor.AuthHandler
-	UserHandler   refractor.UserHandler
-	GameHandler   refractor.GameHandler
-	ServerHandler refractor.ServerHandler
+	AuthHandler       refractor.AuthHandler
+	UserHandler       refractor.UserHandler
+	ServerHandler     refractor.ServerHandler
+	GameServerHandler refractor.GameServerHandler
 }
 
 type Response struct {
@@ -77,8 +77,8 @@ func (api *API) setupRoutes() {
 	userGroup.POST("/changepassword", api.UserHandler.ChangeUserPassword)
 
 	// Game endpoints
-	gameGroup := apiGroup.Group("/games", jwtMiddleware, AttachClaims())
-	gameGroup.GET("/", api.GameHandler.GetAllGames)
+	gameGroup := apiGroup.Group("/gameservers", jwtMiddleware, AttachClaims())
+	gameGroup.GET("/", api.GameServerHandler.GetAllGameServers)
 
 	// Server endpoints
 	serverGroup := apiGroup.Group("/servers", jwtMiddleware, AttachClaims())
