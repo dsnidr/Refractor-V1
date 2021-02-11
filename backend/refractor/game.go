@@ -32,13 +32,9 @@ type GameCommands interface {
 	GetPlayerListCommand() string
 }
 
-type GameInfo struct {
-	Name string `json:"name"`
-}
-
 type GameService interface {
 	AddGame(game Game)
-	GetAllGameInfo() ([]*GameInfo, *ServiceResponse)
+	GetAllGames() ([]Game, *ServiceResponse)
 	GameExists(name string) (bool, *ServiceResponse)
 }
 

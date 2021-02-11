@@ -4,6 +4,7 @@ import (
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/sniddunc/refractor/pkg/jwt"
+	"net/http"
 )
 
 // AttachClaims extracts the claims from a JWT and attaches them to the context to be used in handlers.
@@ -15,6 +16,26 @@ func AttachClaims() echo.MiddlewareFunc {
 
 			if claims, ok := token.Claims.(*jwt.Claims); ok && token.Valid {
 				c.Set("claims", claims)
+			}
+
+			return next(c)
+		}
+	}
+}
+
+// RequireAccessLevel is used to ensure a user has an access level of at least the required access level.
+// RequireAccessLevel must be called after AttachClaims.
+// Normally middleware would not be attached to the API struct, but in this case logging is important so
+// binding it to the API struct greatly simplifies that.
+func (api *API) RequireAccessLevel(minAccessLevel int) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			claims := c.Get("claims").(*jwt.Claims)
+
+			if claims.AccessLevel < minAccessLevel {
+				api.log.Warn(`User of ID %d tried to access a route handler which requires a higher access level then
+								they possess. Have = %d Needs = %d`, claims.UserID, claims.AccessLevel, minAccessLevel)
+				return c.String(http.StatusUnauthorized, "Unauthorized")
 			}
 
 			return next(c)

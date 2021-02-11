@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
@@ -78,5 +79,27 @@ func (s *serverService) CreateServer(body params.CreateServerParams) (*refractor
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Server created",
+	}
+}
+
+func (s *serverService) GetAllServers() ([]*refractor.Server, *refractor.ServiceResponse) {
+	servers, err := s.repo.FindAll()
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return []*refractor.Server{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Fetched 0 servers",
+			}
+		}
+
+		s.log.Error("Could not FindAll servers from repository. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return servers, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Fetched %d servers", len(servers)),
 	}
 }
