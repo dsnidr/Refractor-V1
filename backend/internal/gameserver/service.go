@@ -45,7 +45,7 @@ func (s *gameServerService) GetGameServers() ([]*refractor.GameServer, *refracto
 	gameServers := map[string]*refractor.GameServer{}
 	for _, game := range games {
 		gameServers[game.GetName()] = &refractor.GameServer{
-			Game:    game.GetName(),
+			Name:    game.GetName(),
 			Servers: []*refractor.ServerInfo{},
 		}
 	}
