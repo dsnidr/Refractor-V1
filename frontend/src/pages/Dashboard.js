@@ -24,6 +24,7 @@ import ThemeSwitcher from '../components/ThemeSwitcher';
 import Main from './DashboardPages/Main';
 import { Route, Switch } from 'react-router';
 import { getGames } from '../redux/game/gameActions';
+import Server from './DashboardPages/Server';
 
 class Dashboard extends Component {
 	constructor(props) {
@@ -148,6 +149,7 @@ class Dashboard extends Component {
 										<SidebarItem
 											key={server.id}
 											icon={<SingleServer />}
+											to={`/server/${server.id}`}
 										>
 											{server.name}
 										</SidebarItem>
@@ -178,6 +180,11 @@ class Dashboard extends Component {
 					<Content>
 						<Switch>
 							<Route exact path="/" component={Main} />
+							<Route
+								exact
+								path="/server/:id"
+								component={Server}
+							/>
 						</Switch>
 					</Content>
 				</Wrapper>
