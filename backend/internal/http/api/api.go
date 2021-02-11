@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/jwt"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
@@ -20,9 +21,10 @@ type API struct {
 
 // Handlers holds the handlers for the various application domains
 type Handlers struct {
-	AuthHandler refractor.AuthHandler
-	UserHandler refractor.UserHandler
-	GameHandler refractor.GameHandler
+	AuthHandler   refractor.AuthHandler
+	UserHandler   refractor.UserHandler
+	GameHandler   refractor.GameHandler
+	ServerHandler refractor.ServerHandler
 }
 
 type Response struct {
@@ -77,6 +79,10 @@ func (api *API) setupRoutes() {
 	// Game endpoints
 	gameGroup := apiGroup.Group("/games", jwtMiddleware, AttachClaims())
 	gameGroup.GET("/", api.GameHandler.GetAllGames)
+
+	// Server endpoints
+	serverGroup := apiGroup.Group("/servers", jwtMiddleware, AttachClaims())
+	serverGroup.POST("/", api.ServerHandler.CreateServer, api.RequireAccessLevel(config.AL_ADMIN))
 }
 
 func (api *API) ListenAndServe() error {
