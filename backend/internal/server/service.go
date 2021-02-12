@@ -13,6 +13,7 @@ type serverService struct {
 	repo        refractor.ServerRepository
 	gameService refractor.GameService
 	log         log.Logger
+	serverData  map[int64]*refractor.ServerData
 }
 
 func NewServerService(repo refractor.ServerRepository, gameService refractor.GameService, log log.Logger) refractor.ServerService {
@@ -20,6 +21,7 @@ func NewServerService(repo refractor.ServerRepository, gameService refractor.Gam
 		repo:        repo,
 		gameService: gameService,
 		log:         log,
+		serverData:  map[int64]*refractor.ServerData{},
 	}
 }
 
@@ -101,5 +103,26 @@ func (s *serverService) GetAllServers() ([]*refractor.Server, *refractor.Service
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("Fetched %d servers", len(servers)),
+	}
+}
+
+func (s *serverService) createServerData(id int64) {
+	s.serverData[id] = &refractor.ServerData{
+		NeedsUpdate: true,
+		ServerID:    id,
+	}
+}
+
+func (s *serverService) GetAllServerData() ([]*refractor.ServerData, *refractor.ServiceResponse) {
+	var allServerData []*refractor.ServerData
+
+	for _, serverData := range s.serverData {
+		allServerData = append(allServerData, serverData)
+	}
+
+	return allServerData, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Fetched server data for %d servers", len(allServerData)),
 	}
 }

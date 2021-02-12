@@ -83,6 +83,7 @@ func (api *API) setupRoutes() {
 	// Server endpoints
 	serverGroup := apiGroup.Group("/servers", jwtMiddleware, AttachClaims())
 	serverGroup.POST("/", api.ServerHandler.CreateServer, api.RequireAccessLevel(config.AL_ADMIN))
+	serverGroup.GET("/", api.ServerHandler.GetAllServers)
 }
 
 func (api *API) ListenAndServe() error {
