@@ -80,7 +80,8 @@ func Setup(db *sql.DB) error {
 			Name VARCHAR(48) NOT NULL,
 			DateRecorded BIGINT DEFAULT 0,
 			
-			FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID)
+			FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID),
+		    PRIMARY KEY (PlayerID, Name)
 		);
 	`); err != nil {
 		if err = tx.Rollback(); err != nil {
