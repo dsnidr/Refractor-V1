@@ -33,3 +33,12 @@ func (h *serverHandler) CreateServer(c echo.Context) error {
 		Errors:  res.ValidationErrors,
 	})
 }
+
+func (h *serverHandler) GetAllServers(c echo.Context) error {
+	allServers, res := h.service.GetAllServers()
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Payload: allServers,
+	})
+}

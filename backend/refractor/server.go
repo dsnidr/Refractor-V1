@@ -21,6 +21,13 @@ type ServerInfo struct {
 	Address  string `json:"address"`
 }
 
+// ServerData is used to keep track of server data (player counts, levels, etc)
+type ServerData struct {
+	NeedsUpdate bool
+	ServerID    int64
+	PlayerCount int
+}
+
 type ServerRepository interface {
 	Create(server *Server) error
 	FindByID(id int64) (*Server, error)
@@ -34,8 +41,10 @@ type ServerRepository interface {
 type ServerService interface {
 	CreateServer(body params.CreateServerParams) (*Server, *ServiceResponse)
 	GetAllServers() ([]*Server, *ServiceResponse)
+	GetAllServerData() ([]*ServerData, *ServiceResponse)
 }
 
 type ServerHandler interface {
 	CreateServer(c echo.Context) error
+	GetAllServers(c echo.Context) error
 }
