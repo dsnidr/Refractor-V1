@@ -140,7 +140,7 @@ func (s *authService) RefreshUser(refreshToken string) (*refractor.TokenPair, *r
 		return nil, refractor.InternalErrorResponse
 	}
 
-	s.log.Info("New auth and refresh tokens have been generated for user %s (%d)", user.Username, user.UserID)
+	s.log.Info("New auth and refresh tokens have been generated for user %s (%d) (refresh)", user.Username, user.UserID)
 
 	// Send back response and token pair
 	return &refractor.TokenPair{

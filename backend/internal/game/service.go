@@ -40,3 +40,10 @@ func (s *gameService) GameExists(name string) (bool, *refractor.ServiceResponse)
 		StatusCode: http.StatusOK,
 	}
 }
+
+func (s *gameService) GetGame(name string) (refractor.Game, *refractor.ServiceResponse) {
+	return s.games[name], &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+	}
+}
