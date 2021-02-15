@@ -15,6 +15,7 @@ type GameConfig struct {
 	UseRCON           bool
 	SendAlivePing     bool
 	AlivePingInterval time.Duration
+	EnableBroadcasts  bool
 }
 
 // CommandArgs is a struct used to supply a game's command builders with the data they need.
@@ -36,6 +37,7 @@ type GameService interface {
 	AddGame(game Game)
 	GetAllGames() ([]Game, *ServiceResponse)
 	GameExists(name string) (bool, *ServiceResponse)
+	GetGame(name string) (Game, *ServiceResponse)
 }
 
 type GameHandler interface {

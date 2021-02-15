@@ -16,6 +16,7 @@ func NewMordhauGame() refractor.Game {
 			UseRCON:           true,
 			SendAlivePing:     true,
 			AlivePingInterval: time.Second * 30,
+			EnableBroadcasts:  true,
 		},
 	}
 }
