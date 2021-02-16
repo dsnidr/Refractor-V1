@@ -84,6 +84,15 @@ func (s *serverService) CreateServer(body params.CreateServerParams) (*refractor
 	}
 }
 
+func (s *serverService) CreateServerData(id int64) {
+	s.serverData[id] = &refractor.ServerData{
+		NeedsUpdate:   true,
+		ServerID:      id,
+		PlayerCount:   0,
+		OnlinePlayers: map[string]*refractor.Player{},
+	}
+}
+
 func (s *serverService) GetAllServers() ([]*refractor.Server, *refractor.ServiceResponse) {
 	servers, err := s.repo.FindAll()
 	if err != nil {
@@ -125,4 +134,19 @@ func (s *serverService) GetAllServerData() ([]*refractor.ServerData, *refractor.
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("Fetched server data for %d servers", len(allServerData)),
 	}
+}
+
+func (s *serverService) GetServerData(id int64) (*refractor.ServerData, *refractor.ServiceResponse) {
+	return s.serverData[id], &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+	}
+}
+
+func (s *serverService) OnPlayerJoin(id int64, player *refractor.Player) {
+
+}
+
+func (s *serverService) OnPlayerQuit(id int64, player *refractor.Player) {
+
 }
