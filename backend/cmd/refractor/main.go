@@ -11,6 +11,7 @@ import (
 	"github.com/sniddunc/refractor/internal/gameserver"
 	"github.com/sniddunc/refractor/internal/http/api"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/internal/rcon"
 	"github.com/sniddunc/refractor/internal/server"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/user"
@@ -74,6 +75,8 @@ func main() {
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
 
+	rconService := rcon.NewRCONService(gameService, loggerInst)
+
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
 		if err := setupInitialUser(userService); err != nil {
@@ -81,6 +84,11 @@ func main() {
 		}
 
 		loggerInst.Info("Initial user created from environment variables")
+	}
+
+	// Set up RCON clients for all existing servers
+	if err := setupServerClients(rconService, serverService, loggerInst); err != nil {
+		log.Fatalf("Could not set up server RCON clients. Error: %v", err)
 	}
 
 	// API Setup
@@ -155,6 +163,25 @@ func setupInitialUser(userService refractor.UserService) error {
 
 	if !res.Success {
 		return fmt.Errorf("could not set new user to be a superadmin: %s", res.Message)
+	}
+
+	return nil
+}
+
+func setupServerClients(rconService refractor.RCONService, serverService refractor.ServerService, log logger.Logger) error {
+	allServers, res := serverService.GetAllServers()
+	if !res.Success {
+		return fmt.Errorf("could not get all servers. Message: %s", res.Message)
+	}
+
+	for _, server := range allServers {
+		serverService.CreateServerData(server.ServerID)
+
+		if err := rconService.CreateClient(server); err != nil {
+			return err
+		}
+
+		log.Info("RCON Client connected to", server.Name)
 	}
 
 	return nil

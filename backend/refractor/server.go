@@ -23,9 +23,10 @@ type ServerInfo struct {
 
 // ServerData is used to keep track of server data (player counts, levels, etc)
 type ServerData struct {
-	NeedsUpdate bool
-	ServerID    int64
-	PlayerCount int
+	NeedsUpdate   bool
+	ServerID      int64
+	PlayerCount   int
+	OnlinePlayers map[string]*Player
 }
 
 type ServerRepository interface {
@@ -40,8 +41,12 @@ type ServerRepository interface {
 
 type ServerService interface {
 	CreateServer(body params.CreateServerParams) (*Server, *ServiceResponse)
+	CreateServerData(id int64)
 	GetAllServers() ([]*Server, *ServiceResponse)
 	GetAllServerData() ([]*ServerData, *ServiceResponse)
+	GetServerData(id int64) (*ServerData, *ServiceResponse)
+	OnPlayerJoin(id int64, player *Player)
+	OnPlayerQuit(id int64, player *Player)
 }
 
 type ServerHandler interface {
