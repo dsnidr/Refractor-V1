@@ -9,14 +9,12 @@ import (
 	"strconv"
 )
 
-type BroadcastSubscriber func(fields broadcast.Fields, serverID int64)
-
 type rconService struct {
 	clients         map[int64]*refractor.RCONClient
 	gameService     refractor.GameService
 	log             log.Logger
-	joinSubscribers []BroadcastSubscriber
-	quitSubscribers []BroadcastSubscriber
+	joinSubscribers []refractor.BroadcastSubscriber
+	quitSubscribers []refractor.BroadcastSubscriber
 }
 
 func NewRCONService(gameService refractor.GameService, log log.Logger) refractor.RCONService {
@@ -24,8 +22,8 @@ func NewRCONService(gameService refractor.GameService, log log.Logger) refractor
 		clients:         map[int64]*refractor.RCONClient{},
 		gameService:     gameService,
 		log:             log,
-		joinSubscribers: []BroadcastSubscriber{},
-		quitSubscribers: []BroadcastSubscriber{},
+		joinSubscribers: []refractor.BroadcastSubscriber{},
+		quitSubscribers: []refractor.BroadcastSubscriber{},
 	}
 }
 
@@ -95,6 +93,14 @@ func (s *rconService) GetClients() map[int64]*refractor.RCONClient {
 
 func (s *rconService) DeleteClient(serverID int64) {
 	panic("implement me")
+}
+
+func (s *rconService) SubscribeJoin(subscriber refractor.BroadcastSubscriber) {
+	s.joinSubscribers = append(s.joinSubscribers, subscriber)
+}
+
+func (s *rconService) SubscribeQuit(subscriber refractor.BroadcastSubscriber) {
+	s.quitSubscribers = append(s.quitSubscribers, subscriber)
 }
 
 func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor.GameConfig) func(string) {
