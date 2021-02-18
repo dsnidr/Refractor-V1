@@ -19,4 +19,7 @@ type PlayerRepository interface {
 
 type PlayerService interface {
 	CreatePlayer(newPlayer *Player) (*Player, *ServiceResponse)
+	GetPlayerByID(id int64) (*Player, *ServiceResponse)
+	OnPlayerJoin(serverID int64, playerGameID string, currentName string) (*Player, *ServiceResponse)
+	OnPlayerQuit(serverID int64, playerGameID string) (*Player, *ServiceResponse)
 }
