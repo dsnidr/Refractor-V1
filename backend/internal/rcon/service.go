@@ -3,22 +3,29 @@ package rcon
 import (
 	"fmt"
 	rcon "github.com/sniddunc/mordhau-rcon"
+	"github.com/sniddunc/refractor/pkg/broadcast"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
 	"strconv"
 )
 
+type BroadcastSubscriber func(fields broadcast.Fields, serverID int64)
+
 type rconService struct {
-	clients     map[int64]*refractor.RCONClient
-	gameService refractor.GameService
-	log         log.Logger
+	clients         map[int64]*refractor.RCONClient
+	gameService     refractor.GameService
+	log             log.Logger
+	joinSubscribers []BroadcastSubscriber
+	quitSubscribers []BroadcastSubscriber
 }
 
 func NewRCONService(gameService refractor.GameService, log log.Logger) refractor.RCONService {
 	return &rconService{
-		clients:     map[int64]*refractor.RCONClient{},
-		gameService: gameService,
-		log:         log,
+		clients:         map[int64]*refractor.RCONClient{},
+		gameService:     gameService,
+		log:             log,
+		joinSubscribers: []BroadcastSubscriber{},
+		quitSubscribers: []BroadcastSubscriber{},
 	}
 }
 
@@ -45,7 +52,7 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 		HeartbeatCommandInterval: gameConfig.AlivePingInterval,
 		AttemptReconnect:         false,
 		EnableBroadcasts:         gameConfig.EnableBroadcasts,
-		BroadcastHandler:         s.getBroadcastListener(server.ServerID),
+		BroadcastHandler:         s.getBroadcastListener(server.ServerID, gameConfig),
 	})
 
 	// Connect the main socket
@@ -90,10 +97,20 @@ func (s *rconService) DeleteClient(serverID int64) {
 	panic("implement me")
 }
 
-func (s *rconService) getBroadcastListener(serverID int64) func(string) {
+func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor.GameConfig) func(string) {
 	// We wrap this in a parent function so that we can pass in the server IDs which each client belongs to.
 	// This allows us to uniquely identify which server a broadcast came from.
 	return func(message string) {
 		s.log.Info("Received broadcast from server ID %d: %v", serverID, message)
+
+		bcast := broadcast.GetBroadcastType(message, gameConfig.BroadcastPatterns)
+
+		switch bcast.Type {
+		case broadcast.TYPE_JOIN:
+			s.HandleJoinBroadcast(bcast, serverID)
+			break
+		case broadcast.TYPE_QUIT:
+			s.HandleQuitBroadcast(bcast, serverID)
+		}
 	}
 }
