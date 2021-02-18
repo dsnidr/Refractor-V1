@@ -1,7 +1,9 @@
 package mock
 
 import (
+	"github.com/sniddunc/refractor/pkg/broadcast"
 	"github.com/sniddunc/refractor/refractor"
+	"regexp"
 	"time"
 )
 
@@ -15,6 +17,11 @@ func NewMockGame() refractor.Game {
 			UseRCON:           true,
 			SendAlivePing:     true,
 			AlivePingInterval: time.Second * 30,
+			EnableBroadcasts:  true,
+			BroadcastPatterns: map[string]*regexp.Regexp{
+				broadcast.TYPE_JOIN: regexp.MustCompile("^(?P<name>.+) joined the game$"),
+				broadcast.TYPE_QUIT: regexp.MustCompile("^(?P<name>.+) quit the game$"),
+			},
 		},
 	}
 }

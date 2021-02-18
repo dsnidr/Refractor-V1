@@ -2,6 +2,7 @@ package refractor
 
 import (
 	"github.com/labstack/echo/v4"
+	"regexp"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type GameConfig struct {
 	SendAlivePing     bool
 	AlivePingInterval time.Duration
 	EnableBroadcasts  bool
+	BroadcastPatterns map[string]*regexp.Regexp
 }
 
 // CommandArgs is a struct used to supply a game's command builders with the data they need.

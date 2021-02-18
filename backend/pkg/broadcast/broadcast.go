@@ -5,10 +5,17 @@ import (
 	"regexp"
 )
 
+type Fields map[string]string
+
 type Broadcast struct {
 	Type   string
-	Fields map[string]string
+	Fields Fields
 }
+
+const (
+	TYPE_JOIN = "JOIN"
+	TYPE_QUIT = "QUIT"
+)
 
 func GetBroadcastType(broadcast string, patterns map[string]*regexp.Regexp) *Broadcast {
 	for bcastType, pattern := range patterns {
