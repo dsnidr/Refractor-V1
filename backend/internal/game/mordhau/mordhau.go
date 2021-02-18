@@ -2,7 +2,9 @@ package mordhau
 
 import (
 	"fmt"
+	"github.com/sniddunc/refractor/pkg/broadcast"
 	"github.com/sniddunc/refractor/refractor"
+	"regexp"
 	"time"
 )
 
@@ -17,6 +19,10 @@ func NewMordhauGame() refractor.Game {
 			SendAlivePing:     true,
 			AlivePingInterval: time.Second * 30,
 			EnableBroadcasts:  true,
+			BroadcastPatterns: map[string]*regexp.Regexp{
+				broadcast.TYPE_JOIN: regexp.MustCompile("^Login: (?P<date>[0-9\\.-]+): (?P<name>.+) \\((?P<playfabid>[0-9a-fA-F]+)\\) logged in$"),
+				broadcast.TYPE_QUIT: regexp.MustCompile("^Login: (?P<date>[0-9\\.-]+): (?P<name>.+) \\((?P<playfabid>[0-9a-fA-F]+)\\) logged out$"),
+			},
 		},
 	}
 }
