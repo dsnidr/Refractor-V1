@@ -15,12 +15,13 @@ type Pool struct {
 	log        log.Logger
 }
 
-func NewPool() *Pool {
+func NewPool(log log.Logger) *Pool {
 	return &Pool{
 		Clients:    map[int64]*Client{},
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 		Broadcast:  make(chan *refractor.WebsocketMessage),
+		log:        log,
 	}
 }
 
