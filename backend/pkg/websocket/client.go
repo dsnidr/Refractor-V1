@@ -19,12 +19,13 @@ type Client struct {
 
 var nextClientID int64 = 1
 
-func NewClient(userID int64, conn net.Conn, pool *Pool) *Client {
+func NewClient(userID int64, conn net.Conn, pool *Pool, log log.Logger) *Client {
 	client := &Client{
 		ID:     nextClientID,
 		UserID: userID,
 		Conn:   conn,
 		Pool:   pool,
+		log:    log,
 	}
 
 	nextClientID++
