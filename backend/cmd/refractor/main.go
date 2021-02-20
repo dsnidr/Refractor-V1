@@ -15,6 +15,7 @@ import (
 	"github.com/sniddunc/refractor/internal/server"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/user"
+	"github.com/sniddunc/refractor/internal/websocket"
 	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/env"
 	logger "github.com/sniddunc/refractor/pkg/log"
@@ -75,6 +76,8 @@ func main() {
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
 
+	websocketService := websocket.NewWebsocketService(loggerInst)
+
 	rconService := rcon.NewRCONService(gameService, loggerInst)
 
 	// Set up initial user if no users currently exist
@@ -102,7 +105,7 @@ func main() {
 	// Done. Begin serving.
 	loggerInst.Info("Refractor startup complete!")
 
-	API := api.NewAPI(apiHandlers, port, loggerInst)
+	API := api.NewAPI(apiHandlers, port, loggerInst, websocketService)
 	if err := API.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

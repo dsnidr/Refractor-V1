@@ -13,9 +13,10 @@ import (
 )
 
 type API struct {
-	echo *echo.Echo
-	port string
-	log  log.Logger
+	echo             *echo.Echo
+	port             string
+	log              log.Logger
+	websocketService refractor.WebsocketService
 	*Handlers
 }
 
@@ -34,14 +35,15 @@ type Response struct {
 	Payload interface{} `json:"payload,omitempty"`
 }
 
-func NewAPI(handlers *Handlers, port string, logger log.Logger) *API {
+func NewAPI(handlers *Handlers, port string, logger log.Logger, websocketService refractor.WebsocketService) *API {
 	echoApp := echo.New()
 
 	api := &API{
-		echo:     echoApp,
-		port:     port,
-		log:      logger,
-		Handlers: handlers,
+		echo:             echoApp,
+		port:             port,
+		log:              logger,
+		websocketService: websocketService,
+		Handlers:         handlers,
 	}
 
 	api.setupRoutes()
@@ -84,6 +86,9 @@ func (api *API) setupRoutes() {
 	serverGroup := apiGroup.Group("/servers", jwtMiddleware, AttachClaims())
 	serverGroup.POST("/", api.ServerHandler.CreateServer, api.RequireAccessLevel(config.AL_ADMIN))
 	serverGroup.GET("/", api.ServerHandler.GetAllServers)
+
+	// Websocket endpoint
+	api.echo.Any("/ws", api.websocketHandler)
 }
 
 func (api *API) ListenAndServe() error {
