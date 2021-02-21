@@ -18,13 +18,23 @@ import { ReactComponent as ServerIcon } from '../assets/server.svg';
 import { ReactComponent as Avatar } from '../assets/avatar.svg';
 import { ReactComponent as SingleServer } from '../assets/server-1.svg';
 import { ReactComponent as List } from '../assets/list.svg';
-import { destroyToken } from '../utils/tokenUtils';
+import {
+	decodeToken,
+	destroyToken,
+	getToken,
+	tokenIsCurrent,
+} from '../utils/tokenUtils';
 import RequireAccessLevel from '../components/RequireAccessLevel';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import Main from './DashboardPages/Main';
 import { Route, Switch } from 'react-router';
 import { getGames } from '../redux/game/gameActions';
 import Server from './DashboardPages/Server';
+import { refreshToken } from '../api/authApi';
+import { newWebsocket } from '../websocket/websocket';
+
+let reconnectInterval;
+let reconnectTaskStarted = false;
 
 class Dashboard extends Component {
 	constructor(props) {
@@ -32,6 +42,7 @@ class Dashboard extends Component {
 
 		this.state = {
 			drawerOpen: false,
+			wsClient: null,
 		};
 	}
 
@@ -39,6 +50,71 @@ class Dashboard extends Component {
 		if (nextProps.games === null) {
 			nextProps.getGames();
 		}
+
+		// We don't want to create a websocket until we know the user was fetched.
+		// This is because we rely on the getUserInfo call made in App.js during the auth check process
+		// to refresh our JWTs if needed. If we didn't wait for a user to be defined in props then we
+		// could send the server an expired which would fail the websocket auth check.
+		if (!nextProps.user || prevState.wsClient !== null) {
+			return prevState;
+		}
+
+		// Create and configure a websocket connection if the above statement didn't return
+		let webSocketUri = `${
+			window.location.protocol === 'https:' ? 'wss' : 'ws'
+		}://${process.env.REACT_APP_DOMAIN}/ws?auth=${getToken()}`;
+
+		// handleClose function which is responsible for re-creating the websocket client after it was terminated.
+		// This is NOT where the initial connection is created.
+		const handleClose = () => {
+			if (reconnectTaskStarted) {
+				return;
+			}
+
+			reconnectTaskStarted = true;
+			reconnectInterval = setTimeout(async () => {
+				console.log('Attempting websocket reconnection...');
+
+				const decodedToken = decodeToken(getToken());
+				if (!tokenIsCurrent(decodedToken)) {
+					try {
+						await refreshToken();
+					} catch (err) {
+						console.log('Could not refresh expired token', err);
+					}
+				}
+
+				webSocketUri = `${
+					window.location.protocol === 'https:' ? 'wss' : 'ws'
+				}://${process.env.REACT_APP_DOMAIN}/ws?auth=${getToken()}`;
+
+				prevState.wsClient = newWebsocket(
+					webSocketUri,
+					{
+						// TODO: Add needed actions here
+					},
+					() => {
+						reconnectTaskStarted = false;
+						clearInterval(reconnectInterval);
+					},
+					() => {
+						handleClose();
+					}
+				);
+			}, 15000);
+		};
+
+		// Initial websocket client connection
+		prevState.wsClient = newWebsocket(
+			webSocketUri,
+			{
+				// TODO: Add needed actions
+			},
+			() => {
+				clearInterval(reconnectInterval);
+			},
+			handleClose
+		);
 
 		return prevState;
 	}
@@ -63,15 +139,11 @@ class Dashboard extends Component {
 	render() {
 		let { games } = this.props;
 
-		console.log(games);
-
 		if (games === null) {
 			return null;
 		}
 
 		games = Object.values(games);
-
-		console.log(games);
 
 		return (
 			<>
@@ -194,6 +266,7 @@ class Dashboard extends Component {
 }
 
 const mapStateToProps = (state) => ({
+	user: state.user.self,
 	games: state.game,
 });
 
