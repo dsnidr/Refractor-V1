@@ -1,5 +1,7 @@
 package refractor
 
+import "github.com/sniddunc/refractor/pkg/broadcast"
+
 type Player struct {
 	PlayerID      int64    `json:"id"`
 	PlayFabID     string   `json:"playFabId"`
@@ -22,4 +24,9 @@ type PlayerService interface {
 	GetPlayerByID(id int64) (*Player, *ServiceResponse)
 	OnPlayerJoin(serverID int64, playerGameID string, currentName string) (*Player, *ServiceResponse)
 	OnPlayerQuit(serverID int64, playerGameID string) (*Player, *ServiceResponse)
+}
+
+type PlayerHandler interface {
+	OnPlayerJoin(fields broadcast.Fields, serverID int64)
+	OnPlayerQuit(fields broadcast.Fields, serverID int64)
 }
