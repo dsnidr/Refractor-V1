@@ -77,6 +77,7 @@ func main() {
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
 
 	websocketService := websocket.NewWebsocketService(loggerInst)
+	go websocketService.StartPool()
 
 	rconService := rcon.NewRCONService(gameService, loggerInst)
 
