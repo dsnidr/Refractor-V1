@@ -46,16 +46,39 @@ func (c *Client) Read() {
 				return
 			}
 
-			c.log.Warn("Could not read message from client %d. Error: %v\n", c.UserID, err)
+			c.log.Warn("Could not read message from client %d. Error: %v", c.UserID, err)
 			continue
 		}
 
 		var msg *refractor.WebsocketMessage
 		if err = json.Unmarshal(msgBytes, &msg); err != nil {
-			c.log.Error("Could not unmarshal message: %v Error: %v\n", string(msgBytes), err)
+			c.log.Error("Could not unmarshal message: %v Error: %v", string(msgBytes), err)
 			continue
 		}
 
-		c.log.Info("Message received from client ID %d: %v\n", c.ID, msg)
+		if msg.Type == "ping" {
+			// Send back a pong message
+			reply := &refractor.WebsocketMessage{
+				Type: "pong",
+				Body: "",
+			}
+
+			msgBytes, err := json.Marshal(reply)
+			if err != nil {
+				c.log.Error("Could not marshal ping reply message to client ID %d. Error: %v", c.ID, err)
+				continue
+			}
+
+			// Send pong message
+			if err := wsutil.WriteServerText(c.Conn, msgBytes); err != nil {
+				c.log.Error("Could not send ping reply message to client ID %d. Error: %v", c.ID, err)
+				continue
+			}
+
+			// Continue as there's no need to log a ping message
+			continue
+		}
+
+		c.log.Info("Message received from client ID %d: %v", c.ID, msg)
 	}
 }
