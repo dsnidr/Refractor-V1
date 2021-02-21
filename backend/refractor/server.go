@@ -25,6 +25,7 @@ type ServerInfo struct {
 type ServerData struct {
 	NeedsUpdate   bool
 	ServerID      int64
+	Game          string
 	PlayerCount   int
 	OnlinePlayers map[string]*Player
 }
@@ -41,7 +42,7 @@ type ServerRepository interface {
 
 type ServerService interface {
 	CreateServer(body params.CreateServerParams) (*Server, *ServiceResponse)
-	CreateServerData(id int64)
+	CreateServerData(id int64, gameName string)
 	GetAllServers() ([]*Server, *ServiceResponse)
 	GetAllServerData() ([]*ServerData, *ServiceResponse)
 	GetServerData(id int64) (*ServerData, *ServiceResponse)

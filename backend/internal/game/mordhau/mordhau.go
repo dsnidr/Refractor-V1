@@ -23,6 +23,7 @@ func NewMordhauGame() refractor.Game {
 				broadcast.TYPE_JOIN: regexp.MustCompile("^Login: (?P<date>[0-9\\.-]+): (?P<name>.+) \\((?P<playfabid>[0-9a-fA-F]+)\\) logged in$"),
 				broadcast.TYPE_QUIT: regexp.MustCompile("^Login: (?P<date>[0-9\\.-]+): (?P<name>.+) \\((?P<playfabid>[0-9a-fA-F]+)\\) logged out$"),
 			},
+			PlayerGameIDField: "playfabid",
 		},
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/sniddunc/refractor/internal/gameserver"
 	"github.com/sniddunc/refractor/internal/http/api"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/internal/player"
 	"github.com/sniddunc/refractor/internal/rcon"
 	"github.com/sniddunc/refractor/internal/server"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
@@ -76,10 +77,15 @@ func main() {
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
 
+	playerRepo := mysql.NewPlayerRepository(db)
+	playerService := player.NewPlayerService(playerRepo, loggerInst)
+	playerHandler := player.NewPlayerHandler(playerService, serverService, gameService)
+
 	websocketService := websocket.NewWebsocketService(loggerInst)
 	go websocketService.StartPool()
 
 	rconService := rcon.NewRCONService(gameService, loggerInst)
+	rconService.SubscribeJoin(playerHandler.OnPlayerJoin)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
@@ -179,7 +185,7 @@ func setupServerClients(rconService refractor.RCONService, serverService refract
 	}
 
 	for _, server := range allServers {
-		serverService.CreateServerData(server.ServerID)
+		serverService.CreateServerData(server.ServerID, server.Game)
 
 		if err := rconService.CreateClient(server); err != nil {
 			return err

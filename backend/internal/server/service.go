@@ -84,10 +84,11 @@ func (s *serverService) CreateServer(body params.CreateServerParams) (*refractor
 	}
 }
 
-func (s *serverService) CreateServerData(id int64) {
+func (s *serverService) CreateServerData(id int64, gameName string) {
 	s.serverData[id] = &refractor.ServerData{
 		NeedsUpdate:   true,
 		ServerID:      id,
+		Game:          gameName,
 		PlayerCount:   0,
 		OnlinePlayers: map[string]*refractor.Player{},
 	}
