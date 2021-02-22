@@ -133,3 +133,25 @@ func (s *playerService) OnPlayerQuit(serverID int64, playerGameID string) (*refr
 		Message:    "Quit handled",
 	}
 }
+
+func (s *playerService) GetPlayer(args refractor.FindArgs) (*refractor.Player, *refractor.ServiceResponse) {
+	foundPlayer, err := s.repo.FindOne(args)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "No player found",
+			}
+		}
+
+		s.log.Error("Could not find one player from storage. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return foundPlayer, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Player found",
+	}
+}
