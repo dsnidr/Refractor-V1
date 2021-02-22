@@ -19,20 +19,10 @@ func NewPlayerHandler(service refractor.PlayerService, serverService refractor.S
 	}
 }
 
-func (h *playerHandler) OnPlayerJoin(fields broadcast.Fields, serverID int64) {
-	// Get game config from server data
-	serverData, _ := h.serverService.GetServerData(serverID)
-	game, _ := h.gameService.GetGame(serverData.Game)
-	gameConfig := game.GetConfig()
-
-	h.service.OnPlayerJoin(serverID, fields[gameConfig.PlayerGameIDField], fields["name"])
+func (h *playerHandler) OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
+	h.service.OnPlayerJoin(serverID, fields[gameConfig.PlayerGameIDField], fields["Name"])
 }
 
-func (h *playerHandler) OnPlayerQuit(fields broadcast.Fields, serverID int64) {
-	// Get game config from server data
-	serverData, _ := h.serverService.GetServerData(serverID)
-	game, _ := h.gameService.GetGame(serverData.Game)
-	gameConfig := game.GetConfig()
-
+func (h *playerHandler) OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
 	h.service.OnPlayerQuit(serverID, fields[gameConfig.PlayerGameIDField])
 }

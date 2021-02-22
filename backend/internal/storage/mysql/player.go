@@ -117,6 +117,16 @@ func (r *playerRepo) FindOne(args refractor.FindArgs) (*refractor.Player, error)
 		return nil, wrapError(err)
 	}
 
+	// Get names
+	currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	// Set names
+	foundPlayer.CurrentName = currentName
+	foundPlayer.PreviousNames = previousNames
+
 	return foundPlayer, nil
 }
 
