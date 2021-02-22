@@ -20,10 +20,10 @@ func NewMordhauGame() refractor.Game {
 			AlivePingInterval: time.Second * 30,
 			EnableBroadcasts:  true,
 			BroadcastPatterns: map[string]*regexp.Regexp{
-				broadcast.TYPE_JOIN: regexp.MustCompile("^Login: (?P<date>[0-9\\.-]+): (?P<name>.+) \\((?P<playfabid>[0-9a-fA-F]+)\\) logged in$"),
-				broadcast.TYPE_QUIT: regexp.MustCompile("^Login: (?P<date>[0-9\\.-]+): (?P<name>.+) \\((?P<playfabid>[0-9a-fA-F]+)\\) logged out$"),
+				broadcast.TYPE_JOIN: regexp.MustCompile("^Login: (?P<Date>[0-9\\.-]+): (?P<Name>.+) \\((?P<PlayFabID>[0-9a-fA-F]+)\\) logged in$"),
+				broadcast.TYPE_QUIT: regexp.MustCompile("^Login: (?P<Date>[0-9\\.-]+): (?P<Name>.+) \\((?P<PlayFabID>[0-9a-fA-F]+)\\) logged out$"),
 			},
-			PlayerGameIDField: "playfabid",
+			PlayerGameIDField: "PlayFabID",
 		},
 	}
 }

@@ -81,11 +81,14 @@ func main() {
 	playerService := player.NewPlayerService(playerRepo, loggerInst)
 	playerHandler := player.NewPlayerHandler(playerService, serverService, gameService)
 
-	websocketService := websocket.NewWebsocketService(loggerInst)
+	websocketService := websocket.NewWebsocketService(playerService, loggerInst)
 	go websocketService.StartPool()
 
 	rconService := rcon.NewRCONService(gameService, loggerInst)
 	rconService.SubscribeJoin(playerHandler.OnPlayerJoin)
+	rconService.SubscribeQuit(playerHandler.OnPlayerQuit)
+	rconService.SubscribeJoin(websocketService.OnPlayerJoin)
+	rconService.SubscribeQuit(websocketService.OnPlayerQuit)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {

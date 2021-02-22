@@ -11,7 +11,7 @@ type RCONClient struct {
 	*rcon.Client
 }
 
-type BroadcastSubscriber func(fields broadcast.Fields, serverID int64)
+type BroadcastSubscriber func(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 
 type RCONService interface {
 	CreateClient(*Server) error

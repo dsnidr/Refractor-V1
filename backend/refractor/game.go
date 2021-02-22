@@ -20,7 +20,7 @@ type GameConfig struct {
 	BroadcastPatterns map[string]*regexp.Regexp
 
 	// PlayerGameIDField holds the name of the regex named properly containing the player's unique identifier for a game.
-	// Using Mordhau as an example, it would be "playfabid".
+	// Using Mordhau as an example, it would be "PlayFabID".
 	PlayerGameIDField string
 }
 

@@ -1,6 +1,9 @@
 package refractor
 
-import "net"
+import (
+	"github.com/sniddunc/refractor/pkg/broadcast"
+	"net"
+)
 
 type WebsocketMessage struct {
 	Type string      `json:"type"`
@@ -11,4 +14,6 @@ type WebsocketService interface {
 	Broadcast(message *WebsocketMessage)
 	CreateClient(userID int64, conn net.Conn)
 	StartPool()
+	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
+	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 }

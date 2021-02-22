@@ -1,22 +1,18 @@
 package rcon
 
-import "github.com/sniddunc/refractor/pkg/broadcast"
+import (
+	"github.com/sniddunc/refractor/pkg/broadcast"
+	"github.com/sniddunc/refractor/refractor"
+)
 
-type playerJoinData struct {
-	ServerID     int64  `json:"serverId"`
-	PlayerID     int64  `json:"id"`
-	PlayerGameID string `json:"playerGameId"`
-	Name         string `json:"name"`
-}
-
-func (s *rconService) HandleJoinBroadcast(bcast *broadcast.Broadcast, serverID int64) {
+func (s *rconService) HandleJoinBroadcast(bcast *broadcast.Broadcast, serverID int64, gameConfig *refractor.GameConfig) {
 	for _, sub := range s.joinSubscribers {
-		sub(bcast.Fields, serverID)
+		sub(bcast.Fields, serverID, gameConfig)
 	}
 }
 
-func (s *rconService) HandleQuitBroadcast(bcast *broadcast.Broadcast, serverID int64) {
+func (s *rconService) HandleQuitBroadcast(bcast *broadcast.Broadcast, serverID int64, gameConfig *refractor.GameConfig) {
 	for _, sub := range s.quitSubscribers {
-		sub(bcast.Fields, serverID)
+		sub(bcast.Fields, serverID, gameConfig)
 	}
 }

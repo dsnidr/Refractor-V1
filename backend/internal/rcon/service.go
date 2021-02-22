@@ -113,10 +113,10 @@ func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor
 
 		switch bcast.Type {
 		case broadcast.TYPE_JOIN:
-			s.HandleJoinBroadcast(bcast, serverID)
+			s.HandleJoinBroadcast(bcast, serverID, gameConfig)
 			break
 		case broadcast.TYPE_QUIT:
-			s.HandleQuitBroadcast(bcast, serverID)
+			s.HandleQuitBroadcast(bcast, serverID, gameConfig)
 		}
 	}
 }
