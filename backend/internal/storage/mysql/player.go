@@ -106,6 +106,20 @@ func (r *playerRepo) UpdateName(player *refractor.Player, currentName string) er
 	return nil
 }
 
+func (r *playerRepo) FindOne(args refractor.FindArgs) (*refractor.Player, error) {
+	query, values := buildFindQuery("Players", args)
+
+	row := r.db.QueryRow(query, values...)
+
+	var foundPlayer = &refractor.Player{}
+
+	if err := r.scanRow(row, foundPlayer); err != nil {
+		return nil, wrapError(err)
+	}
+
+	return foundPlayer, nil
+}
+
 func (r *playerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.Player, error) {
 	query, values := buildUpdateQuery("Players", id, "PlayerID", args)
 
