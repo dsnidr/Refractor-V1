@@ -170,5 +170,5 @@ func (s *serverService) OnServerOffline(serverID int64) {
 
 	s.serverData[serverID].Online = false
 
-	s.log.Warn("Server with ID %d has gone offline")
+	s.log.Warn("Server with ID %d has gone offline", serverID)
 }
