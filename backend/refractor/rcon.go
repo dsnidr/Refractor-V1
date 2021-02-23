@@ -12,6 +12,7 @@ type RCONClient struct {
 }
 
 type BroadcastSubscriber func(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
+type StatusSubscriber func(serverID int64)
 
 type RCONService interface {
 	CreateClient(*Server) error
@@ -19,4 +20,6 @@ type RCONService interface {
 	DeleteClient(serverID int64)
 	SubscribeJoin(subscriber BroadcastSubscriber)
 	SubscribeQuit(subscriber BroadcastSubscriber)
+	SubscribeOnline(subscriber StatusSubscriber)
+	SubscribeOffline(subscriber StatusSubscriber)
 }

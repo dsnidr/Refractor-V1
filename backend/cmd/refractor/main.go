@@ -89,6 +89,8 @@ func main() {
 	rconService.SubscribeQuit(playerHandler.OnPlayerQuit)
 	rconService.SubscribeJoin(websocketService.OnPlayerJoin)
 	rconService.SubscribeQuit(websocketService.OnPlayerQuit)
+	rconService.SubscribeOnline(serverService.OnServerOnline)
+	rconService.SubscribeOffline(serverService.OnServerOffline)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
@@ -194,7 +196,7 @@ func setupServerClients(rconService refractor.RCONService, serverService refract
 			return err
 		}
 
-		log.Info("RCON Client connected to", server.Name)
+		log.Info("RCON Client connected to %s", server.Name)
 	}
 
 	return nil
