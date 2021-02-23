@@ -120,6 +120,7 @@ func (s *serverService) createServerData(id int64) {
 	s.serverData[id] = &refractor.ServerData{
 		NeedsUpdate: true,
 		ServerID:    id,
+		Online:      false,
 	}
 }
 
@@ -150,4 +151,24 @@ func (s *serverService) OnPlayerJoin(id int64, player *refractor.Player) {
 
 func (s *serverService) OnPlayerQuit(id int64, player *refractor.Player) {
 
+}
+
+func (s *serverService) OnServerOnline(serverID int64) {
+	if s.serverData[serverID] == nil {
+		s.log.Warn("OnServerOnline was called with an invalid serverID of %d", serverID)
+		return
+	}
+
+	s.serverData[serverID].Online = true
+}
+
+func (s *serverService) OnServerOffline(serverID int64) {
+	if s.serverData[serverID] == nil {
+		s.log.Warn("OnServerOffline was called with an invalid serverID of %d", serverID)
+		return
+	}
+
+	s.serverData[serverID].Online = false
+
+	s.log.Warn("Server with ID %d has gone offline")
 }

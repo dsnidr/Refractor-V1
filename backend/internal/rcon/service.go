@@ -10,20 +10,24 @@ import (
 )
 
 type rconService struct {
-	clients         map[int64]*refractor.RCONClient
-	gameService     refractor.GameService
-	log             log.Logger
-	joinSubscribers []refractor.BroadcastSubscriber
-	quitSubscribers []refractor.BroadcastSubscriber
+	clients            map[int64]*refractor.RCONClient
+	gameService        refractor.GameService
+	log                log.Logger
+	joinSubscribers    []refractor.BroadcastSubscriber
+	quitSubscribers    []refractor.BroadcastSubscriber
+	onlineSubscribers  []refractor.StatusSubscriber
+	offlineSubscribers []refractor.StatusSubscriber
 }
 
 func NewRCONService(gameService refractor.GameService, log log.Logger) refractor.RCONService {
 	return &rconService{
-		clients:         map[int64]*refractor.RCONClient{},
-		gameService:     gameService,
-		log:             log,
-		joinSubscribers: []refractor.BroadcastSubscriber{},
-		quitSubscribers: []refractor.BroadcastSubscriber{},
+		clients:            map[int64]*refractor.RCONClient{},
+		gameService:        gameService,
+		log:                log,
+		joinSubscribers:    []refractor.BroadcastSubscriber{},
+		quitSubscribers:    []refractor.BroadcastSubscriber{},
+		onlineSubscribers:  []refractor.StatusSubscriber{},
+		offlineSubscribers: []refractor.StatusSubscriber{},
 	}
 }
 
@@ -51,6 +55,7 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 		AttemptReconnect:         false,
 		EnableBroadcasts:         gameConfig.EnableBroadcasts,
 		BroadcastHandler:         s.getBroadcastListener(server.ServerID, gameConfig),
+		DisconnectHandler:        s.getDisconnectHandler(server.ServerID),
 	})
 
 	// Connect the main socket
@@ -78,6 +83,12 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 		Client: client,
 	}
 
+	// If this point was reached, we know the RCON connection was successful so we notify server online subscribers
+	// of this server online event.
+	for _, sub := range s.onlineSubscribers {
+		sub(server.ServerID)
+	}
+
 	// TODO: Check if the client needs to update it's server's state. If so, do the update.
 
 	// TODO: Once websockets are implemented, inform them of the server status.
@@ -95,12 +106,24 @@ func (s *rconService) DeleteClient(serverID int64) {
 	panic("implement me")
 }
 
+// SubscribeJoin adds a function to a slice of functions to be called when a player joins a server
 func (s *rconService) SubscribeJoin(subscriber refractor.BroadcastSubscriber) {
 	s.joinSubscribers = append(s.joinSubscribers, subscriber)
 }
 
+// SubscribeQuit adds a function to a slice of functions to be called when a player quits a server
 func (s *rconService) SubscribeQuit(subscriber refractor.BroadcastSubscriber) {
 	s.quitSubscribers = append(s.quitSubscribers, subscriber)
+}
+
+// SubscribeOnline adds a function to a slice of functions to be called when an RCON connection to a server comes online
+func (s *rconService) SubscribeOnline(subscriber refractor.StatusSubscriber) {
+	s.onlineSubscribers = append(s.onlineSubscribers, subscriber)
+}
+
+// SubscribeOffline adds a function to a slice of functions to be called when an RCON connection to a server goes offline
+func (s *rconService) SubscribeOffline(subscriber refractor.StatusSubscriber) {
+	s.offlineSubscribers = append(s.offlineSubscribers, subscriber)
 }
 
 func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor.GameConfig) func(string) {
@@ -117,6 +140,15 @@ func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor
 			break
 		case broadcast.TYPE_QUIT:
 			s.HandleQuitBroadcast(bcast, serverID, gameConfig)
+		}
+	}
+}
+
+func (s *rconService) getDisconnectHandler(serverID int64) func(error, bool) {
+	return func(err error, expected bool) {
+		// Notify all subscribers of a server offline event
+		for _, sub := range s.offlineSubscribers {
+			sub(serverID)
 		}
 	}
 }

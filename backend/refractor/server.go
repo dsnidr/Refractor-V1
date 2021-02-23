@@ -26,6 +26,7 @@ type ServerData struct {
 	NeedsUpdate   bool
 	ServerID      int64
 	Game          string
+	Online        bool
 	PlayerCount   int
 	OnlinePlayers map[string]*Player
 }
@@ -48,6 +49,8 @@ type ServerService interface {
 	GetServerData(id int64) (*ServerData, *ServiceResponse)
 	OnPlayerJoin(id int64, player *Player)
 	OnPlayerQuit(id int64, player *Player)
+	OnServerOnline(serverID int64)
+	OnServerOffline(serverID int64)
 }
 
 type ServerHandler interface {
