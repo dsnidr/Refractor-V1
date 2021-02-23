@@ -89,7 +89,6 @@ export function setInterceptors(store) {
 					.then((res) => {
 						// If refresh was successful, store the new token
 						if (res.status === 200) {
-							console.log('Refresh payload', res.data.payload);
 							setToken(res.data.payload);
 
 							// Update bearer token on originalRequest and then retry it

@@ -91,6 +91,8 @@ func main() {
 	rconService.SubscribeQuit(websocketService.OnPlayerQuit)
 	rconService.SubscribeOnline(serverService.OnServerOnline)
 	rconService.SubscribeOffline(serverService.OnServerOffline)
+	rconService.SubscribeOnline(websocketService.OnServerOnline)
+	rconService.SubscribeOffline(websocketService.OnServerOffline)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
