@@ -94,3 +94,17 @@ func (s *websocketService) OnPlayerQuit(fields broadcast.Fields, serverID int64,
 		},
 	})
 }
+
+func (s *websocketService) OnServerOnline(serverID int64) {
+	s.Broadcast(&refractor.WebsocketMessage{
+		Type: "server-online",
+		Body: serverID,
+	})
+}
+
+func (s *websocketService) OnServerOffline(serverID int64) {
+	s.Broadcast(&refractor.WebsocketMessage{
+		Type: "server-offline",
+		Body: serverID,
+	})
+}

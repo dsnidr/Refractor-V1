@@ -16,4 +16,6 @@ type WebsocketService interface {
 	StartPool()
 	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
+	OnServerOnline(serverID int64)
+	OnServerOffline(serverID int64)
 }
