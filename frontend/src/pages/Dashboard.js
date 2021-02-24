@@ -32,6 +32,7 @@ import { getGames } from '../redux/games/gameActions';
 import Server from './DashboardPages/Server';
 import { refreshToken } from '../api/authApi';
 import { newWebsocket } from '../websocket/websocket';
+import { getServers } from '../redux/servers/serverActions';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -49,6 +50,10 @@ class Dashboard extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.games === null) {
 			nextProps.getGames();
+		}
+
+		if (nextProps.servers === null) {
+			nextProps.getServers();
 		}
 
 		// We don't want to create a websocket until we know the user was fetched.
@@ -268,10 +273,12 @@ class Dashboard extends Component {
 const mapStateToProps = (state) => ({
 	user: state.user.self,
 	games: state.games,
+	servers: state.servers,
 });
 
 const mapDispatchToProps = (dispatch) => ({
 	getGames: () => dispatch(getGames()),
+	getServers: () => dispatch(getServers()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
