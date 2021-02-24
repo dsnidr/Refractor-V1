@@ -42,3 +42,12 @@ func (h *serverHandler) GetAllServers(c echo.Context) error {
 		Payload: allServers,
 	})
 }
+
+func (h *serverHandler) GetAllServerData(c echo.Context) error {
+	allServerData, res := h.service.GetAllServerData()
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Payload: allServerData,
+	})
+}

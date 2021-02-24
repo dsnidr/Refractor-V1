@@ -56,4 +56,5 @@ type ServerService interface {
 type ServerHandler interface {
 	CreateServer(c echo.Context) error
 	GetAllServers(c echo.Context) error
+	GetAllServerData(c echo.Context) error
 }
