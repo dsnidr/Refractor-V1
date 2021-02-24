@@ -5,7 +5,8 @@ import themeReducer from './theme/themeReducer';
 import userReducer from './user/userReducer';
 import errorReducer from './error/errorReducer';
 import successReducer from './success/successReducer';
-import gameReducer from './game/gameReducer';
+import gameReducer from './games/gameReducer';
+import serverReducer from './servers/serverReducer';
 
 const createRootReducer = (history) =>
 	combineReducers({
@@ -14,7 +15,8 @@ const createRootReducer = (history) =>
 		error: errorReducer,
 		success: successReducer,
 		user: userReducer,
-		game: gameReducer,
+		games: gameReducer,
+		servers: serverReducer,
 	});
 
 export default createRootReducer;

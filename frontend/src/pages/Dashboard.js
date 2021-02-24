@@ -28,7 +28,7 @@ import RequireAccessLevel from '../components/RequireAccessLevel';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import Main from './DashboardPages/Main';
 import { Route, Switch } from 'react-router';
-import { getGames } from '../redux/game/gameActions';
+import { getGames } from '../redux/games/gameActions';
 import Server from './DashboardPages/Server';
 import { refreshToken } from '../api/authApi';
 import { newWebsocket } from '../websocket/websocket';
@@ -54,7 +54,7 @@ class Dashboard extends Component {
 		// We don't want to create a websocket until we know the user was fetched.
 		// This is because we rely on the getUserInfo call made in App.js during the auth check process
 		// to refresh our JWTs if needed. If we didn't wait for a user to be defined in props then we
-		// could send the server an expired which would fail the websocket auth check.
+		// could send the servers an expired which would fail the websocket auth check.
 		if (!nextProps.user || prevState.wsClient !== null) {
 			return prevState;
 		}
@@ -267,7 +267,7 @@ class Dashboard extends Component {
 
 const mapStateToProps = (state) => ({
 	user: state.user.self,
-	games: state.game,
+	games: state.games,
 });
 
 const mapDispatchToProps = (dispatch) => ({
