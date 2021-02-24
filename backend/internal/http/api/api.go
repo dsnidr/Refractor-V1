@@ -86,6 +86,7 @@ func (api *API) setupRoutes() {
 	serverGroup := apiGroup.Group("/servers", jwtMiddleware, AttachClaims())
 	serverGroup.POST("/", api.ServerHandler.CreateServer, api.RequireAccessLevel(config.AL_ADMIN))
 	serverGroup.GET("/", api.ServerHandler.GetAllServers)
+	serverGroup.GET("/data", api.ServerHandler.GetAllServerData)
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)

@@ -43,11 +43,37 @@ func (h *serverHandler) GetAllServers(c echo.Context) error {
 	})
 }
 
+type serverDataRes struct {
+	ServerID    int64               `json:"id"`
+	Online      bool                `json:"online"`
+	PlayerCount int                 `json:"playerCount"`
+	Players     []*refractor.Player `json:"players"`
+}
+
 func (h *serverHandler) GetAllServerData(c echo.Context) error {
 	allServerData, res := h.service.GetAllServerData()
+
+	// Parse all server data into serverDataRes structs
+	var resServerData []*serverDataRes
+
+	for _, serverData := range allServerData {
+		var players []*refractor.Player
+
+		for _, player := range serverData.OnlinePlayers {
+			players = append(players, player)
+		}
+
+		resServerData = append(resServerData, &serverDataRes{
+			ServerID:    serverData.ServerID,
+			Online:      serverData.Online,
+			PlayerCount: serverData.PlayerCount,
+			Players:     players,
+		})
+	}
+
 	return c.JSON(res.StatusCode, Response{
 		Success: res.Success,
 		Message: res.Message,
-		Payload: allServerData,
+		Payload: resServerData,
 	})
 }
