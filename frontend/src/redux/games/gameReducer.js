@@ -1,10 +1,10 @@
-import { SET_SERVERS } from '../servers/serverActions';
+import { SET_GAMES } from './gameActions';
 
 const initialState = null;
 
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
-		case SET_SERVERS:
+		case SET_GAMES:
 			return action.payload;
 		default:
 			return state;
