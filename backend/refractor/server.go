@@ -3,6 +3,7 @@ package refractor
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/pkg/broadcast"
 )
 
 type Server struct {
@@ -57,4 +58,6 @@ type ServerHandler interface {
 	CreateServer(c echo.Context) error
 	GetAllServers(c echo.Context) error
 	GetAllServerData(c echo.Context) error
+	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
+	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 }

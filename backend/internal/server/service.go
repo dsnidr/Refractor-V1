@@ -7,6 +7,7 @@ import (
 	"github.com/sniddunc/refractor/refractor"
 	"net/http"
 	"net/url"
+	"reflect"
 )
 
 type serverService struct {
@@ -116,10 +117,11 @@ func (s *serverService) GetAllServers() ([]*refractor.Server, *refractor.Service
 	}
 }
 
-func (s *serverService) createServerData(id int64) {
+func (s *serverService) createServerData(id int64, game string) {
 	s.serverData[id] = &refractor.ServerData{
 		NeedsUpdate: true,
 		ServerID:    id,
+		Game:        game,
 		Online:      false,
 	}
 }
@@ -145,12 +147,28 @@ func (s *serverService) GetServerData(id int64) (*refractor.ServerData, *refract
 	}
 }
 
-func (s *serverService) OnPlayerJoin(id int64, player *refractor.Player) {
+func (s *serverService) OnPlayerJoin(serverID int64, player *refractor.Player) {
+	// Get the game for this server
+	game, _ := s.gameService.GetGame(s.serverData[serverID].Game)
 
+	// Use reflection to get the proper PlayerGameIDField from the player
+	r := reflect.ValueOf(player)
+	field := reflect.Indirect(r).FieldByName(game.GetConfig().PlayerGameIDField).String()
+
+	// Add the player to the server data
+	s.serverData[serverID].OnlinePlayers[field] = player
 }
 
-func (s *serverService) OnPlayerQuit(id int64, player *refractor.Player) {
+func (s *serverService) OnPlayerQuit(serverID int64, player *refractor.Player) {
+	// Get the game for this server
+	game, _ := s.gameService.GetGame(s.serverData[serverID].Game)
 
+	// Use reflection to get the proper PlayerGameIDField from the player
+	r := reflect.ValueOf(player)
+	field := reflect.Indirect(r).FieldByName(game.GetConfig().PlayerGameIDField).String()
+
+	// Remove the player from the server data
+	delete(s.serverData[serverID].OnlinePlayers, field)
 }
 
 func (s *serverService) OnServerOnline(serverID int64) {

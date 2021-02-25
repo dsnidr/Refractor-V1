@@ -3,19 +3,22 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/pkg/broadcast"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
 )
 
 type serverHandler struct {
-	service refractor.ServerService
-	log     log.Logger
+	service       refractor.ServerService
+	playerService refractor.PlayerService
+	log           log.Logger
 }
 
-func NewServerHandler(service refractor.ServerService, log log.Logger) refractor.ServerHandler {
+func NewServerHandler(service refractor.ServerService, playerService refractor.PlayerService, log log.Logger) refractor.ServerHandler {
 	return &serverHandler{
-		service: service,
-		log:     log,
+		service:       service,
+		playerService: playerService,
+		log:           log,
 	}
 }
 
@@ -76,4 +79,34 @@ func (h *serverHandler) GetAllServerData(c echo.Context) error {
 		Message: res.Message,
 		Payload: resServerData,
 	})
+}
+
+func (h *serverHandler) OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
+	playerGameID := gameConfig.PlayerGameIDField
+
+	player, res := h.playerService.GetPlayer(refractor.FindArgs{
+		playerGameID: fields[playerGameID],
+	})
+
+	if !res.Success {
+		h.log.Error("Could not get player by their PlayerGameID field. %v = %v", playerGameID, fields[playerGameID])
+		return
+	}
+
+	h.service.OnPlayerJoin(serverID, player)
+}
+
+func (h *serverHandler) OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
+	playerGameID := gameConfig.PlayerGameIDField
+
+	player, res := h.playerService.GetPlayer(refractor.FindArgs{
+		playerGameID: fields[playerGameID],
+	})
+
+	if !res.Success {
+		h.log.Error("Could not get player by their PlayerGameID field. %v = %v", playerGameID, fields[playerGameID])
+		return
+	}
+
+	h.service.OnPlayerQuit(serverID, player)
 }

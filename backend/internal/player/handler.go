@@ -6,16 +6,12 @@ import (
 )
 
 type playerHandler struct {
-	service       refractor.PlayerService
-	serverService refractor.ServerService
-	gameService   refractor.GameService
+	service refractor.PlayerService
 }
 
-func NewPlayerHandler(service refractor.PlayerService, serverService refractor.ServerService, gameService refractor.GameService) refractor.PlayerHandler {
+func NewPlayerHandler(service refractor.PlayerService) refractor.PlayerHandler {
 	return &playerHandler{
-		service:       service,
-		serverService: serverService,
-		gameService:   gameService,
+		service: service,
 	}
 }
 
