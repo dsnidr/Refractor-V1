@@ -70,16 +70,16 @@ func main() {
 	authService := auth.NewAuthService(userRepo, loggerInst, os.Getenv("JWT_SECRET"))
 	authHandler := api.NewAuthHandler(authService, secureMode)
 
+	playerRepo := mysql.NewPlayerRepository(db)
+	playerService := player.NewPlayerService(playerRepo, loggerInst)
+	playerHandler := player.NewPlayerHandler(playerService)
+
 	serverRepo := mysql.NewServerRepository(db)
 	serverService := server.NewServerService(serverRepo, gameService, loggerInst)
-	serverHandler := api.NewServerHandler(serverService, loggerInst)
+	serverHandler := api.NewServerHandler(serverService, playerService, loggerInst)
 
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
-
-	playerRepo := mysql.NewPlayerRepository(db)
-	playerService := player.NewPlayerService(playerRepo, loggerInst)
-	playerHandler := player.NewPlayerHandler(playerService, serverService, gameService)
 
 	websocketService := websocket.NewWebsocketService(playerService, loggerInst)
 	go websocketService.StartPool()
@@ -89,6 +89,8 @@ func main() {
 	rconService.SubscribeQuit(playerHandler.OnPlayerQuit)
 	rconService.SubscribeJoin(websocketService.OnPlayerJoin)
 	rconService.SubscribeQuit(websocketService.OnPlayerQuit)
+	rconService.SubscribeJoin(serverHandler.OnPlayerJoin)
+	rconService.SubscribeQuit(serverHandler.OnPlayerQuit)
 	rconService.SubscribeOnline(serverService.OnServerOnline)
 	rconService.SubscribeOffline(serverService.OnServerOffline)
 	rconService.SubscribeOnline(websocketService.OnServerOnline)
