@@ -48,4 +48,20 @@ const onMessage = (client, actions) => (msg) => {
 	console.log('Received message: ', wsMsg);
 
 	// TODO: Handle message types and take proper actions
+	switch (type) {
+		case 'player-join':
+			actions.addPlayer(body.serverId, {
+				id: body.id,
+				playerGameId: body.playerGameId,
+				currentName: body.name,
+			});
+			break;
+		case 'player-quit':
+			actions.removePlayer(body.serverId, {
+				id: body.id,
+				playerGameId: body.playerGameId,
+				currentName: body.name,
+			});
+			break;
+	}
 };
