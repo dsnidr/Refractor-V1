@@ -22,3 +22,10 @@ export const removePlayerFromServer = (serverId, player) => ({
 	serverId: serverId,
 	payload: player,
 });
+
+export const SET_SERVER_STATUS = 'SET_SERVER_STATUS';
+export const setServerStatus = (serverId, isOnline) => ({
+	type: SET_SERVER_STATUS,
+	serverId: serverId,
+	payload: isOnline,
+});

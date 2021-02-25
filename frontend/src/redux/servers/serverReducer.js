@@ -1,6 +1,7 @@
 import {
 	ADD_PLAYER_TO_SERVER,
 	REMOVE_PLAYER_FROM_SERVER,
+	SET_SERVER_STATUS,
 	SET_SERVERS,
 } from './serverActions';
 
@@ -18,6 +19,8 @@ const reducer = (state = initialState, action) => {
 				action.serverId,
 				action.payload
 			);
+		case SET_SERVER_STATUS:
+			return setServerStatus(state, action.serverId, action.payload);
 		default:
 			return state;
 	}
@@ -63,6 +66,20 @@ function removePlayerFromServer(state, serverId, player) {
 		[serverId]: {
 			...state[serverId],
 			players: players,
+		},
+	};
+}
+
+function setServerStatus(state, serverId, isOnline) {
+	if (!state[serverId]) {
+		return;
+	}
+
+	return {
+		...state,
+		[serverId]: {
+			...state[serverId],
+			online: isOnline,
 		},
 	};
 }

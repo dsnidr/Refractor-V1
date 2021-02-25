@@ -36,6 +36,7 @@ import {
 	addPlayerToServer,
 	getServers,
 	removePlayerFromServer,
+	setServerStatus,
 } from '../redux/servers/serverActions';
 
 let reconnectInterval;
@@ -102,6 +103,7 @@ class Dashboard extends Component {
 					{
 						addPlayer: nextProps.addPlayer,
 						removePlayer: nextProps.removePlayer,
+						setServerStatus: nextProps.setServerStatus,
 					},
 					() => {
 						reconnectTaskStarted = false;
@@ -120,6 +122,7 @@ class Dashboard extends Component {
 			{
 				addPlayer: nextProps.addPlayer,
 				removePlayer: nextProps.removePlayer,
+				setServerStatus: nextProps.setServerStatus,
 			},
 			() => {
 				clearInterval(reconnectInterval);
@@ -289,6 +292,8 @@ const mapDispatchToProps = (dispatch) => ({
 		dispatch(addPlayerToServer(serverId, player)),
 	removePlayer: (serverId, player) =>
 		dispatch(removePlayerFromServer(serverId, player)),
+	setServerStatus: (serverId, isOnline) =>
+		dispatch(setServerStatus(serverId, isOnline)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
