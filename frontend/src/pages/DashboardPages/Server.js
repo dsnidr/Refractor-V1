@@ -138,7 +138,32 @@ class Server extends Component {
 		this.state = {};
 	}
 
+	static getDerivedStateFromProps(nextProps, prevState) {
+		// Get server data
+		const id = parseInt(nextProps.match.params.id);
+		if (!id) {
+			return prevState;
+		}
+
+		const { servers } = nextProps;
+
+		if (!servers || !servers[id]) {
+			return prevState;
+		}
+
+		prevState.server = servers[id];
+		return prevState;
+	}
+
 	render() {
+		const { server } = this.state;
+
+		if (!server) {
+			return null;
+		}
+
+		const players = server.players || [];
+
 		return (
 			<>
 				<div>
@@ -153,19 +178,29 @@ class Server extends Component {
 				</div>
 
 				<div>
-					<Heading headingStyle="subtitle">PLAYER COUNT</Heading>
+					{players.length > 0 ? (
+						<Heading headingStyle="subtitle">
+							Online players:
+						</Heading>
+					) : (
+						<Heading headingStyle="subtitle">
+							No players are online
+						</Heading>
+					)}
 
 					<PlayerList>
-						<Player>
-							<Link to={`/player/idhere`}>
-								<h1>Player name</h1>
-							</Link>
-							<PlayerButtons>
-								<div>Warn</div>
-								<div>Kick</div>
-								<div>Ban</div>
-							</PlayerButtons>
-						</Player>
+						{players.map((player) => (
+							<Player>
+								<Link to={`/player/${player.id}`}>
+									<h1>{player.currentName}</h1>
+								</Link>
+								<PlayerButtons>
+									<div>Warn</div>
+									<div>Kick</div>
+									<div>Ban</div>
+								</PlayerButtons>
+							</Player>
+						))}
 					</PlayerList>
 				</div>
 			</>
@@ -173,7 +208,9 @@ class Server extends Component {
 	}
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+	servers: state.servers,
+});
 
 const mapDispatchToProps = (dispatch) => ({});
 
