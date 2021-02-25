@@ -32,7 +32,11 @@ import { getGames } from '../redux/games/gameActions';
 import Server from './DashboardPages/Server';
 import { refreshToken } from '../api/authApi';
 import { newWebsocket } from '../websocket/websocket';
-import { getServers } from '../redux/servers/serverActions';
+import {
+	addPlayerToServer,
+	getServers,
+	removePlayerFromServer,
+} from '../redux/servers/serverActions';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -96,7 +100,8 @@ class Dashboard extends Component {
 				prevState.wsClient = newWebsocket(
 					webSocketUri,
 					{
-						// TODO: Add needed actions here
+						addPlayer: nextProps.addPlayer,
+						removePlayer: nextProps.removePlayer,
 					},
 					() => {
 						reconnectTaskStarted = false;
@@ -113,7 +118,8 @@ class Dashboard extends Component {
 		prevState.wsClient = newWebsocket(
 			webSocketUri,
 			{
-				// TODO: Add needed actions
+				addPlayer: nextProps.addPlayer,
+				removePlayer: nextProps.removePlayer,
 			},
 			() => {
 				clearInterval(reconnectInterval);
@@ -279,6 +285,10 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
 	getGames: () => dispatch(getGames()),
 	getServers: () => dispatch(getServers()),
+	addPlayer: (serverId, player) =>
+		dispatch(addPlayerToServer(serverId, player)),
+	removePlayer: (serverId, player) =>
+		dispatch(removePlayerFromServer(serverId, player)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
