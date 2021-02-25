@@ -48,6 +48,9 @@ func (h *serverHandler) GetAllServers(c echo.Context) error {
 
 type serverDataRes struct {
 	ServerID    int64               `json:"id"`
+	Name        string              `json:"name"`
+	Address     string              `json:"address"`
+	RCONPort    string              `json:"rconPort"`
 	Online      bool                `json:"online"`
 	PlayerCount int                 `json:"playerCount"`
 	Players     []*refractor.Player `json:"players"`
@@ -66,8 +69,18 @@ func (h *serverHandler) GetAllServerData(c echo.Context) error {
 			players = append(players, player)
 		}
 
+		// Get server info
+		server, res := h.service.GetServerByID(serverData.ServerID)
+		if !res.Success {
+			h.log.Warn("Could not GetServerByID %d", serverData.ServerID)
+			continue
+		}
+
 		resServerData = append(resServerData, &serverDataRes{
 			ServerID:    serverData.ServerID,
+			Name:        server.Name,
+			Address:     server.Address,
+			RCONPort:    server.RCONPort,
 			Online:      serverData.Online,
 			PlayerCount: serverData.PlayerCount,
 			Players:     players,

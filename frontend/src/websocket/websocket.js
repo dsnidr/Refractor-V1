@@ -63,5 +63,11 @@ const onMessage = (client, actions) => (msg) => {
 				currentName: body.name,
 			});
 			break;
+		case 'server-online':
+			actions.setServerStatus(body.serverId, true);
+			break;
+		case 'server-offline':
+			actions.setServerStatus(body.serverId, false);
+			break;
 	}
 };

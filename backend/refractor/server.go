@@ -48,6 +48,7 @@ type ServerService interface {
 	GetAllServers() ([]*Server, *ServiceResponse)
 	GetAllServerData() ([]*ServerData, *ServiceResponse)
 	GetServerData(id int64) (*ServerData, *ServiceResponse)
+	GetServerByID(id int64) (*Server, *ServiceResponse)
 	OnPlayerJoin(id int64, player *Player)
 	OnPlayerQuit(id int64, player *Player)
 	OnServerOnline(serverID int64)

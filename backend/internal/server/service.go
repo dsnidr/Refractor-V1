@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
 	"net/http"
@@ -144,6 +145,28 @@ func (s *serverService) GetServerData(id int64) (*refractor.ServerData, *refract
 	return s.serverData[id], &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
+	}
+}
+
+func (s *serverService) GetServerByID(id int64) (*refractor.Server, *refractor.ServiceResponse) {
+	server, err := s.repo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not FindByID server from repository. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return server, &refractor.ServiceResponse{
+		Success: true,
+		StatusCode: http.StatusOK,
+		Message: "Server fetched",
 	}
 }
 

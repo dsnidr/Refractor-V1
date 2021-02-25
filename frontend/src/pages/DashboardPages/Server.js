@@ -158,6 +158,8 @@ class Server extends Component {
 	render() {
 		const { server } = this.state;
 
+		console.log('SERVER', server);
+
 		if (!server) {
 			return null;
 		}
@@ -167,12 +169,17 @@ class Server extends Component {
 		return (
 			<>
 				<div>
-					<Heading headingStyle={'title'}>SERVER TITLE</Heading>
+					<Heading headingStyle={'title'}>{server.name}</Heading>
 					<ServerSummary>
 						<p>
-							<InfoSpan>{`Players: `}</InfoSpan>
-							<InfoSpan>{`Status: `}</InfoSpan>
-							<InfoSpan>{`Address: `}</InfoSpan>
+							<InfoSpan>{`Players: `}</InfoSpan> {players.length}
+						</p>
+						<p>
+							<InfoSpan>{`Status: `}</InfoSpan>{' '}
+							{server.online ? 'Online' : 'Offline'}
+						</p>
+						<p>
+							<InfoSpan>{`Address: `}</InfoSpan> {server.address}
 						</p>
 					</ServerSummary>
 				</div>
@@ -210,6 +217,7 @@ class Server extends Component {
 
 const mapStateToProps = (state) => ({
 	servers: state.servers,
+	games: state.games,
 });
 
 const mapDispatchToProps = (dispatch) => ({});
