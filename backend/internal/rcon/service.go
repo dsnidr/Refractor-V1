@@ -5,6 +5,7 @@ import (
 	rcon "github.com/sniddunc/mordhau-rcon"
 	"github.com/sniddunc/refractor/pkg/broadcast"
 	"github.com/sniddunc/refractor/pkg/log"
+	"github.com/sniddunc/refractor/pkg/regexutils"
 	"github.com/sniddunc/refractor/refractor"
 	"strconv"
 )
@@ -12,6 +13,7 @@ import (
 type rconService struct {
 	clients            map[int64]*refractor.RCONClient
 	gameService        refractor.GameService
+	playerService      refractor.PlayerService
 	log                log.Logger
 	joinSubscribers    []refractor.BroadcastSubscriber
 	quitSubscribers    []refractor.BroadcastSubscriber
@@ -19,10 +21,11 @@ type rconService struct {
 	offlineSubscribers []refractor.StatusSubscriber
 }
 
-func NewRCONService(gameService refractor.GameService, log log.Logger) refractor.RCONService {
+func NewRCONService(gameService refractor.GameService, playerService refractor.PlayerService, log log.Logger) refractor.RCONService {
 	return &rconService{
 		clients:            map[int64]*refractor.RCONClient{},
 		gameService:        gameService,
+		playerService:      playerService,
 		log:                log,
 		joinSubscribers:    []refractor.BroadcastSubscriber{},
 		quitSubscribers:    []refractor.BroadcastSubscriber{},
@@ -83,15 +86,23 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 		Client: client,
 	}
 
+	// Get players currently on the server
+	onlinePlayers := s.getOnlinePlayers(server.ServerID, game)
+
+	for _, onlinePlayer := range onlinePlayers {
+		for _, sub := range s.joinSubscribers {
+			sub(broadcast.Fields{
+				game.GetConfig().PlayerGameIDField: onlinePlayer.PlayerGameID,
+				"Name": onlinePlayer.Name,
+			}, server.ServerID, game.GetConfig())
+		}
+	}
+
 	// If this point was reached, we know the RCON connection was successful so we notify server online subscribers
 	// of this server online event.
 	for _, sub := range s.onlineSubscribers {
 		sub(server.ServerID)
 	}
-
-	// TODO: Check if the client needs to update it's server's state. If so, do the update.
-
-	// TODO: Once websockets are implemented, inform them of the server status.
 
 	s.log.Info("A new RCON client was created for server ID: %d", server.ServerID)
 
@@ -151,4 +162,39 @@ func (s *rconService) getDisconnectHandler(serverID int64) func(error, bool) {
 			sub(serverID)
 		}
 	}
+}
+
+type onlinePlayer struct {
+	PlayerGameID string
+	Name         string
+}
+
+func (s *rconService) getOnlinePlayers(serverID int64, game refractor.Game) []*onlinePlayer {
+	playerListCommand := game.GetPlayerListCommand()
+
+	res, err := s.clients[serverID].ExecCommand(playerListCommand)
+	if err != nil {
+		s.log.Error("RCON ExecCommand %s failed with error: %v", playerListCommand, err)
+		return nil
+	}
+
+	// Extract player info from RCON command response
+	playerListPattern := game.GetConfig().CmdOutputPatterns["PlayerList"]
+	players := playerListPattern.FindAllString(res, -1)
+
+	var onlinePlayers []*onlinePlayer
+
+	for _, player := range players {
+		fields := regexutils.MapNamedMatches(playerListPattern, player)
+
+		playerGameID := fields[game.GetConfig().PlayerGameIDField]
+		name := fields["Name"]
+
+		onlinePlayers = append(onlinePlayers, &onlinePlayer{
+			PlayerGameID: playerGameID,
+			Name: name,
+		})
+	}
+
+	return onlinePlayers
 }

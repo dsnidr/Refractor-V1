@@ -84,7 +84,7 @@ func main() {
 	websocketService := websocket.NewWebsocketService(playerService, loggerInst)
 	go websocketService.StartPool()
 
-	rconService := rcon.NewRCONService(gameService, loggerInst)
+	rconService := rcon.NewRCONService(gameService, playerService, loggerInst)
 	rconService.SubscribeJoin(playerHandler.OnPlayerJoin)
 	rconService.SubscribeQuit(playerHandler.OnPlayerQuit)
 	rconService.SubscribeJoin(websocketService.OnPlayerJoin)

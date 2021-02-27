@@ -89,6 +89,8 @@ func (s *playerService) OnPlayerJoin(serverID int64, playerGameID string, curren
 
 	// If they player was already in storage, check if their name changed.
 	if foundPlayer.CurrentName != currentName {
+		s.log.Info("Updating name for player (%d) %s to %s", foundPlayer.PlayerID, foundPlayer.CurrentName, currentName)
+
 		if err := s.repo.UpdateName(foundPlayer, currentName); err != nil {
 			s.log.Error("Could not update player name to new name. Error: %v", err)
 			return nil, refractor.InternalErrorResponse

@@ -68,6 +68,15 @@ func (r *playerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error
 		return nil, wrapError(err)
 	}
 
+	// Get player names
+	currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	foundPlayer.CurrentName = currentName
+	foundPlayer.PreviousNames = previousNames
+
 	return foundPlayer, nil
 }
 
@@ -89,7 +98,9 @@ func (r *playerRepo) UpdateName(player *refractor.Player, currentName string) er
 			ON DUPLICATE KEY UPDATE DateRecorded = UNIX_TIMESTAMP();
 	`
 
-	if _, err := r.db.Exec(query, player.PlayerID, currentName, time.Now().Unix()); err != nil {
+	runeName := []rune(currentName)
+
+	if _, err := r.db.Exec(query, player.PlayerID, string(runeName), time.Now().Unix()); err != nil {
 		return wrapError(err)
 	}
 

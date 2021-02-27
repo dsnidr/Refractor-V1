@@ -77,7 +77,7 @@ func Setup(db *sql.DB) error {
 	if _, err := tx.Exec(`
 		CREATE TABLE IF NOT EXISTS PlayerNames(
 			PlayerID INT NOT NULL,
-			Name VARCHAR(48) NOT NULL,
+			Name VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
 			DateRecorded BIGINT DEFAULT 0,
 			
 			FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID),
@@ -89,6 +89,17 @@ func Setup(db *sql.DB) error {
 		}
 
 		return fmt.Errorf("could not create PlayerNames table. Error: %v", err)
+	}
+
+	// Alter player names table
+	if _, err := tx.Exec(`
+		ALTER TABLE PlayerNames CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+	`); err != nil {
+		if err = tx.Rollback(); err != nil {
+			return err
+		}
+
+		return fmt.Errorf("could not alter PlayerNames table. Error: %v", err)
 	}
 
 	return tx.Commit()

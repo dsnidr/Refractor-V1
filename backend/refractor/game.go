@@ -18,6 +18,7 @@ type GameConfig struct {
 	AlivePingInterval time.Duration
 	EnableBroadcasts  bool
 	BroadcastPatterns map[string]*regexp.Regexp
+	CmdOutputPatterns map[string]*regexp.Regexp
 
 	// PlayerGameIDField holds the name of the regex named properly containing the player's unique identifier for a game.
 	// Using Mordhau as an example, it would be "PlayFabID".
