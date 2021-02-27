@@ -158,8 +158,6 @@ class Server extends Component {
 	render() {
 		const { server } = this.state;
 
-		console.log('SERVER', server);
-
 		if (!server) {
 			return null;
 		}
