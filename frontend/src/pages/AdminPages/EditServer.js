@@ -5,6 +5,7 @@ import Heading from '../../components/Heading';
 import Alert from '../../components/Alert';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
+import { editServer } from '../../redux/servers/serverActions';
 
 const Form = styled.div`
 	display: grid;
@@ -61,6 +62,39 @@ class EditServer extends Component {
 
 	onSaveClick = () => {
 		console.log('Save clicked');
+		const { server, name, address, rconPassword, rconPort } = this.state;
+
+		const errors = {};
+
+		if (!name) {
+			errors.name = "Please enter the server's name";
+		}
+
+		if (!address) {
+			errors.address = "Please enter the server's address";
+		}
+
+		if (!rconPassword) {
+			errors.rconPassword = "Please enter the server's RCON password";
+		}
+
+		if (!rconPort) {
+			errors.rconPort = "Please enter the server's RCON port";
+		}
+
+		if (Object.keys(errors).length > 0) {
+			return this.setState((prevState) => ({
+				...prevState,
+				errors: errors,
+			}));
+		}
+
+		this.props.editServer(server.id, {
+			name,
+			address,
+			rconPassword,
+			rconPort,
+		});
 	};
 
 	render() {
@@ -145,8 +179,12 @@ class EditServer extends Component {
 
 const mapStateToProps = (state) => ({
 	servers: state.servers,
+	errors: state.error.servers,
+	success: state.success.servers,
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	editServer: (serverId, data) => dispatch(editServer(serverId, data)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditServer);
