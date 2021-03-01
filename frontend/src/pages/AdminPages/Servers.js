@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import respondTo from '../../mixins/respondTo';
 import Heading from '../../components/Heading';
-import { Link } from 'react-router-dom';
 import Button from '../../components/Button';
 import { connect } from 'react-redux';
-import { editServer } from '../../redux/servers/serverActions';
+import { push } from 'connected-react-router';
+import { Link } from 'react-router-dom';
 
 const ServerTable = styled.table`
 	${(props) => css`
@@ -37,13 +37,22 @@ const ServerButtonBox = styled.div`
 	${(props) => css`
 		display: flex;
 
-		> * {
+		a {
+			text-decoration: none !important;
 			margin-right: 0.5rem;
 		}
 	`}
 `;
 
 class Servers extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			redirectTo: null,
+		};
+	}
+
 	render() {
 		const { servers: serversObj } = this.props;
 
@@ -80,12 +89,19 @@ class Servers extends Component {
 									{server.online ? 'Online' : 'Offline'}
 								</div>
 								<ServerButtonBox>
-									<Button size={'small'} color={'primary'}>
-										Edit
-									</Button>
-									<Button size={'small'} color={'danger'}>
-										Delete
-									</Button>
+									<Link to={`/servers/edit/${server.id}`}>
+										<Button
+											size={'small'}
+											color={'primary'}
+										>
+											Edit
+										</Button>
+									</Link>
+									<Link>
+										<Button size={'small'} color={'danger'}>
+											Delete
+										</Button>
+									</Link>
 								</ServerButtonBox>
 							</>
 						))}
@@ -100,6 +116,8 @@ const mapStateToProps = (state) => ({
 	servers: state.servers,
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	redirect: (path) => dispatch(push(path)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Servers);

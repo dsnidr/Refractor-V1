@@ -30,9 +30,9 @@ export const setServerStatus = (serverId, isOnline) => ({
 	payload: isOnline,
 });
 
-export const EDIT_SERVER = 'EDIT_SERVER';
-export const editServer = (serverId, editedData) => ({
-	type: EDIT_SERVER,
+export const UPDATE_SERVER = 'UPDATE_SERVER';
+export const updateServer = (serverId, editedData) => ({
+	type: UPDATE_SERVER,
 	serverId: serverId,
 	payload: editedData,
 });

@@ -49,14 +49,14 @@ func (body *CreateServerParams) Validate() (bool, url.Values) {
 	return len(errors) == 0, errors
 }
 
-type EditServerParams struct {
+type UpdateServerParams struct {
 	Name         string `form:"name"`
 	Address      string `form:"address"`
 	RCONPort     string `form:"rconPort"`
 	RCONPassword string `form:"rconPassword"`
 }
 
-func (body *EditServerParams) Validate() (bool, url.Values) {
+func (body *UpdateServerParams) Validate() (bool, url.Values) {
 	errors := url.Values{}
 
 	if body.Name != "" {

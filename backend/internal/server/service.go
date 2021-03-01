@@ -170,7 +170,7 @@ func (s *serverService) GetServerByID(id int64) (*refractor.Server, *refractor.S
 	}
 }
 
-func (s *serverService) EditServer(id int64, body params.EditServerParams) (*refractor.Server, *refractor.ServiceResponse) {
+func (s *serverService) UpdateServer(id int64, body params.UpdateServerParams) (*refractor.Server, *refractor.ServiceResponse) {
 	updateArgs := refractor.UpdateArgs{}
 
 	if body.Name != "" {

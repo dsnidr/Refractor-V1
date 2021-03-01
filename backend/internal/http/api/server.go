@@ -4,8 +4,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/pkg/broadcast"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
+	"net/http"
+	"strconv"
 )
 
 type serverHandler struct {
@@ -91,6 +94,32 @@ func (h *serverHandler) GetAllServerData(c echo.Context) error {
 		Success: res.Success,
 		Message: res.Message,
 		Payload: resServerData,
+	})
+}
+
+func (h *serverHandler) UpdateServer(c echo.Context) error {
+	idString := c.Param("id")
+
+	serverID, err := strconv.ParseInt(idString, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: config.MessageInvalidIDProvided,
+		})
+	}
+
+	// Validate request body
+	body := params.UpdateServerParams{}
+	if ok := ValidateRequest(&body, c); !ok {
+		return nil
+	}
+
+	// Update the server
+	updatedServer, res := h.service.UpdateServer(serverID, body)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Payload: updatedServer,
 	})
 }
 

@@ -87,6 +87,7 @@ func (api *API) setupRoutes() {
 	serverGroup.POST("/", api.ServerHandler.CreateServer, api.RequireAccessLevel(config.AL_ADMIN))
 	serverGroup.GET("/", api.ServerHandler.GetAllServers)
 	serverGroup.GET("/data", api.ServerHandler.GetAllServerData)
+	serverGroup.PATCH("/:id", api.ServerHandler.UpdateServer, api.RequireAccessLevel(config.AL_ADMIN))
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)
