@@ -49,7 +49,7 @@ type ServerService interface {
 	GetAllServerData() ([]*ServerData, *ServiceResponse)
 	GetServerData(id int64) (*ServerData, *ServiceResponse)
 	GetServerByID(id int64) (*Server, *ServiceResponse)
-	EditServer(id int64, body params.EditServerParams) (*Server, *ServiceResponse)
+	UpdateServer(id int64, body params.UpdateServerParams) (*Server, *ServiceResponse)
 	OnPlayerJoin(id int64, player *Player)
 	OnPlayerQuit(id int64, player *Player)
 	OnServerOnline(serverID int64)
@@ -60,6 +60,7 @@ type ServerHandler interface {
 	CreateServer(c echo.Context) error
 	GetAllServers(c echo.Context) error
 	GetAllServerData(c echo.Context) error
+	UpdateServer(c echo.Context) error
 	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 }

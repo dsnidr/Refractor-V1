@@ -103,7 +103,7 @@ func Test_serverService_EditServer(t *testing.T) {
 	}
 	type args struct {
 		id   int64
-		body params.EditServerParams
+		body params.UpdateServerParams
 	}
 	tests := []struct {
 		name    string
@@ -128,7 +128,7 @@ func Test_serverService_EditServer(t *testing.T) {
 			},
 			args: args{
 				id: 1,
-				body: params.EditServerParams{
+				body: params.UpdateServerParams{
 					Name:         "Updated server name",
 					Address:      "192.168.0.1",
 					RCONPort:     "2383",
@@ -155,7 +155,7 @@ func Test_serverService_EditServer(t *testing.T) {
 			mockServerRepo := mock.NewMockServerRepository(tt.fields.mockServers)
 			serverService := NewServerService(mockServerRepo, nil, testLogger)
 
-			gotServer, gotRes := serverService.EditServer(tt.args.id, tt.args.body)
+			gotServer, gotRes := serverService.UpdateServer(tt.args.id, tt.args.body)
 
 			assert.Equal(t, tt.want, gotServer, "Servers did not match")
 			assert.Equal(t, tt.wantRes, gotRes, "Responses did not match")

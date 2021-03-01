@@ -5,7 +5,7 @@ import Heading from '../../components/Heading';
 import Alert from '../../components/Alert';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
-import { editServer } from '../../redux/servers/serverActions';
+import { updateServer } from '../../redux/servers/serverActions';
 
 const Form = styled.div`
 	display: grid;
@@ -29,6 +29,32 @@ class EditServer extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		// Check for success
+		if (nextProps.success) {
+			setTimeout(() => {
+				document.location.href = '/servers';
+			}, 4000);
+
+			return {
+				...prevState,
+				success: nextProps.success,
+				errors: {},
+				buttonDisabled: true,
+			};
+		}
+
+		// Check for errors
+		if (nextProps.errors) {
+			return {
+				...prevState,
+				errors: {
+					...nextProps.errors,
+				},
+				success: {},
+			};
+		}
+
+		// Get server data if no success or errors were found
 		if (!prevState.server) {
 			const id = parseInt(nextProps.match.params.id);
 			if (!id) {
@@ -61,7 +87,6 @@ class EditServer extends Component {
 	};
 
 	onSaveClick = () => {
-		console.log('Save clicked');
 		const { server, name, address, rconPassword, rconPort } = this.state;
 
 		const errors = {};
@@ -89,7 +114,7 @@ class EditServer extends Component {
 			}));
 		}
 
-		this.props.editServer(server.id, {
+		this.props.updateServer(server.id, {
 			name,
 			address,
 			rconPassword,
@@ -98,11 +123,13 @@ class EditServer extends Component {
 	};
 
 	render() {
-		const { server } = this.state;
+		const { server, errors, success } = this.state;
 
 		if (!server) {
 			return <Heading headingStyle={'title'}>Server not found</Heading>;
 		}
+
+		console.log(errors, success);
 
 		return (
 			<>
@@ -113,6 +140,11 @@ class EditServer extends Component {
 				</div>
 
 				<div>
+					<Alert
+						type="error"
+						message={typeof errors === 'string' ? errors : null}
+					/>
+					<Alert type="success" message={success} />
 					<Form>
 						<InputWrapper>
 							<TextInput
@@ -179,12 +211,12 @@ class EditServer extends Component {
 
 const mapStateToProps = (state) => ({
 	servers: state.servers,
-	errors: state.error.servers,
-	success: state.success.servers,
+	errors: state.error.editserver,
+	success: state.success.editserver,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-	editServer: (serverId, data) => dispatch(editServer(serverId, data)),
+	updateServer: (serverId, data) => dispatch(updateServer(serverId, data)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditServer);

@@ -169,7 +169,7 @@ func TestCreateServerParams_Validate(t *testing.T) {
 	}
 }
 
-func TestEditServerParams_Validate(t *testing.T) {
+func TestUpdateServerParams_Validate(t *testing.T) {
 	type fields struct {
 		Name         string
 		Address      string
@@ -269,7 +269,7 @@ func TestEditServerParams_Validate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			body := &EditServerParams{
+			body := &UpdateServerParams{
 				Name:         tt.fields.Name,
 				Address:      tt.fields.Address,
 				RCONPort:     tt.fields.RCONPort,

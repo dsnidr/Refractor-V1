@@ -1,6 +1,6 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
-import { EDIT_SERVER, GET_SERVERS, setServers } from './serverActions';
-import { editServer, getAllServerData } from '../../api/serverApi';
+import { GET_SERVERS, setServers, UPDATE_SERVER } from './serverActions';
+import { getAllServerData, updateServer } from '../../api/serverApi';
 import { setErrors } from '../error/errorActions';
 import { setSuccess } from '../success/successActions';
 
@@ -27,26 +27,22 @@ function* getServersAsync(action) {
 	}
 }
 
-function* editServerAsync(action) {
+function* updateServerAsync(action) {
 	try {
-		const { data } = yield call(
-			editServer,
-			action.serverId,
-			action.payload
-		);
+		yield call(updateServer, action.serverId, action.payload);
 
-		yield put(setSuccess('servers', 'Server edited successfully'));
-
-		console.log(data);
+		yield put(setErrors('editserver', undefined));
+		yield put(setSuccess('editserver', 'Server updated successfully'));
 	} catch (err) {
-		console.log('Could not edit server', err);
-		const { data } = err.response.data;
+		console.log('Could not update server', err);
+		const { data } = err.response;
 
+		yield put(setSuccess('editserver', undefined));
 		yield put(
 			setErrors(
-				'servers',
+				'editserver',
 				!data.errors
-					? `Could not edit server: ${err.response.data.message}`
+					? `Could not update server: ${err.response.data.message}`
 					: data.errors
 			)
 		);
@@ -57,10 +53,10 @@ function* watchGetServers() {
 	yield takeLatest(GET_SERVERS, getServersAsync);
 }
 
-function* watchEditServer() {
-	yield takeLatest(EDIT_SERVER, editServerAsync);
+function* watchUpdateServer() {
+	yield takeLatest(UPDATE_SERVER, updateServerAsync);
 }
 
 export default function* gameSagas() {
-	yield all([call(watchGetServers), call(watchEditServer)]);
+	yield all([call(watchGetServers), call(watchUpdateServer)]);
 }

@@ -8,6 +8,6 @@ export function getAllServerData() {
 	return axios.get(`/api/v1/servers/data`);
 }
 
-export function editServer(serverId, data) {
+export function updateServer(serverId, data) {
 	return axios.patch(`/api/v1/servers/${serverId}`, data, postHeaders);
 }
