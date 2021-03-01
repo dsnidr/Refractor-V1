@@ -168,3 +168,116 @@ func TestCreateServerParams_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestEditServerParams_Validate(t *testing.T) {
+	type fields struct {
+		Name         string
+		Address      string
+		RCONPort     string
+		RCONPassword string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name: "params.server.1",
+			fields: fields{
+				Name:         "Test Server",
+				Address:      "127.0.0.1",
+				RCONPort:     "17262",
+				RCONPassword: "password",
+			},
+			want: true,
+		},
+		{
+			name: "params.server.2",
+			fields: fields{
+				Name:         "Local Test Server",
+				Address:      "192.168.1.1",
+				RCONPort:     "1778",
+				RCONPassword: "rc*a72etyhast2@[]q@{@&Yhsa",
+			},
+			want: true,
+		},
+		{
+			name: "params.server.3",
+			fields: fields{
+				Name:         strings.Repeat("a", config.ServerNameMinLen),
+				Address:      "0.0.0.0",
+				RCONPort:     "23",
+				RCONPassword: strings.Repeat("p", config.ServerPasswordMinLen),
+			},
+			want: true,
+		},
+		{
+			name: "params.server.4",
+			fields: fields{
+				Name:         strings.Repeat("a", config.ServerNameMaxLen),
+				Address:      "111.111.111.111",
+				RCONPort:     "65535",
+				RCONPassword: strings.Repeat("p", config.ServerPasswordMaxLen),
+			},
+			want: true,
+		},
+		{
+			name: "params.server.5",
+			fields: fields{
+				Name:         "hey! this isn't a valid server name!",
+				Address:      "invalid IP address goes here",
+				RCONPort:     ":) totally a legit port",
+				RCONPassword: "L",
+			},
+			want: false,
+		},
+		{
+			name: "params.server.6",
+			fields: fields{
+				Name:         "hey! this isn't a valid server name!",
+				Address:      "192.168.1.2",
+				RCONPort:     "4322",
+				RCONPassword: "password",
+			},
+			want: false,
+		},
+		{
+			name: "params.server.7",
+			fields: fields{
+				Name:         "valid name",
+				Address:      "192.168.1.2",
+				RCONPort:     "4322",
+				RCONPassword: strings.Repeat("p", config.ServerPasswordMinLen-1),
+			},
+			want: true,
+		},
+		{
+			name: "params.server.8",
+			fields: fields{
+				Name:         "valid name",
+				Address:      "192.168.1.2",
+				RCONPort:     "4322",
+				RCONPassword: strings.Repeat("p", config.ServerPasswordMaxLen+1),
+			},
+			want: false,
+		},
+		{
+			name:   "params.server.9",
+			fields: fields{},
+			want:   true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body := &EditServerParams{
+				Name:         tt.fields.Name,
+				Address:      tt.fields.Address,
+				RCONPort:     tt.fields.RCONPort,
+				RCONPassword: tt.fields.RCONPassword,
+			}
+
+			got, errors := body.Validate()
+			assert.Equal(t, tt.want, got, "Validate returned the wrong values. Errors: %v", errors)
+		})
+	}
+}
