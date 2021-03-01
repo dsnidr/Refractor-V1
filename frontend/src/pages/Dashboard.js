@@ -38,6 +38,7 @@ import {
 	removePlayerFromServer,
 	setServerStatus,
 } from '../redux/servers/serverActions';
+import Servers from './AdminPages/Servers';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -268,8 +269,13 @@ class Dashboard extends Component {
 							<Route exact path="/" component={Main} />
 							<Route
 								exact
-								path="/server/:id"
+								path={'/server/:id'}
 								component={Server}
+							/>
+							<Route
+								exact
+								path={'/servers'}
+								component={Servers}
 							/>
 						</Switch>
 					</Content>
