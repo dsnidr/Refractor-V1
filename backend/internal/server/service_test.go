@@ -94,3 +94,71 @@ func Test_serverService_CreateServer(t *testing.T) {
 		})
 	}
 }
+
+func Test_serverService_EditServer(t *testing.T) {
+	testLogger, _ := log.NewLogger(true, false)
+
+	type fields struct {
+		mockServers map[int64]*refractor.Server
+	}
+	type args struct {
+		id   int64
+		body params.EditServerParams
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *refractor.Server
+		wantRes *refractor.ServiceResponse
+	}{
+		{
+			name: "server.editserver.1",
+			fields: fields{
+				mockServers: map[int64]*refractor.Server{
+					1: {
+						ServerID:     1,
+						Name:         "Test Server",
+						Game:         "Test Game",
+						Address:      "127.0.0,1",
+						RCONPort:     "1000",
+						RCONPassword: "Password",
+					},
+				},
+			},
+			args: args{
+				id: 1,
+				body: params.EditServerParams{
+					Name:         "Updated server name",
+					Address:      "192.168.0.1",
+					RCONPort:     "2383",
+					RCONPassword: "UpdatedPassword",
+				},
+			},
+			want: &refractor.Server{
+				ServerID:     1,
+				Name:         "Updated server name",
+				Game:         "Test Game",
+				Address:      "192.168.0.1",
+				RCONPort:     "2383",
+				RCONPassword: "UpdatedPassword",
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Server updated. RCON changes will come into effect the next time Refractor is restarted.",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockServerRepo := mock.NewMockServerRepository(tt.fields.mockServers)
+			serverService := NewServerService(mockServerRepo, nil, testLogger)
+
+			gotServer, gotRes := serverService.EditServer(tt.args.id, tt.args.body)
+
+			assert.Equal(t, tt.want, gotServer, "Servers did not match")
+			assert.Equal(t, tt.wantRes, gotRes, "Responses did not match")
+		})
+	}
+}

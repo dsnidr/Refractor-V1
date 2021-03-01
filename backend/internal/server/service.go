@@ -164,9 +164,57 @@ func (s *serverService) GetServerByID(id int64) (*refractor.Server, *refractor.S
 	}
 
 	return server, &refractor.ServiceResponse{
-		Success: true,
+		Success:    true,
 		StatusCode: http.StatusOK,
-		Message: "Server fetched",
+		Message:    "Server fetched",
+	}
+}
+
+func (s *serverService) EditServer(id int64, body params.EditServerParams) (*refractor.Server, *refractor.ServiceResponse) {
+	updateArgs := refractor.UpdateArgs{}
+
+	if body.Name != "" {
+		updateArgs["Name"] = body.Name
+	}
+
+	if body.Address != "" {
+		updateArgs["Address"] = body.Address
+	}
+
+	if body.RCONPort != "" {
+		updateArgs["RCONPort"] = body.RCONPort
+	}
+
+	if body.RCONPassword != "" {
+		updateArgs["RCONPassword"] = body.RCONPassword
+	}
+
+	if len(updateArgs) < 1 {
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    "No updated values provided",
+		}
+	}
+
+	updatedServer, err := s.repo.Update(id, updateArgs)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusNotFound,
+				Message:    config.MessageServerNotFound,
+			}
+		}
+
+		s.log.Error("Could not update server of ID %d in repo. Error: %v", id, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return updatedServer, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Server updated. RCON changes will come into effect the next time Refractor is restarted.",
 	}
 }
 
