@@ -5,6 +5,7 @@ import Heading from '../../components/Heading';
 import { Link } from 'react-router-dom';
 import Button from '../../components/Button';
 import { connect } from 'react-redux';
+import { editServer } from '../../redux/servers/serverActions';
 
 const ServerTable = styled.table`
 	${(props) => css`
@@ -43,47 +44,6 @@ const ServerButtonBox = styled.div`
 `;
 
 class Servers extends Component {
-	// getServers = () => {
-	// 	const servers = [];
-	//
-	// 	const serverIds = Object.keys(this.props.servers);
-	//
-	// 	if (!serverIds) {
-	// 		return <p>No servers found</p>;
-	// 	}
-	//
-	// 	serverIds.forEach((serverId) => {
-	// 		const server = this.props.servers[serverId];
-	//
-	// 		servers.push(
-	// 			<TableRow key={server.id}>
-	// 				<TableCell>{server.name}</TableCell>
-	// 				<TableCell>
-	// 					{server.players ? server.players.length : 0}
-	// 				</TableCell>
-	// 				<TableCell>
-	// 					{server.status === true ? 'Online' : 'Offline'}
-	// 				</TableCell>
-	// 				<TableCellButtons>
-	// 					<Link
-	// 						to={`/servers/edit/${server.id}`}
-	// 						style={{ textDecoration: 'none' }}
-	// 					>
-	// 						<Button size="small" color="primary">
-	// 							Edit
-	// 						</Button>
-	// 					</Link>
-	// 					<Button size="small" color="danger">
-	// 						Delete
-	// 					</Button>
-	// 				</TableCellButtons>
-	// 			</TableRow>
-	// 		);
-	// 	});
-	//
-	// 	return servers;
-	// };
-
 	render() {
 		const { servers: serversObj } = this.props;
 
