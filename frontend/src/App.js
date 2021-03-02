@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Provider, connect } from 'react-redux';
+import { connect } from 'react-redux';
 
 import { store, history } from './redux/store';
 import { Router, Switch } from 'react-router';
@@ -104,22 +104,21 @@ class App extends Component {
 			<AppContainer>
 				<ThemeProvider theme={themes[this.props.theme]}>
 					{this.props.isLoading ? <Spinner /> : null}
-					<Router history={history}>
-						<Switch>
-							<UnprotectedRoute
-								exact
-								path={'/login'}
-								component={Login}
-							/>
-							<ProtectedRoute
-								exact
-								path={'/changepassword'}
-								bypassPasswordChange={true}
-								component={ChangePassword}
-							/>
-							<ProtectedRoute path={'/'} component={Dashboard} />
-						</Switch>
-					</Router>
+
+					<Switch>
+						<UnprotectedRoute
+							exact
+							path={'/login'}
+							component={Login}
+						/>
+						<ProtectedRoute
+							exact
+							path={'/changepassword'}
+							bypassPasswordChange={true}
+							component={ChangePassword}
+						/>
+						<ProtectedRoute path={'/'} component={Dashboard} />
+					</Switch>
 				</ThemeProvider>
 			</AppContainer>
 		) : null;
