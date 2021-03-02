@@ -1,0 +1,1 @@
+export const REMOVE_SERVER = 'REMOVE_SERVER';
