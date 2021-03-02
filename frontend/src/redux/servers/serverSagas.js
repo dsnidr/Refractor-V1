@@ -1,12 +1,14 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import {
 	CREATE_SERVER,
+	DELETE_SERVER,
 	GET_SERVERS,
 	setServers,
 	UPDATE_SERVER,
 } from './serverActions';
 import {
 	createServer,
+	deleteServer,
 	getAllServerData,
 	updateServer,
 } from '../../api/serverApi';
@@ -80,6 +82,18 @@ function* createServerAsync(action) {
 	}
 }
 
+function* deleteServerAsync(action) {
+	try {
+		yield call(deleteServer, action.serverId);
+
+		yield put(setSuccess('deleteserver', 'Server deleted'));
+		yield put(setErrors('deleteserver', undefined));
+	} catch (err) {
+		yield put(setErrors('deleteserver', err.response.data.message));
+		yield put(setSuccess('deleteserver', undefined));
+	}
+}
+
 function* watchGetServers() {
 	yield takeLatest(GET_SERVERS, getServersAsync);
 }
@@ -92,10 +106,15 @@ function* watchCreateServer() {
 	yield takeLatest(CREATE_SERVER, createServerAsync);
 }
 
+function* watchDeleteServer() {
+	yield takeLatest(DELETE_SERVER, deleteServerAsync);
+}
+
 export default function* gameSagas() {
 	yield all([
 		call(watchGetServers),
 		call(watchUpdateServer),
 		call(watchCreateServer),
+		call(watchDeleteServer),
 	]);
 }

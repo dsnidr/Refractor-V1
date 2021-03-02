@@ -15,3 +15,7 @@ export function updateServer(serverId, data) {
 export function createServer(data) {
 	return axios.post(`/api/v1/servers/`, data, postHeaders);
 }
+
+export function deleteServer(serverId) {
+	return axios.delete(`/api/v1/servers/${serverId}`);
+}

@@ -42,3 +42,9 @@ export const createServer = (data) => ({
 	type: CREATE_SERVER,
 	payload: data,
 });
+
+export const DELETE_SERVER = 'DELETE_SERVER';
+export const deleteServer = (serverId) => ({
+	type: DELETE_SERVER,
+	serverId: serverId,
+});

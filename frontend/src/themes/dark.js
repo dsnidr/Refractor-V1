@@ -22,7 +22,7 @@ export default {
 	colorTextDanger: '#f7f7f7',
 	colorTextAlert: '#3B3002',
 	colorTextWarning: '#F7DEEE',
-	colorTextSuccess: '#00171F',
+	colorTextSuccess: '#002113',
 	colorTextDisabled: '#2e3233',
 
 	// Border colors
