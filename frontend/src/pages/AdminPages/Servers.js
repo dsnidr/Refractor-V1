@@ -6,6 +6,7 @@ import Button from '../../components/Button';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router';
 
 const ServerTable = styled.table`
 	${(props) => css`
@@ -52,6 +53,10 @@ class Servers extends Component {
 			redirectTo: null,
 		};
 	}
+
+	onAddServerClick = () => {
+		this.props.history.push('/servers/add');
+	};
 
 	render() {
 		const { servers: serversObj } = this.props;
@@ -106,6 +111,14 @@ class Servers extends Component {
 							</>
 						))}
 					</ServerTable>
+
+					<Button
+						size="normal"
+						color="primary"
+						onClick={this.onAddServerClick}
+					>
+						Add Server
+					</Button>
 				</div>
 			</>
 		);
@@ -116,8 +129,6 @@ const mapStateToProps = (state) => ({
 	servers: state.servers,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-	redirect: (path) => dispatch(push(path)),
-});
+const mapDispatchToProps = (dispatch) => ({});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Servers);

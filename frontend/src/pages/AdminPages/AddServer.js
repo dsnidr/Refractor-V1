@@ -5,7 +5,7 @@ import Heading from '../../components/Heading';
 import Alert from '../../components/Alert';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
-import { updateServer } from '../../redux/servers/serverActions';
+import { createServer } from '../../redux/servers/serverActions';
 
 const Form = styled.div`
 	display: grid;
@@ -18,7 +18,7 @@ const InputWrapper = styled.div`
 	flex: 0 0 50%;
 `;
 
-class EditServer extends Component {
+class AddServer extends Component {
 	constructor(props) {
 		super(props);
 
@@ -31,10 +31,6 @@ class EditServer extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		// Check for success
 		if (nextProps.success) {
-			setTimeout(() => {
-				document.location.href = '/servers';
-			}, 4000);
-
 			return {
 				...prevState,
 				success: nextProps.success,
@@ -53,31 +49,6 @@ class EditServer extends Component {
 				success: {},
 			};
 		}
-
-		// Get server data if no success or errors were found
-		if (!prevState.server) {
-			const id = parseInt(nextProps.match.params.id);
-			if (!id) {
-				return prevState;
-			}
-
-			const { servers } = nextProps;
-
-			if (!servers || !servers[id]) {
-				return prevState;
-			}
-
-			let server = servers[id];
-
-			return {
-				...prevState,
-				server,
-				name: server.name,
-				address: server.address,
-				rconPort: server.rconPort,
-				rconPassword: '',
-			};
-		}
 	}
 
 	onChange = (e) => {
@@ -86,55 +57,24 @@ class EditServer extends Component {
 		});
 	};
 
-	onSaveClick = () => {
-		const { server, name, address, rconPassword, rconPort } = this.state;
+	onAddServerClick = () => {
+		const { name, address, rconPort, rconPassword } = this.state;
 
-		const errors = {};
-
-		if (!name) {
-			errors.name = "Please enter the server's name";
-		}
-
-		if (!address) {
-			errors.address = "Please enter the server's address";
-		}
-
-		if (!rconPassword) {
-			errors.rconPassword = "Please enter the server's RCON password";
-		}
-
-		if (!rconPort) {
-			errors.rconPort = "Please enter the server's RCON port";
-		}
-
-		if (Object.keys(errors).length > 0) {
-			return this.setState((prevState) => ({
-				...prevState,
-				errors: errors,
-			}));
-		}
-
-		this.props.updateServer(server.id, {
+		this.props.addServer({
 			name,
 			address,
-			rconPassword,
 			rconPort,
+			rconPassword,
 		});
 	};
 
 	render() {
-		const { server, errors, success } = this.state;
-
-		if (!server) {
-			return <Heading headingStyle={'title'}>Server not found</Heading>;
-		}
+		const { errors, success } = this.state;
 
 		return (
 			<>
 				<div>
-					<Heading headingStyle={'title'}>
-						Editing server: {server.name}
-					</Heading>
+					<Heading headingStyle={'title'}>Add a new server</Heading>
 				</div>
 
 				<div>
@@ -195,7 +135,7 @@ class EditServer extends Component {
 						<Button
 							size={'normal'}
 							color={'primary'}
-							onClick={this.onSaveClick}
+							onClick={this.onAddServerClick}
 							disabled={this.state.buttonDisabled}
 						>
 							Save
@@ -208,13 +148,12 @@ class EditServer extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	servers: state.servers,
-	errors: state.error.editserver,
-	success: state.success.editserver,
+	errors: state.error.createserver,
+	success: state.success.createserver,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-	updateServer: (serverId, data) => dispatch(updateServer(serverId, data)),
+	createServer: (data) => dispatch(createServer(data)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditServer);
+export default connect(mapStateToProps, mapDispatchToProps)(AddServer);

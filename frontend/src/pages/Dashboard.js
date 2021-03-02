@@ -40,6 +40,7 @@ import {
 } from '../redux/servers/serverActions';
 import Servers from './AdminPages/Servers';
 import EditServer from './AdminPages/EditServer';
+import AddServer from './AdminPages/AddServer';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -277,6 +278,11 @@ class Dashboard extends Component {
 								exact
 								path={'/servers'}
 								component={Servers}
+							/>
+							<Route
+								exact
+								path={'/servers/add'}
+								component={AddServer}
 							/>
 							<Route
 								exact

@@ -36,3 +36,9 @@ export const updateServer = (serverId, editedData) => ({
 	serverId: serverId,
 	payload: editedData,
 });
+
+export const CREATE_SERVER = 'CREATE_SERVER';
+export const createServer = (data) => ({
+	type: CREATE_SERVER,
+	payload: data,
+});

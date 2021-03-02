@@ -4,9 +4,10 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import './index.scss';
-import { store } from './redux/store';
+import { history, store } from './redux/store';
 import { Provider } from 'react-redux';
 import { setInterceptors } from './utils/tokenUtils';
+import { Router } from 'react-router';
 
 // Set axios interceptors
 setInterceptors(store);
@@ -14,7 +15,9 @@ setInterceptors(store);
 ReactDOM.render(
 	<React.StrictMode>
 		<Provider store={store}>
-			<App />
+			<Router history={history}>
+				<App />
+			</Router>
 		</Provider>
 	</React.StrictMode>,
 	document.getElementById('root')
