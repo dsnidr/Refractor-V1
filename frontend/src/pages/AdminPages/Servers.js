@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { Link } from 'react-router-dom';
 import { useHistory } from 'react-router';
+import StatusTag from '../../components/StatusTag';
 
 const ServerTable = styled.table`
 	${(props) => css`
@@ -91,7 +92,7 @@ class Servers extends Component {
 									{server.players ? server.players.length : 0}
 								</div>
 								<div>
-									{server.online ? 'Online' : 'Offline'}
+									<StatusTag status={server.online} />
 								</div>
 								<ServerButtonBox>
 									<Link to={`/servers/edit/${server.id}`}>

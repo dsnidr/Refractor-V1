@@ -34,6 +34,7 @@ import { refreshToken } from '../api/authApi';
 import { newWebsocket } from '../websocket/websocket';
 import {
 	addPlayerToServer,
+	getServerData,
 	getServers,
 	removePlayerFromServer,
 	setServerStatus,
