@@ -11,3 +11,7 @@ export function getAllServerData() {
 export function updateServer(serverId, data) {
 	return axios.patch(`/api/v1/servers/${serverId}`, data, postHeaders);
 }
+
+export function createServer(data) {
+	return axios.post(`/api/v1/servers/`, data, postHeaders);
+}

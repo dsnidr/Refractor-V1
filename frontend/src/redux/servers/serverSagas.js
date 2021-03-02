@@ -1,6 +1,15 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
-import { GET_SERVERS, setServers, UPDATE_SERVER } from './serverActions';
-import { getAllServerData, updateServer } from '../../api/serverApi';
+import {
+	CREATE_SERVER,
+	GET_SERVERS,
+	setServers,
+	UPDATE_SERVER,
+} from './serverActions';
+import {
+	createServer,
+	getAllServerData,
+	updateServer,
+} from '../../api/serverApi';
 import { setErrors } from '../error/errorActions';
 import { setSuccess } from '../success/successActions';
 
@@ -17,11 +26,11 @@ function* getServersAsync(action) {
 
 		yield put(setServers(servers));
 	} catch (err) {
-		console.log('Could not get servers', err);
+		console.log('Could not get server data', err);
 		yield put(
 			setErrors(
 				'servers',
-				`Could not get servers: ${err.response.data.message}`
+				`Could not get server data: ${err.response.data.message}`
 			)
 		);
 	}
@@ -49,6 +58,28 @@ function* updateServerAsync(action) {
 	}
 }
 
+function* createServerAsync(action) {
+	try {
+		yield call(createServer, action.payload);
+
+		yield put(setErrors('createserver', undefined));
+		yield put(setSuccess('createserver', 'Server added successfully'));
+	} catch (err) {
+		console.log('Could not create server', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('createserver', undefined));
+		yield put(
+			setErrors(
+				'createserver',
+				!data.errors
+					? `Could not create server: ${err.response.data.message}`
+					: data.errors
+			)
+		);
+	}
+}
+
 function* watchGetServers() {
 	yield takeLatest(GET_SERVERS, getServersAsync);
 }
@@ -57,6 +88,14 @@ function* watchUpdateServer() {
 	yield takeLatest(UPDATE_SERVER, updateServerAsync);
 }
 
+function* watchCreateServer() {
+	yield takeLatest(CREATE_SERVER, createServerAsync);
+}
+
 export default function* gameSagas() {
-	yield all([call(watchGetServers), call(watchUpdateServer)]);
+	yield all([
+		call(watchGetServers),
+		call(watchUpdateServer),
+		call(watchCreateServer),
+	]);
 }

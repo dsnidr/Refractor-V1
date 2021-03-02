@@ -14,7 +14,7 @@ const StyledSelect = styled.select`
 	${(props) => css`
 		width: 100%;
 		height: 100%;
-		background: ${props.theme.textInput.fillInBackground
+		background: ${props.theme.inputs.fillInBackground
 			? props.theme.colorBorderPrimary
 			: 'none'};
 		border: 1px solid ${props.theme.colorBorderPrimary};

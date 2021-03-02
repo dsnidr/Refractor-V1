@@ -4,6 +4,7 @@ import Heading from '../../components/Heading';
 import styled, { css } from 'styled-components';
 import respondTo from '../../mixins/respondTo';
 import { Link } from 'react-router-dom';
+import StatusTag from '../../components/StatusTag';
 
 const ServerSummary = styled.div`
 	${(props) => css`
@@ -174,7 +175,7 @@ class Server extends Component {
 						</p>
 						<p>
 							<InfoSpan>{`Status: `}</InfoSpan>{' '}
-							{server.online ? 'Online' : 'Offline'}
+							<StatusTag status={server.online} />
 						</p>
 						<p>
 							<InfoSpan>{`Address: `}</InfoSpan> {server.address}

@@ -6,16 +6,30 @@ import Alert from '../../components/Alert';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
 import { createServer } from '../../redux/servers/serverActions';
+import Select from '../../components/Select';
+
+const InputWrapper = styled.div`
+	flex: 0 0 50%;
+`;
+
+const TopInputWrapper = styled.div`
+	flex: 0 0 100%;
+`;
 
 const Form = styled.div`
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 6rem 6rem;
+	grid-template-rows: 6rem 6rem 6rem;
 	grid-gap: 1rem;
-`;
 
-const InputWrapper = styled.div`
-	flex: 0 0 50%;
+	${TopInputWrapper} {
+		grid-row: 1;
+		grid-column: span 2;
+
+		select {
+			height: 4rem;
+		}
+	}
 `;
 
 class AddServer extends Component {
@@ -29,6 +43,11 @@ class AddServer extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		// Set the default game value
+		if (nextProps.games) {
+			prevState.game = Object.values(nextProps.games)[0].name;
+		}
+
 		// Check for success
 		if (nextProps.success) {
 			return {
@@ -58,9 +77,10 @@ class AddServer extends Component {
 	};
 
 	onAddServerClick = () => {
-		const { name, address, rconPort, rconPassword } = this.state;
+		const { game, name, address, rconPort, rconPassword } = this.state;
 
-		this.props.addServer({
+		this.props.createServer({
+			game,
 			name,
 			address,
 			rconPort,
@@ -70,6 +90,8 @@ class AddServer extends Component {
 
 	render() {
 		const { errors, success } = this.state;
+
+		const games = Object.values(this.props.games);
 
 		return (
 			<>
@@ -84,6 +106,20 @@ class AddServer extends Component {
 					/>
 					<Alert type="success" message={success} />
 					<Form>
+						<TopInputWrapper>
+							<Select
+								name={'game'}
+								onChange={this.onChange}
+								error={errors.game}
+							>
+								{games.map((game) => (
+									<option key={game.id} value={game.name}>
+										{game.name}
+									</option>
+								))}
+							</Select>
+						</TopInputWrapper>
+
 						<InputWrapper>
 							<TextInput
 								type={'text'}
@@ -138,7 +174,7 @@ class AddServer extends Component {
 							onClick={this.onAddServerClick}
 							disabled={this.state.buttonDisabled}
 						>
-							Save
+							Add Server
 						</Button>
 					</Form>
 				</div>
@@ -148,6 +184,7 @@ class AddServer extends Component {
 }
 
 const mapStateToProps = (state) => ({
+	games: state.games,
 	errors: state.error.createserver,
 	success: state.success.createserver,
 });
