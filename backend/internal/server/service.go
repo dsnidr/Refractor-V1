@@ -218,6 +218,27 @@ func (s *serverService) UpdateServer(id int64, body params.UpdateServerParams) (
 	}
 }
 
+func (s *serverService) DeleteServer(serverID int64) *refractor.ServiceResponse {
+	if err := s.repo.Delete(serverID); err != nil {
+		if err == refractor.ErrNotFound {
+			return &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not delete server with ID %d. Error: %v", serverID, err)
+		return refractor.InternalErrorResponse
+	}
+
+	return &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Server deleted",
+	}
+}
+
 func (s *serverService) OnPlayerJoin(serverID int64, player *refractor.Player) {
 	// Get the game for this server
 	game, _ := s.gameService.GetGame(s.serverData[serverID].Game)
