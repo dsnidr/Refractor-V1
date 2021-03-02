@@ -197,7 +197,8 @@ func setupServerClients(rconService refractor.RCONService, serverService refract
 		serverService.CreateServerData(server.ServerID, server.Game)
 
 		if err := rconService.CreateClient(server); err != nil {
-			return err
+			log.Info("Could not connect RCON client to server: %s", server.Name)
+			return nil
 		}
 
 		log.Info("RCON Client connected to %s", server.Name)
