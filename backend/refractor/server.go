@@ -50,6 +50,7 @@ type ServerService interface {
 	GetServerData(id int64) (*ServerData, *ServiceResponse)
 	GetServerByID(id int64) (*Server, *ServiceResponse)
 	UpdateServer(id int64, body params.UpdateServerParams) (*Server, *ServiceResponse)
+	DeleteServer(id int64) *ServiceResponse
 	OnPlayerJoin(id int64, player *Player)
 	OnPlayerQuit(id int64, player *Player)
 	OnServerOnline(serverID int64)
@@ -61,6 +62,7 @@ type ServerHandler interface {
 	GetAllServers(c echo.Context) error
 	GetAllServerData(c echo.Context) error
 	UpdateServer(c echo.Context) error
+	DeleteServer(c echo.Context) error
 	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 }

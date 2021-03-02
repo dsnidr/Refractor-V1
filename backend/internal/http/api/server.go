@@ -150,6 +150,24 @@ func (h *serverHandler) UpdateServer(c echo.Context) error {
 	})
 }
 
+func (h *serverHandler) DeleteServer(c echo.Context) error {
+	idString := c.Param("id")
+
+	serverID, err := strconv.ParseInt(idString, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: config.MessageInvalidIDProvided,
+		})
+	}
+
+	res := h.service.DeleteServer(serverID)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+	})
+}
+
 func (h *serverHandler) OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
 	playerGameID := gameConfig.PlayerGameIDField
 
