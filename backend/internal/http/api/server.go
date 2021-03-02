@@ -60,12 +60,39 @@ type serverDataRes struct {
 }
 
 func (h *serverHandler) GetAllServerData(c echo.Context) error {
+	allServers, res := h.service.GetAllServers()
 	allServerData, res := h.service.GetAllServerData()
+
+	serverDataMap := map[int64]*refractor.ServerData{}
+
+	for _, serverData := range allServerData {
+		serverDataMap[serverData.ServerID] = serverData
+	}
 
 	// Parse all server data into serverDataRes structs
 	var resServerData []*serverDataRes
 
-	for _, serverData := range allServerData {
+	for _, server := range allServers {
+		serverData := serverDataMap[server.ServerID]
+
+		if serverData == nil {
+			// If a server exists but does not have server data associated with it, this is because an RCON connection
+			// could not be opened to it. Due to this, we skip getting it's data and just add an empty ServerData struct
+			// for it with the online field set to false.
+			resServerData = append(resServerData, &serverDataRes{
+				ServerID:    server.ServerID,
+				Name:        server.Name,
+				Address:     server.Address,
+				RCONPort:    server.RCONPort,
+				Online:      false,
+				PlayerCount: 0,
+				Players:     []*refractor.Player{},
+			})
+
+			continue
+		}
+
+		// If server data was found, parse it.
 		var players []*refractor.Player
 
 		for _, player := range serverData.OnlinePlayers {
