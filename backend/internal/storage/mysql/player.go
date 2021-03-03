@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/sniddunc/refractor/refractor"
 	"time"
+	"unicode/utf8"
 )
 
 type playerRepo struct {
@@ -38,7 +39,30 @@ func (r *playerRepo) Create(player *refractor.Player) error {
 	// Insert into PlayerNames table
 	query = "INSERT INTO PlayerNames (PlayerID, Name, DateRecorded) VALUES (?, ?, ?);"
 
-	if _, err = r.db.Exec(query, id, player.CurrentName, time.Now().Unix()); err != nil {
+	name := player.CurrentName
+
+	if !utf8.ValidString(name) {
+		outputName := make([]rune, 0, len(name))
+		for i, r := range name {
+			if r == utf8.RuneError {
+				_, size := utf8.DecodeRuneInString(name[i:])
+				if size == 1 {
+					continue
+				}
+			}
+
+			outputName = append(outputName, r)
+		}
+
+		name = string(outputName)
+	}
+
+	// If the name is empty, it means it was all invalid unicode characters so we replace with a known string.
+	if name == "" {
+		name = "Invalid name"
+	}
+
+	if _, err = r.db.Exec(query, id, name, time.Now().Unix()); err != nil {
 		return wrapError(err)
 	}
 
