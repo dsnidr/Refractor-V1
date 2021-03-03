@@ -22,7 +22,7 @@ func NewPlayerService(repo refractor.PlayerRepository, log log.Logger) refractor
 
 func (s *playerService) CreatePlayer(newPlayer *refractor.Player) (*refractor.Player, *refractor.ServiceResponse) {
 	if err := s.repo.Create(newPlayer); err != nil {
-		s.log.Error("Could not create a new player. Error: %v", err)
+		s.log.Error("Could not create a new player with name %s. Error: %v", newPlayer.CurrentName, err)
 		return nil, refractor.InternalErrorResponse
 	}
 
@@ -63,7 +63,7 @@ func (s *playerService) OnPlayerJoin(serverID int64, playerGameID string, curren
 	if err != nil && err != refractor.ErrNotFound {
 		// If there is an error and it isn't an instance of ErrNotFound, an actual error occurred that we should
 		// log for traceability.
-		s.log.Error("Could not check if player exists. Error: %v", err)
+		s.log.Error("Could not check if player with player game ID of %s exists. Error: %v", playerGameID, err)
 		return nil, refractor.InternalErrorResponse
 	}
 

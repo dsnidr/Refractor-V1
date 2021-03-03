@@ -77,7 +77,7 @@ func Setup(db *sql.DB) error {
 	if _, err := tx.Exec(`
 		CREATE TABLE IF NOT EXISTS PlayerNames(
 			PlayerID INT NOT NULL,
-			Name VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+			Name VARCHAR(128) CHARACTER SET utf8mb4 NOT NULL,
 			DateRecorded BIGINT DEFAULT 0,
 			
 			FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID),
