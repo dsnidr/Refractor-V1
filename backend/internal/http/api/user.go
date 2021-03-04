@@ -43,3 +43,12 @@ func (h *userHandler) ChangeUserPassword(c echo.Context) error {
 		Errors:  res.ValidationErrors,
 	})
 }
+
+func (h *userHandler) GetAllUsers(c echo.Context) error {
+	users, res := h.service.GetAllUsers()
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Payload: users,
+	})
+}
