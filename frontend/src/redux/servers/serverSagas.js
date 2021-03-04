@@ -3,6 +3,7 @@ import {
 	CREATE_SERVER,
 	DELETE_SERVER,
 	GET_SERVERS,
+	removeServer,
 	setServers,
 	UPDATE_SERVER,
 } from './serverActions';
@@ -84,6 +85,7 @@ function* createServerAsync(action) {
 
 function* deleteServerAsync(action) {
 	try {
+		yield put(removeServer(action.serverId));
 		yield call(deleteServer, action.serverId);
 
 		yield put(setSuccess('deleteserver', 'Server deleted'));

@@ -8,6 +8,9 @@ import { push } from 'connected-react-router';
 import { Link } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import StatusTag from '../../components/StatusTag';
+import Modal from '../../components/Modal';
+import DeleteModal from '../../components/modals/DeleteModal';
+import { deleteServer } from '../../redux/servers/serverActions';
 
 const ServerTable = styled.table`
 	${(props) => css`
@@ -52,6 +55,12 @@ class Servers extends Component {
 
 		this.state = {
 			redirectTo: null,
+			modals: {
+				deleteServer: {
+					show: false,
+					ctx: {},
+				},
+			},
 		};
 	}
 
@@ -59,7 +68,44 @@ class Servers extends Component {
 		this.props.history.push('/servers/add');
 	};
 
+	showModal = (modalName, context) => () => {
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				[modalName]: {
+					...prevState.modals[modalName],
+					show: true,
+					ctx: context,
+				},
+			},
+		}));
+	};
+
+	hideModal = (modalName) => () => {
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				[modalName]: {
+					...prevState.modals[modalName],
+					show: false,
+					ctx: {},
+				},
+			},
+		}));
+	};
+
+	onDeleteServerSubmit = () => {
+		const { ctx: server } = this.state.modals.deleteServer;
+
+		this.props.deleteServer(server.id);
+
+		this.hideModal('deleteServer')();
+	};
+
 	render() {
+		const { deleteServer: deleteServerModal } = this.state.modals;
 		const { servers: serversObj } = this.props;
 
 		if (!serversObj) {
@@ -74,6 +120,16 @@ class Servers extends Component {
 
 		return (
 			<>
+				<DeleteModal
+					show={deleteServerModal.show}
+					heading={`Delete ${deleteServerModal.ctx.name}`}
+					message={`Are you sure you wish to delete ${deleteServerModal.ctx.name}? This action cannot be undone.`}
+					success={null}
+					error={null}
+					onClose={this.hideModal('deleteServer')}
+					onSubmit={this.onDeleteServerSubmit}
+				/>
+
 				<div>
 					<Heading headingStyle={'title'}>Servers</Heading>
 				</div>
@@ -104,7 +160,14 @@ class Servers extends Component {
 										</Button>
 									</Link>
 									<Link>
-										<Button size={'small'} color={'danger'}>
+										<Button
+											onClick={this.showModal(
+												'deleteServer',
+												server
+											)}
+											size={'small'}
+											color={'danger'}
+										>
 											Delete
 										</Button>
 									</Link>
@@ -130,6 +193,8 @@ const mapStateToProps = (state) => ({
 	servers: state.servers,
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	deleteServer: (serverId) => dispatch(deleteServer(serverId)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Servers);
