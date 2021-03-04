@@ -50,6 +50,10 @@ class AddServer extends Component {
 
 		// Check for success
 		if (nextProps.success) {
+			setTimeout(() => {
+				document.location.href = '/servers';
+			}, 3000);
+
 			return {
 				...prevState,
 				success: nextProps.success,
