@@ -1,5 +1,6 @@
 import {
 	changeUserPassword,
+	createUser,
 	getAllUsers,
 	getUserInfo,
 	logInUser,
@@ -7,6 +8,7 @@ import {
 import { setToken } from '../../utils/tokenUtils';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import {
+	ADD_USER,
 	CHANGE_USER_PASSWORD,
 	changePassword,
 	GET_ALL_USERS,
@@ -80,6 +82,28 @@ function* getAllUsersAsync() {
 	}
 }
 
+function* addUserAsync(action) {
+	try {
+		const { data } = yield call(createUser, action.payload);
+
+		yield put(setSuccess('adduser', data.message));
+		yield put(setErrors('adduser', undefined));
+	} catch (err) {
+		console.log('Could not create new user', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('adduser', undefined));
+		yield put(
+			setErrors(
+				'adduser',
+				!data.errors
+					? `Could not create new user: ${err.response.data.message}`
+					: data.errors
+			)
+		);
+	}
+}
+
 function* watchLogIn() {
 	yield takeLatest(LOG_IN, logInAsync);
 }
@@ -96,11 +120,16 @@ function* watchGetAllUsers() {
 	yield takeLatest(GET_ALL_USERS, getAllUsersAsync);
 }
 
+function* watchAddUser() {
+	yield takeLatest(ADD_USER, addUserAsync);
+}
+
 export default function* userSagas() {
 	yield all([
 		call(watchLogIn),
 		call(watchGetUserInfo),
 		call(watchChangeUserPassword),
 		call(watchGetAllUsers),
+		call(watchAddUser),
 	]);
 }

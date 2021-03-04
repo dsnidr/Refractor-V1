@@ -32,3 +32,9 @@ export const setAllUsers = (users) => ({
 	type: SET_ALL_USERS,
 	payload: users,
 });
+
+export const ADD_USER = 'ADD_USER';
+export const addUser = (data) => ({
+	type: ADD_USER,
+	payload: data,
+});
