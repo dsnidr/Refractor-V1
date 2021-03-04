@@ -48,3 +48,9 @@ export const deleteServer = (serverId) => ({
 	type: DELETE_SERVER,
 	serverId: serverId,
 });
+
+export const REMOVE_SERVER = 'REMOVE_SERVER';
+export const removeServer = (serverId) => ({
+	type: REMOVE_SERVER,
+	serverId: serverId,
+});

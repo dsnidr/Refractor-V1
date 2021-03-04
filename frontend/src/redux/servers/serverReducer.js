@@ -89,10 +89,15 @@ function setServerStatus(state, serverId, isOnline) {
 
 function removeServer(state, serverId) {
 	if (!state[serverId]) {
+		console.log('!state[serverId]');
 		return state;
 	}
 
+	console.log('Removing from list....');
+
 	delete state[serverId];
+
+	console.log('NEW STATE', state);
 
 	return state;
 }
