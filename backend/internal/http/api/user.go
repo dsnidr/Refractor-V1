@@ -52,3 +52,18 @@ func (h *userHandler) GetAllUsers(c echo.Context) error {
 		Payload: users,
 	})
 }
+
+func (h *userHandler) CreateUser(c echo.Context) error {
+	body := params.CreateUserParams{}
+	if ok := ValidateRequest(&body, c); !ok {
+		return nil
+	}
+
+	// Create the user
+	_, res := h.service.CreateUser(body)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Errors:  res.ValidationErrors,
+	})
+}
