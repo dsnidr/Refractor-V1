@@ -21,3 +21,14 @@ export const changePassword = (data) => ({
 	type: CHANGE_USER_PASSWORD,
 	payload: data,
 });
+
+export const GET_ALL_USERS = 'GET_ALL_USERS';
+export const getAllUsers = () => ({
+	type: GET_ALL_USERS,
+});
+
+export const SET_ALL_USERS = 'SET_ALL_USERS';
+export const setAllUsers = (users) => ({
+	type: SET_ALL_USERS,
+	payload: users,
+});

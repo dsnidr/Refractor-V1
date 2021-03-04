@@ -19,3 +19,7 @@ export function getUserInfo() {
 export function changeUserPassword(data) {
 	return axios.post('/api/v1/users/changepassword', data, postHeaders);
 }
+
+export function getAllUsers() {
+	return axios.get('/api/v1/users/all');
+}

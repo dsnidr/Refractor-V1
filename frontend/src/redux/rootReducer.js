@@ -7,10 +7,12 @@ import errorReducer from './error/errorReducer';
 import successReducer from './success/successReducer';
 import gameReducer from './games/gameReducer';
 import serverReducer from './servers/serverReducer';
+import loadingReducer from './loading/loadingReducer';
 
 const createRootReducer = (history) =>
 	combineReducers({
 		router: connectRouter(history),
+		loading: loadingReducer,
 		theme: themeReducer,
 		error: errorReducer,
 		success: successReducer,

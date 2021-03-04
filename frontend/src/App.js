@@ -34,25 +34,6 @@ const AppContainer = styled.div`
 	`}
 `;
 
-class DebugRouter extends Router {
-	constructor(props) {
-		super(props);
-		console.log(
-			'initial history is: ',
-			JSON.stringify(this.history, null, 2)
-		);
-		this.history.listen((location, action) => {
-			console.log(
-				`The current URL is ${location.pathname}${location.search}${location.hash}`
-			);
-			console.log(
-				`The last navigation action was ${action}`,
-				JSON.stringify(this.history, null, 2)
-			);
-		});
-	}
-}
-
 class App extends Component {
 	constructor(props) {
 		super(props);
@@ -126,7 +107,7 @@ class App extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	isLoading: state.loading,
+	isLoading: state.loading.main,
 	user: state.user.self,
 	theme: state.theme,
 });
