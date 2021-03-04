@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
@@ -242,5 +243,27 @@ func (s *userService) ChangeUserPassword(id int64, body params.ChangeUserPasswor
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Password changed",
+	}
+}
+
+func (s *userService) GetAllUsers() ([]*refractor.User, *refractor.ServiceResponse) {
+	users, err := s.repo.FindAll()
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return []*refractor.User{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Fetched 0 users",
+			}
+		}
+
+		s.log.Error("Could not FindAll users in storage. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return users, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Fetched %d users", len(users)),
 	}
 }
