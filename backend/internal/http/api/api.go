@@ -78,6 +78,7 @@ func (api *API) setupRoutes() {
 	userGroup.GET("/me", api.UserHandler.GetOwnUserInfo)
 	userGroup.POST("/changepassword", api.UserHandler.ChangeUserPassword)
 	userGroup.GET("/all", api.UserHandler.GetAllUsers, api.RequireAccessLevel(config.AL_ADMIN))
+	userGroup.POST("/", api.UserHandler.CreateUser, api.RequireAccessLevel(config.AL_ADMIN))
 
 	// Game endpoints
 	gameGroup := apiGroup.Group("/gameservers", jwtMiddleware, AttachClaims())

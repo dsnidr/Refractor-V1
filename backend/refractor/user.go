@@ -38,6 +38,7 @@ type UserHandler interface {
 	GetOwnUserInfo(c echo.Context) error
 	ChangeUserPassword(c echo.Context) error
 	GetAllUsers(c echo.Context) error
+	CreateUser(c echo.Context) error
 }
 
 type UserInfo struct {
