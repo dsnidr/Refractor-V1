@@ -23,3 +23,7 @@ export function changeUserPassword(data) {
 export function getAllUsers() {
 	return axios.get('/api/v1/users/all');
 }
+
+export function createUser(data) {
+	return axios.post('/api/v1/users/', data, postHeaders);
+}
