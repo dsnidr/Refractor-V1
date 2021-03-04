@@ -30,7 +30,7 @@ import Main from './DashboardPages/Main';
 import { Route, Switch } from 'react-router';
 import { getGames } from '../redux/games/gameActions';
 import Server from './DashboardPages/Server';
-import { refreshToken } from '../api/authApi';
+import { refreshToken } from '../api/userApi';
 import { newWebsocket } from '../websocket/websocket';
 import {
 	addPlayerToServer,
@@ -42,6 +42,7 @@ import {
 import Servers from './AdminPages/Servers';
 import EditServer from './AdminPages/EditServer';
 import AddServer from './AdminPages/AddServer';
+import Users from './AdminPages/Users';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -290,6 +291,7 @@ class Dashboard extends Component {
 								path={'/servers/edit/:id'}
 								component={EditServer}
 							/>
+							<Route exact path={'/users'} component={Users} />
 						</Switch>
 					</Content>
 				</Wrapper>

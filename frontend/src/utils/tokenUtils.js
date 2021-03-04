@@ -1,6 +1,6 @@
 import axios from 'axios';
 import decodeJWT from 'jwt-decode';
-import { refreshToken } from '../api/authApi';
+import { refreshToken } from '../api/userApi';
 
 export function setToken(token) {
 	// Store token in local storage

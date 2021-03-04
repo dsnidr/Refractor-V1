@@ -1,11 +1,14 @@
 import { SET_LOADING } from './loadingActions';
 
-const initialState = false;
+const initialState = {
+	main: false,
+};
 
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SET_LOADING:
-			return action.payload;
+			state[action.scope] = action.payload;
+			return state;
 		default:
 			return state;
 	}

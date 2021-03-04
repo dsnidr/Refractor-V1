@@ -1,10 +1,17 @@
-import { changeUserPassword, getUserInfo, logInUser } from '../../api/authApi';
+import {
+	changeUserPassword,
+	getAllUsers,
+	getUserInfo,
+	logInUser,
+} from '../../api/userApi';
 import { setToken } from '../../utils/tokenUtils';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import {
 	CHANGE_USER_PASSWORD,
 	changePassword,
+	GET_ALL_USERS,
 	LOG_IN,
+	setAllUsers,
 	setUser,
 } from './userActions';
 import { GET_USER_INFO } from './constants';
@@ -63,6 +70,16 @@ function* changeUserPasswordAsync(action) {
 	}
 }
 
+function* getAllUsersAsync() {
+	try {
+		const { data } = yield call(getAllUsers);
+
+		yield put(setAllUsers(data.payload));
+	} catch (err) {
+		console.log('Could not get all users', err);
+	}
+}
+
 function* watchLogIn() {
 	yield takeLatest(LOG_IN, logInAsync);
 }
@@ -75,10 +92,15 @@ function* watchChangeUserPassword() {
 	yield takeLatest(CHANGE_USER_PASSWORD, changeUserPasswordAsync);
 }
 
+function* watchGetAllUsers() {
+	yield takeLatest(GET_ALL_USERS, getAllUsersAsync);
+}
+
 export default function* userSagas() {
 	yield all([
 		call(watchLogIn),
 		call(watchGetUserInfo),
 		call(watchChangeUserPassword),
+		call(watchGetAllUsers),
 	]);
 }

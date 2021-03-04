@@ -183,7 +183,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
 	logIn: (credentials) => dispatch(logIn(credentials)),
-	setLoading: (isLoading) => dispatch(setLoading(isLoading)),
+	setLoading: (isLoading) => dispatch('login', setLoading(isLoading)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
