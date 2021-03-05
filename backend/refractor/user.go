@@ -32,6 +32,7 @@ type UserService interface {
 	SetUserAccessLevel(body params.SetUserAccessLevelParams) (*User, *ServiceResponse)
 	ChangeUserPassword(id int64, body params.ChangeUserPassword) (*User, *ServiceResponse)
 	GetAllUsers() ([]*User, *ServiceResponse)
+	UpdateUser(id int64, args UpdateArgs) (*User, *ServiceResponse)
 }
 
 type UserHandler interface {
