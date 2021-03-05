@@ -3,8 +3,11 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/jwt"
 	"github.com/sniddunc/refractor/refractor"
+	"net/http"
+	"strconv"
 )
 
 type userHandler struct {
@@ -65,5 +68,49 @@ func (h *userHandler) CreateUser(c echo.Context) error {
 		Success: res.Success,
 		Message: res.Message,
 		Errors:  res.ValidationErrors,
+	})
+}
+
+func (h *userHandler) ActivateUser(c echo.Context) error {
+	idString := c.Param("id")
+
+	userID, err := strconv.ParseInt(idString, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: config.MessageInvalidIDProvided,
+		})
+	}
+
+	// Activate user
+	_, res := h.service.UpdateUser(userID, refractor.UpdateArgs{
+		"Activated": true,
+	})
+
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+	})
+}
+
+func (h *userHandler) DeactivateUser(c echo.Context) error {
+	idString := c.Param("id")
+
+	userID, err := strconv.ParseInt(idString, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: config.MessageInvalidIDProvided,
+		})
+	}
+
+	// Deactivate user
+	_, res := h.service.UpdateUser(userID, refractor.UpdateArgs{
+		"Activated": false,
+	})
+
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
 	})
 }
