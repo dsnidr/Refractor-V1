@@ -289,3 +289,54 @@ func (s *userService) UpdateUser(id int64, args refractor.UpdateArgs) (*refracto
 		Message:    "User updated",
 	}
 }
+
+func (s *userService) SetUserPassword(body params.SetUserPasswordParams) (*refractor.User, *refractor.ServiceResponse) {
+	foundUser, err := s.repo.FindByID(body.UserID)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not get user by ID from repository. User ID: %d Error: %v", body.UserID, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	// Ensure that the updating user has a higher access level than the user that they're updating
+	if body.SetterAccessLevel <= foundUser.AccessLevel {
+		s.log.Warn("User with ID: %d tried to set a new password on a user with ID: %d without having a higher access level", body.SetterUserID, body.UserID)
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    "You do not have permission to set a new password for this user. This incident was recorded.",
+		}
+	}
+
+	// Hash and salt the new password
+	hashAndSalt, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		s.log.Error("Could not generate salt and hash for new password. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	// Update user to use the new password and set their NeedsPasswordChange flag to true
+	args := refractor.UpdateArgs{
+		"Password":            string(hashAndSalt),
+		"NeedsPasswordChange": true,
+	}
+
+	updatedUser, err := s.repo.Update(foundUser.UserID, args)
+	if err != nil {
+		s.log.Error("Could not set new password for user with ID: %d. Error: %v", body.UserID, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return updatedUser, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "New password set",
+	}
+}

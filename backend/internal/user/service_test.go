@@ -445,3 +445,134 @@ func Test_userService_UpdateUser(t *testing.T) {
 		})
 	}
 }
+
+func Test_userService_SetUserPassword(t *testing.T) {
+	type fields struct {
+		mockUsers map[int64]*mock.MockUser
+	}
+	type args struct {
+		body params.SetUserPasswordParams
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		args     args
+		wantUser *refractor.User
+		wantRes  *refractor.ServiceResponse
+	}{
+		{
+			name: "userservice.setuserpassword.1",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "password",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            mock.HashPassword("password"),
+							AccessLevel:         config.AL_ADMIN,
+							Activated:           true,
+							NeedsPasswordChange: false,
+						},
+					},
+					2: {
+						UnhashedPassword: "changeme",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test2@test.com",
+							Username:            "testuser.2",
+							Password:            mock.HashPassword("changeme"),
+							AccessLevel:         config.AL_USER,
+							Activated:           true,
+							NeedsPasswordChange: false,
+						},
+					},
+				},
+			},
+			args: args{
+				body: params.SetUserPasswordParams{
+					UserID:            2,
+					NewPassword:       "changedpassword",
+					SetterUserID:      1,
+					SetterAccessLevel: config.AL_ADMIN,
+				},
+			},
+			wantUser: &refractor.User{
+				UserID:              1,
+				Email:               "test@test.com",
+				Username:            "testuser.1",
+				Password:            "doesntmatter",
+				AccessLevel:         99999,
+				Activated:           false,
+				NeedsPasswordChange: true,
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "New password set",
+			},
+		},
+		{
+			name: "userservice.setuserpassword.2",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "password",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            mock.HashPassword("password"),
+							AccessLevel:         config.AL_USER,
+							Activated:           true,
+							NeedsPasswordChange: false,
+						},
+					},
+					2: {
+						UnhashedPassword: "changeme",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test2@test.com",
+							Username:            "testuser.2",
+							Password:            mock.HashPassword("changeme"),
+							AccessLevel:         config.AL_ADMIN,
+							Activated:           true,
+							NeedsPasswordChange: false,
+						},
+					},
+				},
+			},
+			args: args{
+				body: params.SetUserPasswordParams{
+					UserID:            2,
+					NewPassword:       "changedpassword",
+					SetterUserID:      1,
+					SetterAccessLevel: config.AL_USER,
+				},
+			},
+			wantUser: nil,
+			wantRes: &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    "You do not have permission to set a new password for this user. This incident was recorded.",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockUserRepo := mock.NewMockUserRepository(tt.fields.mockUsers)
+			mockLogger, _ := log.NewLogger(true, false)
+			userService := NewUserService(mockUserRepo, mockLogger)
+
+			updatedUser, res := userService.SetUserPassword(tt.args.body)
+
+			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
+
+			if tt.wantRes.Success {
+				// Make sure password was changed
+				assert.NoError(t, bcrypt.CompareHashAndPassword([]byte(updatedUser.Password), []byte(tt.args.body.NewPassword)))
+			}
+		})
+	}
+}

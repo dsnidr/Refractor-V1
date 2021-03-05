@@ -63,8 +63,6 @@ type ServerHandler interface {
 	GetAllServerData(c echo.Context) error
 	UpdateServer(c echo.Context) error
 	DeleteServer(c echo.Context) error
-	ActivateUser(c echo.Context) error
-	DeactivateUser(c echo.Context) error
 	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 }

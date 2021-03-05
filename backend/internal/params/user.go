@@ -93,3 +93,27 @@ func (body *ChangeUserPassword) Validate() (bool, url.Values) {
 
 	return len(errors) == 0, errors
 }
+
+// SetUserPasswordParams holds the data we expect when setting a user's password to a new value
+type SetUserPasswordParams struct {
+	UserID            int64  `json:"id" form:"id"`
+	NewPassword       string `json:"newPassword" form:"newPassword"`
+	SetterUserID      int64
+	SetterAccessLevel int
+}
+
+// Validate validates the data inside the attached struct
+func (body *SetUserPasswordParams) Validate() (bool, url.Values) {
+	errors := url.Values{}
+
+	if body.UserID < 1 {
+		errors.Set("id", "Invalid user ID provided")
+	}
+
+	if len(body.NewPassword) < config.PasswordMinLen || len(body.NewPassword) > config.PasswordMaxLen {
+		errors.Set("newPassword", fmt.Sprintf("Password must be between %d and %d characters in length",
+			config.PasswordMinLen, config.PasswordMaxLen))
+	}
+
+	return len(errors) == 0, errors
+}

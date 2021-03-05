@@ -114,3 +114,45 @@ func (h *userHandler) DeactivateUser(c echo.Context) error {
 		Message: res.Message,
 	})
 }
+
+func (h *userHandler) ForcePasswordChange(c echo.Context) error {
+	idString := c.Param("id")
+
+	userID, err := strconv.ParseInt(idString, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: config.MessageInvalidIDProvided,
+		})
+	}
+
+	// Update the ForcePasswordChange flag to true
+	_, res := h.service.UpdateUser(userID, refractor.UpdateArgs{
+		"ForcePasswordChange": true,
+	})
+
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+	})
+}
+
+func (h *userHandler) SetUserPassword(c echo.Context) error {
+	body := params.SetUserPasswordParams{}
+	if ok := ValidateRequest(&body, c); !ok {
+		return nil
+	}
+
+	claims := c.Get("claims").(*jwt.Claims)
+
+	// Update body to include the setting user's details
+	body.SetterUserID = claims.UserID
+	body.SetterAccessLevel = claims.AccessLevel
+
+	_, res := h.service.SetUserPassword(body)
+
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+	})
+}

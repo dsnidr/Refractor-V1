@@ -33,6 +33,7 @@ type UserService interface {
 	ChangeUserPassword(id int64, body params.ChangeUserPassword) (*User, *ServiceResponse)
 	GetAllUsers() ([]*User, *ServiceResponse)
 	UpdateUser(id int64, args UpdateArgs) (*User, *ServiceResponse)
+	SetUserPassword(body params.SetUserPasswordParams) (*User, *ServiceResponse)
 }
 
 type UserHandler interface {
@@ -40,6 +41,10 @@ type UserHandler interface {
 	ChangeUserPassword(c echo.Context) error
 	GetAllUsers(c echo.Context) error
 	CreateUser(c echo.Context) error
+	ActivateUser(c echo.Context) error
+	DeactivateUser(c echo.Context) error
+	ForcePasswordChange(c echo.Context) error
+	SetUserPassword(c echo.Context) error
 }
 
 type UserInfo struct {

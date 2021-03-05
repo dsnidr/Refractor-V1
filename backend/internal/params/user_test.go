@@ -2,6 +2,7 @@ package params
 
 import (
 	"github.com/stretchr/testify/assert"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -227,6 +228,79 @@ func TestChangeUserPassword_Validate(t *testing.T) {
 				CurrentPassword:    tt.fields.CurrentPassword,
 				NewPassword:        tt.fields.NewPassword,
 				NewPasswordConfirm: tt.fields.NewPasswordConfirm,
+			}
+
+			got, _ := body.Validate()
+			assert.Equal(t, tt.want, got, "Validate returned the wrong value")
+		})
+	}
+}
+
+func TestSetUserPasswordParams_Validate(t *testing.T) {
+	type fields struct {
+		UserID      int64
+		NewPassword string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+		want1  url.Values
+	}{
+		{
+			name: "params.user.setuserpassword.1",
+			fields: fields{
+				UserID:      1,
+				NewPassword: "validpassword",
+			},
+			want: true,
+		},
+		{
+			name: "params.user.setuserpassword.2",
+			fields: fields{
+				UserID:      999999999,
+				NewPassword: strings.Repeat("a", config.PasswordMinLen),
+			},
+			want: true,
+		},
+		{
+			name: "params.user.setuserpassword.3",
+			fields: fields{
+				UserID:      0,
+				NewPassword: strings.Repeat("a", config.PasswordMaxLen),
+			},
+			want: false,
+		},
+		{
+			name: "params.user.setuserpassword.4",
+			fields: fields{
+				UserID:      -1,
+				NewPassword: "validpassword",
+			},
+			want: false,
+		},
+		{
+			name: "params.user.setuserpassword.5",
+			fields: fields{
+				UserID:      2,
+				NewPassword: strings.Repeat("a", config.PasswordMinLen-1),
+			},
+			want: false,
+		},
+		{
+			name: "params.user.setuserpassword.6",
+			fields: fields{
+				UserID:      894268726,
+				NewPassword: strings.Repeat("a", config.PasswordMaxLen+1),
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body := &SetUserPasswordParams{
+				UserID:      tt.fields.UserID,
+				NewPassword: tt.fields.NewPassword,
 			}
 
 			got, _ := body.Validate()
