@@ -374,3 +374,74 @@ func Test_userService_ChangeUserPassword(t *testing.T) {
 		})
 	}
 }
+
+func Test_userService_UpdateUser(t *testing.T) {
+	type fields struct {
+		mockUsers map[int64]*mock.MockUser
+	}
+	type args struct {
+		id   int64
+		args refractor.UpdateArgs
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		args     args
+		wantUser *refractor.User
+		wantRes  *refractor.ServiceResponse
+	}{
+		{
+			name: "userservice.updateuser.1",
+			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "password",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "test@test.com",
+							Username:            "testuser.1",
+							Password:            "doesntmatter",
+							AccessLevel:         config.AL_ADMIN,
+							Activated:           true,
+							NeedsPasswordChange: false,
+						},
+					},
+				},
+			},
+			args: args{
+				id: 1,
+				args: refractor.UpdateArgs{
+					"Activated":           false,
+					"AccessLevel":         99999,
+					"NeedsPasswordChange": true,
+				},
+			},
+			wantUser: &refractor.User{
+				UserID:              1,
+				Email:               "test@test.com",
+				Username:            "testuser.1",
+				Password:            "doesntmatter",
+				AccessLevel:         99999,
+				Activated:           false,
+				NeedsPasswordChange: true,
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "User updated",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockUserRepo := mock.NewMockUserRepository(tt.fields.mockUsers)
+			mockLogger, _ := log.NewLogger(true, false)
+			userService := NewUserService(mockUserRepo, mockLogger)
+
+			updatedUser, res := userService.UpdateUser(tt.args.id, tt.args.args)
+
+			assert.Equal(t, tt.wantUser, updatedUser, "updatedUser does not match the expected user")
+			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
+		})
+	}
+}

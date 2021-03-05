@@ -267,3 +267,25 @@ func (s *userService) GetAllUsers() ([]*refractor.User, *refractor.ServiceRespon
 		Message:    fmt.Sprintf("Fetched %d users", len(users)),
 	}
 }
+
+func (s *userService) UpdateUser(id int64, args refractor.UpdateArgs) (*refractor.User, *refractor.ServiceResponse) {
+	updatedUser, err := s.repo.Update(id, args)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not update user with ID: %d. Error: %v", id, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return updatedUser, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "User updated",
+	}
+}
