@@ -13,6 +13,7 @@ import Button from '../components/Button';
 import { logIn } from '../redux/user/userActions';
 import { setLoading } from '../redux/loading/loadingActions';
 import { Redirect } from 'react-router';
+import Spinner from '../components/Spinner';
 
 const FormWrapper = styled.form`
 	${(props) => css`
@@ -63,21 +64,23 @@ class Login extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.errors) {
-			nextProps.setLoading(false);
-
-			return {
-				...prevState,
-				errors: nextProps.errors,
-			};
-		}
-
 		if (nextProps.success) {
 			nextProps.setLoading(false);
 
 			return {
 				...prevState,
 				success: nextProps.success,
+				errors: {},
+			};
+		}
+
+		if (nextProps.errors) {
+			nextProps.setLoading(false);
+
+			return {
+				...prevState,
+				errors: nextProps.errors,
+				success: {},
 			};
 		}
 
@@ -102,6 +105,7 @@ class Login extends Component {
 	render() {
 		return (
 			<Wrapper>
+				{this.props.isLoading && <Spinner />}
 				{this.props.success && <Redirect to={'/'} />}
 
 				<Formik
@@ -179,11 +183,12 @@ class Login extends Component {
 
 const mapStateToProps = (state) => ({
 	errors: state.error.auth,
+	isLoading: state.loading.login,
 });
 
 const mapDispatchToProps = (dispatch) => ({
 	logIn: (credentials) => dispatch(logIn(credentials)),
-	setLoading: (isLoading) => dispatch('login', setLoading(isLoading)),
+	setLoading: (isLoading) => dispatch(setLoading('login', isLoading)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

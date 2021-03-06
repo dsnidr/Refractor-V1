@@ -14,6 +14,7 @@ const StyledButton = styled.button`
 		border: 1px solid ${props.theme.borderColor};
 		border-radius: ${props.theme.borderRadiusNormal};
 		font-size: 1.6rem;
+		text-decoration: none !important;
 
 		:hover {
 			background-color: ${props.theme.hover.backgroundColor};
