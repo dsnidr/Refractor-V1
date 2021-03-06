@@ -19,6 +19,7 @@ import {
 import { GET_USER_INFO } from './constants';
 import { setErrors } from '../error/errorActions';
 import { setSuccess } from '../success/successActions';
+import { setLoading } from '../loading/loadingActions';
 
 function* logInAsync(action) {
 	try {
@@ -27,8 +28,11 @@ function* logInAsync(action) {
 		yield setToken(data.payload);
 		yield getUserInfoAsync();
 		yield put(setSuccess('auth', 'Successfully logged in'));
+		yield put(setErrors('auth', undefined));
+		yield put(setLoading('login', false));
 	} catch (err) {
 		yield put(setErrors('auth', err.response.data.message));
+		yield put(setSuccess('auth', undefined));
 	}
 }
 
@@ -76,7 +80,13 @@ function* getAllUsersAsync() {
 	try {
 		const { data } = yield call(getAllUsers);
 
-		yield put(setAllUsers(data.payload));
+		const allUsers = {};
+
+		data.payload.forEach((user) => {
+			allUsers[user.id] = user;
+		});
+
+		yield put(setAllUsers(allUsers));
 	} catch (err) {
 		console.log('Could not get all users', err);
 	}

@@ -44,6 +44,7 @@ import EditServer from './AdminPages/EditServer';
 import AddServer from './AdminPages/AddServer';
 import Users from './AdminPages/Users';
 import AddUser from './AdminPages/AddUser';
+import User from './AdminPages/User';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -298,6 +299,7 @@ class Dashboard extends Component {
 								path={'/users/add'}
 								component={AddUser}
 							/>
+							<Route exact path={'/user/:id'} component={User} />
 						</Switch>
 					</Content>
 				</Wrapper>

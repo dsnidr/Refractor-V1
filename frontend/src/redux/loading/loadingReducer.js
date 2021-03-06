@@ -2,6 +2,8 @@ import { SET_LOADING } from './loadingActions';
 
 const initialState = {
 	main: false,
+	login: false,
+	users: false,
 };
 
 const reducer = (state = initialState, action) => {
