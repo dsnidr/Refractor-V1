@@ -3,19 +3,98 @@ import styled, { css } from 'styled-components';
 import { connect } from 'react-redux';
 import Heading from '../../components/Heading';
 import { getAllUsers } from '../../redux/user/userActions';
-import { Link } from 'react-router-dom';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
+import respondTo from '../../mixins/respondTo';
+import Checkbox from '../../components/Checkbox';
+import {
+	FULL_ACCESS,
+	LOG_WARNING,
+	LOG_MUTE,
+	LOG_KICK,
+	LOG_BAN,
+	EDIT_OWN_INFRACTIONS,
+	EDIT_ANY_INFRACTION,
+	DELETE_OWN_INFRACTIONS,
+	DELETE_ANY_INFRACTION,
+	flags,
+	isRestricted,
+} from '../../permissions/permissions';
 
-const ManagementRow = styled(Link)`
-	${(props) => css``}
+const ManagementSection = styled.div`
+	${(props) => css`
+		> :first-child {
+			margin: 1rem 0;
+		}
+	`}
+`;
+
+const ManagementRow = styled.div`
+	${(props) => css`
+		display: flex;
+
+		> :last-child {
+			margin-right: 0;
+		}
+
+		button {
+			width: auto;
+			height: 5rem;
+		}
+
+		${respondTo.medium`
+          .text-input {
+            width: 50rem;
+          }
+
+          > * {
+            margin-right: 2rem;
+          }
+		`}
+	`}
+`;
+
+const PermissionsManager = styled.div`
+	${(props) => css`
+		button {
+			margin-top: 2rem;
+		}
+	`}
+`;
+
+const PermissionCheckboxes = styled.div`
+	display: grid;
+	grid-template-columns: 1fr;
+
+	${respondTo.small`
+    	grid-template-columns: 1fr 1fr;
+	`}
+
+	${respondTo.medium`
+	  	grid-template-columns: 1fr 1fr 1fr;
+	`}
+	
+	${respondTo.large`
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+	`}
+`;
+
+const PermissionButtons = styled.div`
+	display: flex;
+
+	> :last-child {
+		margin-left: 1rem;
+	}
 `;
 
 class User extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {};
+		this.state = {
+			perms: {},
+			initialPerms: {},
+		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -36,11 +115,83 @@ class User extends Component {
 
 		prevState.user = nextProps.users[id];
 
+		// TODO: Load initial perms into state
+
 		return prevState;
 	}
 
+	handlePermChange = (cbName) => (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			perms: {
+				...prevState.perms,
+				[cbName]: e.target.checked,
+			},
+		}));
+	};
+
+	handleAdminPermChange = () => {
+		if (!!this.state.perms[FULL_ACCESS]) {
+			return this.setState((prevState) => ({
+				...prevState,
+				perms: {
+					...prevState.perms,
+					[FULL_ACCESS]: false,
+				},
+			}));
+		}
+
+		const newPerms = {};
+
+		Object.keys(flags).forEach((flag) => {
+			if (isRestricted(flag)) {
+				return;
+			}
+
+			newPerms[flag] = true;
+		});
+
+		this.setState((prevState) => ({
+			...prevState,
+			perms: newPerms,
+		}));
+	};
+
+	onPermSaveClick = () => {
+		const { perms } = this.state;
+
+		// TODO: Get user's current flag and start with that as well as make all checkboxes they have activated by default
+		// TODO: This can't be done until the server side perms are set and their perm int is being sent in JWTs.
+
+		/* global BigInt */
+		let flag = BigInt(
+			0b0000000000000000000000000000000000000000000000000000000000000000
+		);
+
+		Object.keys(perms).forEach((key) => {
+			if (!perms[key]) {
+				return;
+			}
+
+			flag = flag | flags[key];
+		});
+
+		console.log(flag);
+	};
+
+	revertPermChanges = () => {
+		this.setState((prevState) => ({
+			...prevState,
+			perms: {
+				...prevState.initialPerms,
+			},
+		}));
+	};
+
 	render() {
-		const { user } = this.state;
+		const { user, perms } = this.state;
+
+		const adminBoxChecked = !!perms[FULL_ACCESS];
 
 		if (!user) {
 			return (
@@ -58,9 +209,9 @@ class User extends Component {
 					</Heading>
 				</div>
 
-				<div>
+				<ManagementSection>
 					<Heading headingStyle={'subtitle'}>
-						Password management
+						Password Management
 					</Heading>
 
 					<ManagementRow>
@@ -72,7 +223,102 @@ class User extends Component {
 							Set password
 						</Button>
 					</ManagementRow>
-				</div>
+
+					<ManagementRow>
+						<Button size={'normal'} color={'alert'}>
+							Force password change
+						</Button>
+					</ManagementRow>
+				</ManagementSection>
+
+				<ManagementSection>
+					<Heading headingStyle={'subtitle'}>
+						Permissions Management
+					</Heading>
+
+					<PermissionsManager>
+						<PermissionCheckboxes>
+							<Checkbox
+								label={<strong>ADMIN (FULL ACCESS)</strong>}
+								checked={!!perms[FULL_ACCESS]}
+								onChange={this.handleAdminPermChange}
+							/>
+							<Checkbox
+								label={'Log warning'}
+								checked={!!perms[LOG_WARNING]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(LOG_WARNING)}
+							/>
+							<Checkbox
+								label={'Log mute'}
+								checked={!!perms[LOG_MUTE]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(LOG_MUTE)}
+							/>
+							<Checkbox
+								label={'Log kick'}
+								checked={!!perms[LOG_KICK]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(LOG_KICK)}
+							/>
+							<Checkbox
+								label={'Log ban'}
+								checked={!!perms[LOG_BAN]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(LOG_BAN)}
+							/>
+							<Checkbox
+								label={'Edit own infractions'}
+								checked={!!perms[EDIT_OWN_INFRACTIONS]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(
+									EDIT_OWN_INFRACTIONS
+								)}
+							/>
+							<Checkbox
+								label={'Edit any infractions'}
+								checked={!!perms[EDIT_ANY_INFRACTION]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(
+									EDIT_ANY_INFRACTION
+								)}
+							/>
+							<Checkbox
+								label={'Delete own infractions'}
+								checked={!!perms[DELETE_OWN_INFRACTIONS]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(
+									DELETE_OWN_INFRACTIONS
+								)}
+							/>
+							<Checkbox
+								label={'Delete any infraction'}
+								checked={!!perms[DELETE_ANY_INFRACTION]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(
+									DELETE_ANY_INFRACTION
+								)}
+							/>
+						</PermissionCheckboxes>
+
+						<PermissionButtons>
+							<Button
+								size={'normal'}
+								onClick={this.revertPermChanges}
+							>
+								Reset
+							</Button>
+
+							<Button
+								size={'normal'}
+								color={'alert'}
+								onClick={this.onPermSaveClick}
+							>
+								Save
+							</Button>
+						</PermissionButtons>
+					</PermissionsManager>
+				</ManagementSection>
 			</>
 		);
 	}

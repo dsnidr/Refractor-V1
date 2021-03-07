@@ -85,7 +85,7 @@ class TextInput extends Component {
 
 		return (
 			<ThemeProvider theme={theme(props.theme)}>
-				<Wrapper>
+				<Wrapper className={'text-input'}>
 					<InputMain>
 						{hasIcon ? (
 							<IconBox>{props.icon}</IconBox>
