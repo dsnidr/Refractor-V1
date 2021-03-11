@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import { connect } from 'react-redux';
 import Heading from '../../components/Heading';
-import { getAllUsers } from '../../redux/user/userActions';
+import {
+	forceUserPasswordChange,
+	getAllUsers,
+	setUserPassword,
+} from '../../redux/user/userActions';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
 import respondTo from '../../mixins/respondTo';
@@ -20,6 +24,7 @@ import {
 	flags,
 	isRestricted,
 } from '../../permissions/permissions';
+import Alert from '../../components/Alert';
 
 const ManagementSection = styled.div`
 	${(props) => css`
@@ -93,11 +98,26 @@ class User extends Component {
 
 		this.state = {
 			perms: {},
+			errors: {},
 			initialPerms: {},
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.passwordErrors) {
+			prevState.errors = {
+				...prevState.errors,
+				newPassword: nextProps.passwordErrors.newPassword,
+			};
+		}
+
+		if (nextProps.passwordSuccess) {
+			prevState.errors = {
+				...prevState.errors,
+				newPassword: false,
+			};
+		}
+
 		if (!nextProps.users) {
 			nextProps.getAllUsers();
 			return prevState;
@@ -188,8 +208,28 @@ class User extends Component {
 		}));
 	};
 
+	onTextInputChange = (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			[e.target.name]: e.target.value,
+		}));
+	};
+
+	onSetPasswordClick = () => {
+		const { newPassword, user } = this.state;
+
+		this.props.setUserPassword(user.id, { newPassword });
+	};
+
+	onForcePasswordChangeClick = () => {
+		const { user } = this.state;
+
+		this.props.forcePasswordChange(user.id);
+	};
+
 	render() {
-		const { user, perms } = this.state;
+		const { user, perms, errors } = this.state;
+		const { passwordSuccess, passwordErrors } = this.props;
 
 		const adminBoxChecked = !!perms[FULL_ACCESS];
 
@@ -210,6 +250,16 @@ class User extends Component {
 				</div>
 
 				<ManagementSection>
+					<Alert
+						type="error"
+						message={
+							typeof passwordErrors === 'string'
+								? passwordErrors
+								: null
+						}
+					/>
+					<Alert type="success" message={passwordSuccess} />
+
 					<Heading headingStyle={'subtitle'}>
 						Password Management
 					</Heading>
@@ -217,15 +267,26 @@ class User extends Component {
 					<ManagementRow>
 						<TextInput
 							name={'newPassword'}
+							type={'password'}
 							placeholder={'New password'}
+							onChange={this.onTextInputChange}
+							error={errors.newPassword}
 						/>
-						<Button size={'normal'} color={'primary'}>
+						<Button
+							size={'normal'}
+							color={'primary'}
+							onClick={this.onSetPasswordClick}
+						>
 							Set password
 						</Button>
 					</ManagementRow>
 
 					<ManagementRow>
-						<Button size={'normal'} color={'alert'}>
+						<Button
+							size={'normal'}
+							color={'alert'}
+							onClick={this.onForcePasswordChangeClick}
+						>
 							Force password change
 						</Button>
 					</ManagementRow>
@@ -326,10 +387,14 @@ class User extends Component {
 
 const mapStateToProps = (state) => ({
 	users: state.user.others,
+	passwordErrors: state.error.passwordmgmt,
+	passwordSuccess: state.success.passwordmgmt,
 });
 
 const mapDispatchToProps = (dispatch) => ({
 	getAllUsers: () => dispatch(getAllUsers()),
+	setUserPassword: (userId, data) => dispatch(setUserPassword(userId, data)),
+	forcePasswordChange: (userId) => dispatch(forceUserPasswordChange(userId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(User);

@@ -128,7 +128,7 @@ func (h *userHandler) ForcePasswordChange(c echo.Context) error {
 
 	// Update the ForcePasswordChange flag to true
 	_, res := h.service.UpdateUser(userID, refractor.UpdateArgs{
-		"ForcePasswordChange": true,
+		"NeedsPasswordChange": true,
 	})
 
 	return c.JSON(res.StatusCode, Response{

@@ -57,3 +57,9 @@ export const setUserPassword = (userId, data) => ({
 	userId: userId,
 	payload: data,
 });
+
+export const FORCE_USER_PASSWORD_CHANGE = 'FORCE_USER_PASSWORD_CHANGE';
+export const forceUserPasswordChange = (userId) => ({
+	type: FORCE_USER_PASSWORD_CHANGE,
+	userId: userId,
+});

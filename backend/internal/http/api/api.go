@@ -82,6 +82,7 @@ func (api *API) setupRoutes() {
 	userGroup.PATCH("/activate/:id", api.UserHandler.ActivateUser, api.RequireAccessLevel(config.AL_ADMIN))
 	userGroup.PATCH("/deactivate/:id", api.UserHandler.DeactivateUser, api.RequireAccessLevel(config.AL_ADMIN))
 	userGroup.PATCH("/setpassword", api.UserHandler.SetUserPassword, api.RequireAccessLevel(config.AL_ADMIN))
+	userGroup.PATCH("/forcepasswordchange/:id", api.UserHandler.ForcePasswordChange, api.RequireAccessLevel(config.AL_ADMIN))
 
 	// Game endpoints
 	gameGroup := apiGroup.Group("/gameservers", jwtMiddleware, AttachClaims())

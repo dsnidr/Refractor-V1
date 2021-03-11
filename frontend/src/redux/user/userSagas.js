@@ -3,9 +3,11 @@ import {
 	changeUserPassword,
 	createUser,
 	deactivateUser,
+	forceUserPasswordChange,
 	getAllUsers,
 	getUserInfo,
 	logInUser,
+	setUserPassword,
 } from '../../api/userApi';
 import { setToken } from '../../utils/tokenUtils';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
@@ -15,6 +17,7 @@ import {
 	CHANGE_USER_PASSWORD,
 	changePassword,
 	DEACTIVATE_USER,
+	FORCE_USER_PASSWORD_CHANGE,
 	GET_ALL_USERS,
 	LOG_IN,
 	SET_USER_PASSWORD,
@@ -163,7 +166,45 @@ function* deactivateUserAsync(action) {
 	}
 }
 
-function* setUserPasswordAsync(action) {}
+function* setUserPasswordAsync(action) {
+	try {
+		const { data } = yield call(setUserPassword, {
+			id: action.userId,
+			...action.payload,
+		});
+
+		yield put(setSuccess('passwordmgmt', data.message));
+		yield put(setErrors('passwordmgmt', undefined));
+	} catch (err) {
+		console.log('Could not set user password', err);
+		const { data } = err.response;
+
+		yield put(setErrors('passwordmgmt', data.message));
+		yield put(
+			setErrors('passwordmgmt', !data.errors ? data.message : data.errors)
+		);
+	}
+}
+
+function* forceUserPasswordChangeAsync(action) {
+	try {
+		const { data } = yield call(forceUserPasswordChange, action.userId);
+
+		yield put(
+			setSuccess(
+				'passwordmgmt',
+				'User will be forced to change their password the next time they log in.'
+			)
+		);
+		yield put(setErrors('passwordmgmt', undefined));
+	} catch (err) {
+		const { data } = err.response;
+		console.log('Could not force user password change', err);
+
+		yield put(setErrors('passwordmgmt', data.message));
+		yield put(setSuccess('passwordmgmt', undefined));
+	}
+}
 
 function* watchLogIn() {
 	yield takeLatest(LOG_IN, logInAsync);
@@ -197,6 +238,10 @@ function* watchSetUserPassword() {
 	yield takeLatest(SET_USER_PASSWORD, setUserPasswordAsync);
 }
 
+function* watchForceUserPasswordChange() {
+	yield takeLatest(FORCE_USER_PASSWORD_CHANGE, forceUserPasswordChangeAsync);
+}
+
 export default function* userSagas() {
 	yield all([
 		call(watchLogIn),
@@ -207,5 +252,6 @@ export default function* userSagas() {
 		call(watchActivateUser),
 		call(watchDeactivateUser),
 		call(watchSetUserPassword),
+		call(watchForceUserPasswordChange),
 	]);
 }
