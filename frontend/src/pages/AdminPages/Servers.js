@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import StatusTag from '../../components/StatusTag';
 import Modal from '../../components/Modal';
-import DeleteModal from '../../components/modals/DeleteModal';
+import BasicModal from '../../components/modals/BasicModal';
 import { deleteServer } from '../../redux/servers/serverActions';
 
 const ServerTable = styled.table`
@@ -120,7 +120,7 @@ class Servers extends Component {
 
 		return (
 			<>
-				<DeleteModal
+				<BasicModal
 					show={deleteServerModal.show}
 					heading={`Delete ${deleteServerModal.ctx.name}`}
 					message={`Are you sure you wish to delete ${deleteServerModal.ctx.name}? This action cannot be undone.`}

@@ -38,3 +38,22 @@ export const addUser = (data) => ({
 	type: ADD_USER,
 	payload: data,
 });
+
+export const ACTIVATE_USER = 'ACTIVATE_USER';
+export const activateUser = (userId) => ({
+	type: ACTIVATE_USER,
+	userId: userId,
+});
+
+export const DEACTIVATE_USER = 'DEACTIVATE_USER';
+export const deactivateUser = (userId) => ({
+	type: DEACTIVATE_USER,
+	userId: userId,
+});
+
+export const SET_USER_PASSWORD = 'SET_USER_PASSWORD';
+export const setUserPassword = (userId, data) => ({
+	type: SET_USER_PASSWORD,
+	userId: userId,
+	payload: data,
+});

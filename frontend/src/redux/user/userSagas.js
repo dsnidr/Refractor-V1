@@ -1,6 +1,8 @@
 import {
+	activateUser,
 	changeUserPassword,
 	createUser,
+	deactivateUser,
 	getAllUsers,
 	getUserInfo,
 	logInUser,
@@ -8,15 +10,22 @@ import {
 import { setToken } from '../../utils/tokenUtils';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import {
+	ACTIVATE_USER,
 	ADD_USER,
 	CHANGE_USER_PASSWORD,
 	changePassword,
+	DEACTIVATE_USER,
 	GET_ALL_USERS,
 	LOG_IN,
+	SET_USER_PASSWORD,
 	setAllUsers,
 	setUser,
 } from './userActions';
-import { GET_USER_INFO } from './constants';
+import {
+	GET_USER_INFO,
+	SET_USER_ACTIVATED,
+	SET_USER_DEACTIVATED,
+} from './constants';
 import { setErrors } from '../error/errorActions';
 import { setSuccess } from '../success/successActions';
 import { setLoading } from '../loading/loadingActions';
@@ -114,6 +123,48 @@ function* addUserAsync(action) {
 	}
 }
 
+function* activateUserAsync(action) {
+	try {
+		const { data } = yield call(activateUser, action.userId);
+
+		yield put({
+			type: SET_USER_ACTIVATED,
+			userId: action.userId,
+		});
+
+		yield put(setSuccess('usermgmt', data.message));
+		yield put(setErrors('usermgmt', undefined));
+	} catch (err) {
+		console.log('Could not activate user', err);
+		const { data } = err.response;
+
+		yield put(setErrors('usermgmt', data.message));
+		yield put(setSuccess('usermgmt', undefined));
+	}
+}
+
+function* deactivateUserAsync(action) {
+	try {
+		const { data } = yield call(deactivateUser, action.userId);
+
+		yield put({
+			type: SET_USER_DEACTIVATED,
+			userId: action.userId,
+		});
+
+		yield put(setSuccess('usermgmt', data.message));
+		yield put(setErrors('usermgmt', undefined));
+	} catch (err) {
+		console.log('Could not deactivate user', err);
+		const { data } = err.response;
+
+		yield put(setErrors('usermgmt', data.message));
+		yield put(setSuccess('usermgmt', undefined));
+	}
+}
+
+function* setUserPasswordAsync(action) {}
+
 function* watchLogIn() {
 	yield takeLatest(LOG_IN, logInAsync);
 }
@@ -134,6 +185,18 @@ function* watchAddUser() {
 	yield takeLatest(ADD_USER, addUserAsync);
 }
 
+function* watchActivateUser() {
+	yield takeLatest(ACTIVATE_USER, activateUserAsync);
+}
+
+function* watchDeactivateUser() {
+	yield takeLatest(DEACTIVATE_USER, deactivateUserAsync);
+}
+
+function* watchSetUserPassword() {
+	yield takeLatest(SET_USER_PASSWORD, setUserPasswordAsync);
+}
+
 export default function* userSagas() {
 	yield all([
 		call(watchLogIn),
@@ -141,5 +204,8 @@ export default function* userSagas() {
 		call(watchChangeUserPassword),
 		call(watchGetAllUsers),
 		call(watchAddUser),
+		call(watchActivateUser),
+		call(watchDeactivateUser),
+		call(watchSetUserPassword),
 	]);
 }
