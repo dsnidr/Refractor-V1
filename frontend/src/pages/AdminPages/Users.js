@@ -56,6 +56,14 @@ const UserInfo = styled.div`
 	`}
 `;
 
+const UserDisplay = styled.div`
+	${(props) => css`
+		> button {
+			margin-top: 2rem;
+		}
+	`}
+`;
+
 class Users extends Component {
 	constructor(props) {
 		super(props);
@@ -155,6 +163,10 @@ class Users extends Component {
 		this.hideModal('deactivateUser')();
 	};
 
+	onAddUserClick = () => {
+		this.props.history.push('/users/add');
+	};
+
 	render() {
 		const { users: usersObj } = this.props;
 
@@ -194,7 +206,7 @@ class Users extends Component {
 					<Heading headingStyle={'title'}>Users</Heading>
 				</div>
 
-				<div>
+				<UserDisplay>
 					<Heading headingStyle={'subtitle'}>Activated users</Heading>
 					{users.map((user) => {
 						if (!user.activated) {
@@ -223,9 +235,13 @@ class Users extends Component {
 							</UserInfo>
 						);
 					})}
-				</div>
 
-				<div>
+					<Button size={'normal'} onClick={this.onAddUserClick}>
+						Add User
+					</Button>
+				</UserDisplay>
+
+				<UserDisplay>
 					<Heading headingStyle={'subtitle'}>
 						Deactivated users
 					</Heading>
@@ -254,7 +270,7 @@ class Users extends Component {
 							</UserInfo>
 						);
 					})}
-				</div>
+				</UserDisplay>
 			</>
 		);
 	}
