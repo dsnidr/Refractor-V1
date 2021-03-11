@@ -27,3 +27,15 @@ export function getAllUsers() {
 export function createUser(data) {
 	return axios.post('/api/v1/users/', data, postHeaders);
 }
+
+export function activateUser(userId) {
+	return axios.patch(`/api/v1/users/activate/${userId}`);
+}
+
+export function deactivateUser(userId) {
+	return axios.patch(`/api/v1/users/deactivate/${userId}`);
+}
+
+export function setUserPassword(data) {
+	return axios.patch(`/api/v1/users/setpassword`, data, postHeaders);
+}

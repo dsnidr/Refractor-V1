@@ -233,7 +233,7 @@ class User extends Component {
 
 				<ManagementSection>
 					<Heading headingStyle={'subtitle'}>
-						Permissions Management
+						Permission Management
 					</Heading>
 
 					<PermissionsManager>

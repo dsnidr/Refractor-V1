@@ -2,13 +2,18 @@ import React, { Component } from 'react';
 import Heading from '../../components/Heading';
 import { setLoading } from '../../redux/loading/loadingActions';
 import { connect } from 'react-redux';
-import { getAllUsers } from '../../redux/user/userActions';
+import {
+	activateUser,
+	deactivateUser,
+	getAllUsers,
+} from '../../redux/user/userActions';
 import Spinner from '../../components/Spinner';
 import styled, { css } from 'styled-components';
 import Button from '../../components/Button';
 import { Link } from 'react-router-dom';
+import BasicModal from '../../components/modals/BasicModal';
 
-const UserInfo = styled(Link)`
+const UserInfo = styled.div`
 	${(props) => css`
 		padding: 2rem;
 		margin-bottom: 2rem;
@@ -20,6 +25,10 @@ const UserInfo = styled(Link)`
 		align-items: center;
 		text-decoration: none;
 		color: ${props.theme.colorTextSecondary};
+
+		:hover {
+			cursor: pointer;
+		}
 
 		h1 {
 			font-size: 2rem;
@@ -40,10 +49,35 @@ const UserInfo = styled(Link)`
 		:last-of-type {
 			margin-bottom: 0;
 		}
+
+		:first-of-type {
+			margin-top: 1rem;
+		}
 	`}
 `;
 
 class Users extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			modals: {
+				activateUser: {
+					show: false,
+					ctx: {},
+					success: null,
+					error: null,
+				},
+				deactivateUser: {
+					show: false,
+					ctx: {},
+					success: null,
+					error: null,
+				},
+			},
+		};
+	}
+
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (!nextProps.users) {
 			nextProps.setLoading(true);
@@ -55,6 +89,72 @@ class Users extends Component {
 		return prevState;
 	}
 
+	onUserClick = (userId) => () => {
+		this.props.history.push(`/user/${userId}`);
+	};
+
+	hideModal = (name) => () => {
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				[name]: {
+					...prevState.modals[name],
+					show: false,
+					ctx: {},
+				},
+			},
+		}));
+	};
+
+	onActivateUserClick = (user) => (e) => {
+		e.stopPropagation();
+
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				activateUser: {
+					...prevState.modals.activateUser,
+					show: true,
+					ctx: user,
+				},
+			},
+		}));
+	};
+
+	onDeactivateUserClick = (user) => (e) => {
+		e.stopPropagation();
+
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				deactivateUser: {
+					...prevState.modals.deactivateUser,
+					show: true,
+					ctx: user,
+				},
+			},
+		}));
+	};
+
+	activateUser = () => {
+		const { ctx: user } = this.state.modals.activateUser;
+
+		this.props.activateUser(user.id);
+
+		this.hideModal('activateUser')();
+	};
+
+	deactivateUser = () => {
+		const { ctx: user } = this.state.modals.deactivateUser;
+
+		this.props.deactivateUser(user.id);
+
+		this.hideModal('deactivateUser')();
+	};
+
 	render() {
 		const { users: usersObj } = this.props;
 
@@ -64,18 +164,96 @@ class Users extends Component {
 
 		const users = Object.values(usersObj);
 
+		const { activateUser, deactivateUser } = this.state.modals;
+
 		return (
 			<>
+				<BasicModal
+					show={activateUser.show}
+					heading={`Activate ${activateUser.ctx.username}`}
+					message={`Are you sure you wish to activate ${activateUser.ctx.username}?`}
+					submitLabel={'Activate User'}
+					success={activateUser.success}
+					error={activateUser.error}
+					onClose={this.hideModal('activateUser')}
+					onSubmit={this.activateUser}
+				/>
+
+				<BasicModal
+					show={deactivateUser.show}
+					heading={`Deactivate ${deactivateUser.ctx.username}`}
+					message={`Are you sure you wish to deactivate ${deactivateUser.ctx.username}?`}
+					submitLabel={'Deactivate User'}
+					success={deactivateUser.success}
+					error={deactivateUser.error}
+					onClose={this.hideModal('deactivateUser')}
+					onSubmit={this.deactivateUser}
+				/>
+
 				<div>
 					<Heading headingStyle={'title'}>Users</Heading>
 				</div>
 
 				<div>
-					{users.map((user) => (
-						<UserInfo key={user.id} to={`/user/${user.id}`}>
-							<h1>{user.username}</h1>
-						</UserInfo>
-					))}
+					<Heading headingStyle={'subtitle'}>Activated users</Heading>
+					{users.map((user) => {
+						if (!user.activated) {
+							return null;
+						}
+
+						return (
+							<UserInfo
+								key={user.id}
+								to={`/user/${user.id}`}
+								onClick={this.onUserClick(user.id)}
+							>
+								<h1>{user.username}</h1>
+
+								<div>
+									<Button
+										size={'normal'}
+										color={'danger'}
+										onClick={this.onDeactivateUserClick(
+											user
+										)}
+									>
+										Deactivate
+									</Button>
+								</div>
+							</UserInfo>
+						);
+					})}
+				</div>
+
+				<div>
+					<Heading headingStyle={'subtitle'}>
+						Deactivated users
+					</Heading>
+					{users.map((user) => {
+						if (user.activated) {
+							return null;
+						}
+
+						return (
+							<UserInfo
+								key={user.id}
+								to={`/user/${user.id}`}
+								onClick={this.onUserClick(user.id)}
+							>
+								<h1>{user.username}</h1>
+
+								<div>
+									<Button
+										size={'normal'}
+										color={'alert'}
+										onClick={this.onActivateUserClick(user)}
+									>
+										Reactivate
+									</Button>
+								</div>
+							</UserInfo>
+						);
+					})}
 				</div>
 			</>
 		);
@@ -91,6 +269,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
 	setLoading: (isLoading) => dispatch(setLoading('users', isLoading)),
 	getAllUsers: () => dispatch(getAllUsers()),
+	activateUser: (userId) => dispatch(activateUser(userId)),
+	deactivateUser: (userId) => dispatch(deactivateUser(userId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Users);

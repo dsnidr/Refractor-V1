@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Alert from '../Alert';
 import Button from '../Button';
 
-class DeleteModal extends Component {
+class BasicModal extends Component {
 	render() {
 		const {
 			show,
@@ -12,6 +12,8 @@ class DeleteModal extends Component {
 			onSubmit,
 			heading,
 			message,
+			submitLabel,
+			cancelLabel,
 			success,
 			error,
 		} = this.props;
@@ -26,10 +28,10 @@ class DeleteModal extends Component {
 				</ModalContent>
 				<ModalButtonBox>
 					<Button size="normal" color="primary" onClick={onClose}>
-						Cancel
+						{cancelLabel || 'Cancel'}
 					</Button>
 					<Button size="normal" color="danger" onClick={onSubmit}>
-						Delete
+						{submitLabel}
 					</Button>
 				</ModalButtonBox>
 			</Modal>
@@ -37,14 +39,16 @@ class DeleteModal extends Component {
 	}
 }
 
-DeleteModal.propTypes = {
+BasicModal.propTypes = {
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func,
 	onSubmit: PropTypes.func,
 	heading: PropTypes.string.isRequired,
 	message: PropTypes.string.isRequired,
+	submitLabel: PropTypes.string.isRequired,
+	cancelLabel: PropTypes.string,
 	success: PropTypes.any.isRequired,
 	error: PropTypes.any.isRequired,
 };
 
-export default DeleteModal;
+export default BasicModal;
