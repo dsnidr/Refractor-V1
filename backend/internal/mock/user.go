@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,7 +20,7 @@ func GetMockUsers() map[int64]*MockUser {
 				Email:               "test@test.com",
 				Username:            "tester",
 				Password:            HashPassword("password"),
-				AccessLevel:         0,
+				Permissions:         perms.DEFAULT_PERMS,
 				Activated:           false,
 				NeedsPasswordChange: false,
 			},
@@ -144,8 +145,8 @@ func (r *mockUserRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.U
 		r.users[id].Password = args["Password"].(string)
 	}
 
-	if args["AccessLevel"] != nil {
-		r.users[id].AccessLevel = args["AccessLevel"].(int)
+	if args["Permissions"] != nil {
+		r.users[id].Permissions = args["Permissions"].(uint64)
 	}
 
 	if args["Activated"] != nil {

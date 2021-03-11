@@ -3,8 +3,8 @@ package user
 import (
 	"github.com/sniddunc/refractor/internal/mock"
 	"github.com/sniddunc/refractor/internal/params"
-	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
@@ -45,7 +45,7 @@ func Test_userService_CreateUser(t *testing.T) {
 				Email:               "test@test.com",
 				Username:            "testuser.1",
 				Password:            mock.HashPassword("password"),
-				AccessLevel:         0,
+				Permissions:         perms.DEFAULT_PERMS,
 				Activated:           true,
 				NeedsPasswordChange: true,
 			},
@@ -67,7 +67,7 @@ func Test_userService_CreateUser(t *testing.T) {
 			assert.Equal(t, tt.wantUser.UserID, newUser.UserID, "UserIDs are not equal")
 			assert.Equal(t, tt.wantUser.Email, newUser.Email, "Emails are not equal")
 			assert.Equal(t, tt.wantUser.Username, newUser.Username, "Usernames are not equal")
-			assert.Equal(t, tt.wantUser.AccessLevel, newUser.AccessLevel, "AccessLevels are not equal")
+			assert.Equal(t, tt.wantUser.Permissions, newUser.Permissions, "Permission values are not equal")
 			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
 
 			assert.NoError(t, bcrypt.CompareHashAndPassword([]byte(newUser.Password), []byte(tt.args.body.Password)),
@@ -76,12 +76,12 @@ func Test_userService_CreateUser(t *testing.T) {
 	}
 }
 
-func Test_userService_SetUserAccessLevel(t *testing.T) {
+func Test_userService_SetUserPermissions(t *testing.T) {
 	type fields struct {
 		mockUsers map[int64]*mock.MockUser
 	}
 	type args struct {
-		body params.SetUserAccessLevelParams
+		body params.SetUserPermissionsParams
 	}
 	tests := []struct {
 		name     string
@@ -101,7 +101,7 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            "",
-							AccessLevel:         0,
+							Permissions:         perms.DEFAULT_PERMS,
 							Activated:           true,
 							NeedsPasswordChange: true,
 						},
@@ -109,12 +109,12 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 				},
 			},
 			args: args{
-				body: params.SetUserAccessLevelParams{
+				body: params.SetUserPermissionsParams{
 					UserID:      1,
-					AccessLevel: config.AL_ADMIN,
+					Permissions: perms.FULL_ACCESS,
 					UserMeta: &params.UserMeta{
 						UserID:      2,
-						AccessLevel: config.AL_SUPERADMIN,
+						Permissions: perms.SUPER_ADMIN,
 					},
 				},
 			},
@@ -123,14 +123,14 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 				Email:               "test@test.com",
 				Username:            "testuser.1",
 				Password:            "",
-				AccessLevel:         config.AL_ADMIN,
+				Permissions:         perms.FULL_ACCESS,
 				Activated:           true,
 				NeedsPasswordChange: true,
 			},
 			wantRes: &refractor.ServiceResponse{
 				Success:    true,
 				StatusCode: http.StatusOK,
-				Message:    "Access level set. Any new access rights will come into effect next time the user logs in",
+				Message:    "Permissions set. Any new access rights will come into effect next time the user logs in",
 			},
 		},
 		{
@@ -144,7 +144,7 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            "",
-							AccessLevel:         0,
+							Permissions:         perms.DEFAULT_PERMS,
 							Activated:           true,
 							NeedsPasswordChange: true,
 						},
@@ -152,12 +152,12 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 				},
 			},
 			args: args{
-				body: params.SetUserAccessLevelParams{
+				body: params.SetUserPermissionsParams{
 					UserID:      1,
-					AccessLevel: config.AL_ADMIN,
+					Permissions: perms.FULL_ACCESS,
 					UserMeta: &params.UserMeta{
 						UserID:      2,
-						AccessLevel: config.AL_USER,
+						Permissions: perms.DEFAULT_PERMS,
 					},
 				},
 			},
@@ -165,7 +165,7 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 			wantRes: &refractor.ServiceResponse{
 				Success:    false,
 				StatusCode: http.StatusBadRequest,
-				Message:    "You do not have permission to set the access level of this user",
+				Message:    "You do not have permission to set the permissions of this user",
 			},
 		},
 		{
@@ -179,7 +179,7 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            "",
-							AccessLevel:         0,
+							Permissions:         perms.DEFAULT_PERMS,
 							Activated:           true,
 							NeedsPasswordChange: true,
 						},
@@ -187,12 +187,12 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 				},
 			},
 			args: args{
-				body: params.SetUserAccessLevelParams{
+				body: params.SetUserPermissionsParams{
 					UserID:      1,
-					AccessLevel: config.AL_SUPERADMIN,
+					Permissions: perms.SUPER_ADMIN,
 					UserMeta: &params.UserMeta{
 						UserID:      2,
-						AccessLevel: config.AL_ADMIN,
+						Permissions: perms.DEFAULT_PERMS,
 					},
 				},
 			},
@@ -200,7 +200,7 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 			wantRes: &refractor.ServiceResponse{
 				Success:    false,
 				StatusCode: http.StatusBadRequest,
-				Message:    "You do not have permission to set the access level of this user",
+				Message:    "You do not have permission to set the permissions of this user",
 			},
 		},
 	}
@@ -210,7 +210,7 @@ func Test_userService_SetUserAccessLevel(t *testing.T) {
 			mockLogger, _ := log.NewLogger(true, false)
 			userService := NewUserService(mockUserRepo, mockLogger)
 
-			newUser, res := userService.SetUserAccessLevel(tt.args.body)
+			newUser, res := userService.SetUserPermissions(tt.args.body)
 
 			assert.Equal(t, tt.wantUser, newUser, "Structs are not equal")
 			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
@@ -240,7 +240,7 @@ func Test_userService_GetUserInfo(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            "password",
-							AccessLevel:         config.AL_ADMIN,
+							Permissions:         perms.FULL_ACCESS,
 							Activated:           true,
 							NeedsPasswordChange: true,
 						},
@@ -253,7 +253,7 @@ func Test_userService_GetUserInfo(t *testing.T) {
 				Email:               "test@test.com",
 				Username:            "testuser.1",
 				Activated:           true,
-				AccessLevel:         config.AL_ADMIN,
+				Permissions:         perms.FULL_ACCESS,
 				NeedsPasswordChange: true,
 			},
 			wantRes: &refractor.ServiceResponse{
@@ -302,7 +302,7 @@ func Test_userService_ChangeUserPassword(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            mock.HashPassword("password"),
-							AccessLevel:         config.AL_ADMIN,
+							Permissions:         perms.FULL_ACCESS,
 							Activated:           true,
 							NeedsPasswordChange: true,
 						},
@@ -334,7 +334,7 @@ func Test_userService_ChangeUserPassword(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            mock.HashPassword("password"),
-							AccessLevel:         config.AL_ADMIN,
+							Permissions:         perms.FULL_ACCESS,
 							Activated:           true,
 							NeedsPasswordChange: true,
 						},
@@ -401,7 +401,7 @@ func Test_userService_UpdateUser(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            "doesntmatter",
-							AccessLevel:         config.AL_ADMIN,
+							Permissions:         perms.FULL_ACCESS,
 							Activated:           true,
 							NeedsPasswordChange: false,
 						},
@@ -412,7 +412,7 @@ func Test_userService_UpdateUser(t *testing.T) {
 				id: 1,
 				args: refractor.UpdateArgs{
 					"Activated":           false,
-					"AccessLevel":         99999,
+					"Permissions":         perms.FULL_ACCESS,
 					"NeedsPasswordChange": true,
 				},
 			},
@@ -421,7 +421,7 @@ func Test_userService_UpdateUser(t *testing.T) {
 				Email:               "test@test.com",
 				Username:            "testuser.1",
 				Password:            "doesntmatter",
-				AccessLevel:         99999,
+				Permissions:         perms.FULL_ACCESS,
 				Activated:           false,
 				NeedsPasswordChange: true,
 			},
@@ -471,7 +471,7 @@ func Test_userService_SetUserPassword(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            mock.HashPassword("password"),
-							AccessLevel:         config.AL_ADMIN,
+							Permissions:         perms.FULL_ACCESS,
 							Activated:           true,
 							NeedsPasswordChange: false,
 						},
@@ -479,11 +479,11 @@ func Test_userService_SetUserPassword(t *testing.T) {
 					2: {
 						UnhashedPassword: "changeme",
 						User: &refractor.User{
-							UserID:              1,
+							UserID:              2,
 							Email:               "test2@test.com",
 							Username:            "testuser.2",
 							Password:            mock.HashPassword("changeme"),
-							AccessLevel:         config.AL_USER,
+							Permissions:         perms.DEFAULT_PERMS,
 							Activated:           true,
 							NeedsPasswordChange: false,
 						},
@@ -492,10 +492,12 @@ func Test_userService_SetUserPassword(t *testing.T) {
 			},
 			args: args{
 				body: params.SetUserPasswordParams{
-					UserID:            2,
-					NewPassword:       "changedpassword",
-					SetterUserID:      1,
-					SetterAccessLevel: config.AL_ADMIN,
+					UserID:      2,
+					NewPassword: "changedpassword",
+					UserMeta: &params.UserMeta{
+						UserID:      1,
+						Permissions: perms.FULL_ACCESS,
+					},
 				},
 			},
 			wantUser: &refractor.User{
@@ -503,7 +505,7 @@ func Test_userService_SetUserPassword(t *testing.T) {
 				Email:               "test@test.com",
 				Username:            "testuser.1",
 				Password:            "doesntmatter",
-				AccessLevel:         99999,
+				Permissions:         perms.FULL_ACCESS,
 				Activated:           false,
 				NeedsPasswordChange: true,
 			},
@@ -524,7 +526,7 @@ func Test_userService_SetUserPassword(t *testing.T) {
 							Email:               "test@test.com",
 							Username:            "testuser.1",
 							Password:            mock.HashPassword("password"),
-							AccessLevel:         config.AL_USER,
+							Permissions:         perms.FULL_ACCESS,
 							Activated:           true,
 							NeedsPasswordChange: false,
 						},
@@ -536,7 +538,7 @@ func Test_userService_SetUserPassword(t *testing.T) {
 							Email:               "test2@test.com",
 							Username:            "testuser.2",
 							Password:            mock.HashPassword("changeme"),
-							AccessLevel:         config.AL_ADMIN,
+							Permissions:         perms.FULL_ACCESS,
 							Activated:           true,
 							NeedsPasswordChange: false,
 						},
@@ -545,10 +547,12 @@ func Test_userService_SetUserPassword(t *testing.T) {
 			},
 			args: args{
 				body: params.SetUserPasswordParams{
-					UserID:            2,
-					NewPassword:       "changedpassword",
-					SetterUserID:      1,
-					SetterAccessLevel: config.AL_USER,
+					UserID:      2,
+					NewPassword: "changedpassword",
+					UserMeta: &params.UserMeta{
+						UserID:      1,
+						Permissions: perms.DEFAULT_PERMS,
+					},
 				},
 			},
 			wantUser: nil,

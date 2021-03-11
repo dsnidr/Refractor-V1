@@ -9,8 +9,8 @@ import (
 
 // Claims represents the auth claims made in our JWTs
 type Claims struct {
-	UserID      int64 `json:"id"`
-	AccessLevel int   `json:"accessLevel"`
+	UserID      int64  `json:"id"`
+	Permissions uint64 `json:"permissions"`
 	jwt.StandardClaims
 }
 
@@ -29,7 +29,7 @@ type TokenPair struct {
 func GenerateAuthTokens(user *refractor.User, secret []byte) (string, string, error) {
 	authClaims := Claims{
 		UserID:      user.UserID,
-		AccessLevel: user.AccessLevel,
+		Permissions: user.Permissions,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
 		},

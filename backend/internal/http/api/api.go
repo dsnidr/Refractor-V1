@@ -3,9 +3,9 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
-	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/jwt"
 	"github.com/sniddunc/refractor/pkg/log"
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
 	"net/http"
 	"net/url"
@@ -77,12 +77,12 @@ func (api *API) setupRoutes() {
 	userGroup := apiGroup.Group("/users", jwtMiddleware, AttachClaims())
 	userGroup.GET("/me", api.UserHandler.GetOwnUserInfo)
 	userGroup.POST("/changepassword", api.UserHandler.ChangeUserPassword)
-	userGroup.GET("/all", api.UserHandler.GetAllUsers, api.RequireAccessLevel(config.AL_ADMIN))
-	userGroup.POST("/", api.UserHandler.CreateUser, api.RequireAccessLevel(config.AL_ADMIN))
-	userGroup.PATCH("/activate/:id", api.UserHandler.ActivateUser, api.RequireAccessLevel(config.AL_ADMIN))
-	userGroup.PATCH("/deactivate/:id", api.UserHandler.DeactivateUser, api.RequireAccessLevel(config.AL_ADMIN))
-	userGroup.PATCH("/setpassword", api.UserHandler.SetUserPassword, api.RequireAccessLevel(config.AL_ADMIN))
-	userGroup.PATCH("/forcepasswordchange/:id", api.UserHandler.ForcePasswordChange, api.RequireAccessLevel(config.AL_ADMIN))
+	userGroup.GET("/all", api.UserHandler.GetAllUsers, api.RequirePerms(perms.FULL_ACCESS))
+	userGroup.POST("/", api.UserHandler.CreateUser, api.RequirePerms(perms.FULL_ACCESS))
+	userGroup.PATCH("/activate/:id", api.UserHandler.ActivateUser, api.RequirePerms(perms.FULL_ACCESS))
+	userGroup.PATCH("/deactivate/:id", api.UserHandler.DeactivateUser, api.RequirePerms(perms.FULL_ACCESS))
+	userGroup.PATCH("/setpassword", api.UserHandler.SetUserPassword, api.RequirePerms(perms.FULL_ACCESS))
+	userGroup.PATCH("/forcepasswordchange/:id", api.UserHandler.ForcePasswordChange, api.RequirePerms(perms.FULL_ACCESS))
 
 	// Game endpoints
 	gameGroup := apiGroup.Group("/gameservers", jwtMiddleware, AttachClaims())
@@ -90,11 +90,11 @@ func (api *API) setupRoutes() {
 
 	// Server endpoints
 	serverGroup := apiGroup.Group("/servers", jwtMiddleware, AttachClaims())
-	serverGroup.POST("/", api.ServerHandler.CreateServer, api.RequireAccessLevel(config.AL_ADMIN))
+	serverGroup.POST("/", api.ServerHandler.CreateServer, api.RequirePerms(perms.FULL_ACCESS))
 	serverGroup.GET("/", api.ServerHandler.GetAllServers)
 	serverGroup.GET("/data", api.ServerHandler.GetAllServerData)
-	serverGroup.PATCH("/:id", api.ServerHandler.UpdateServer, api.RequireAccessLevel(config.AL_ADMIN))
-	serverGroup.DELETE("/:id", api.ServerHandler.DeleteServer, api.RequireAccessLevel(config.AL_ADMIN))
+	serverGroup.PATCH("/:id", api.ServerHandler.UpdateServer, api.RequirePerms(perms.FULL_ACCESS))
+	serverGroup.DELETE("/:id", api.ServerHandler.DeleteServer, api.RequirePerms(perms.FULL_ACCESS))
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)

@@ -2,9 +2,11 @@ package user
 
 import (
 	"fmt"
+	"github.com/sniddunc/bitperms"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -72,9 +74,10 @@ func (s *userService) CreateUser(body params.CreateUserParams) (*refractor.User,
 
 	// Create the new user
 	newUser := &refractor.User{
-		Email:    body.Email,
-		Username: body.Username,
-		Password: string(hashAndSalt),
+		Email:       body.Email,
+		Username:    body.Username,
+		Password:    string(hashAndSalt),
+		Permissions: perms.DEFAULT_PERMS,
 	}
 
 	if err := s.repo.Create(newUser); err != nil {
@@ -111,7 +114,7 @@ func (s *userService) GetUserInfo(id int64) (*refractor.UserInfo, *refractor.Ser
 		Email:               foundUser.Email,
 		Username:            foundUser.Username,
 		Activated:           foundUser.Activated,
-		AccessLevel:         foundUser.AccessLevel,
+		Permissions:         foundUser.Permissions,
 		NeedsPasswordChange: foundUser.NeedsPasswordChange,
 	}
 
@@ -122,18 +125,19 @@ func (s *userService) GetUserInfo(id int64) (*refractor.UserInfo, *refractor.Ser
 	}
 }
 
-// SetUserAccessLevel sets a user's access level. The user kicking off this interaction must be at least an admin, and
-// must have a higher access level than the user whose access level they're updating.
-func (s *userService) SetUserAccessLevel(body params.SetUserAccessLevelParams) (*refractor.User, *refractor.ServiceResponse) {
-	// Make sure the setter user is an admin or higher
-	if body.UserMeta.AccessLevel < config.AL_ADMIN || body.AccessLevel >= body.UserMeta.AccessLevel {
-		s.log.Warn("Non-admin user with ID: %d and Access Level: %d tried to set the access level of user ID: %d to: %d",
-			body.UserMeta.UserID, body.UserMeta.AccessLevel, body.UserID, body.AccessLevel)
+// SetUserPermissions sets a user's permissions. The user kicking off this interaction must be at least an admin, and
+// must have a higher level of access than the user whose access level they're updating.
+func (s *userService) SetUserPermissions(body params.SetUserPermissionsParams) (*refractor.User, *refractor.ServiceResponse) {
+	setterPerms := bitperms.PermissionValue(body.UserMeta.Permissions)
+
+	if !perms.UserHasFullAccess(setterPerms) {
+		s.log.Warn("Non-admin user with ID: %d and permissions value: %d tried to set the permissions of user ID: %d to: %d",
+			body.UserMeta.UserID, body.UserMeta.Permissions, body.UserID, body.Permissions)
 
 		return nil, &refractor.ServiceResponse{
 			Success:    false,
 			StatusCode: http.StatusBadRequest,
-			Message:    "You do not have permission to set the access level of this user",
+			Message:    "You do not have permission to set the permissions of this user",
 		}
 	}
 
@@ -152,32 +156,34 @@ func (s *userService) SetUserAccessLevel(body params.SetUserAccessLevelParams) (
 		return nil, refractor.InternalErrorResponse
 	}
 
+	targetPerms := bitperms.PermissionValue(foundUser.Permissions)
+
 	// Ensure that the updating user has a higher access level than the original user
-	if body.UserMeta.AccessLevel <= foundUser.AccessLevel {
-		s.log.Warn("User with ID: %d tried to set the access level of user ID: %d without having a higher access level",
+	if !perms.HasHigherAccess(setterPerms, targetPerms) {
+		s.log.Warn("User with ID: %d tried to set the permissions of user ID: %d without having a higher access level",
 			body.UserMeta.UserID, body.UserID)
 		return nil, &refractor.ServiceResponse{
 			Success:    false,
 			StatusCode: http.StatusBadRequest,
-			Message:    "You do not have permission to set the access level of this user",
+			Message:    "You do not have permission to set the permissions of this user",
 		}
 	}
 
-	// Update the access level of the target user
+	// Update the permissions value of the target user
 	args := refractor.UpdateArgs{
-		"AccessLevel": body.AccessLevel,
+		"Permissions": body.Permissions,
 	}
 
 	updatedUser, err := s.repo.Update(body.UserID, args)
 	if err != nil {
-		s.log.Error("Could not set the new access level of %d for user with ID: %d. Error: %v", body.AccessLevel, body.UserID, err)
+		s.log.Error("Could not set the new permissions value of %d for user with ID: %d. Error: %v", body.Permissions, body.UserID, err)
 		return nil, refractor.InternalErrorResponse
 	}
 
 	return updatedUser, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
-		Message:    "Access level set. Any new access rights will come into effect next time the user logs in",
+		Message:    "Permissions set. Any new access rights will come into effect next time the user logs in",
 	}
 }
 
@@ -305,9 +311,12 @@ func (s *userService) SetUserPassword(body params.SetUserPasswordParams) (*refra
 		return nil, refractor.InternalErrorResponse
 	}
 
-	// Ensure that the updating user has a higher access level than the user that they're updating
-	if body.SetterAccessLevel <= foundUser.AccessLevel {
-		s.log.Warn("User with ID: %d tried to set a new password on a user with ID: %d without having a higher access level", body.SetterUserID, body.UserID)
+	setterPerms := bitperms.PermissionValue(body.UserMeta.Permissions)
+	targetPerms := bitperms.PermissionValue(foundUser.Permissions)
+
+	// Ensure that the updating user has a level of access than the user that they're updating
+	if !perms.HasHigherAccess(setterPerms, targetPerms) {
+		s.log.Warn("User with ID: %d tried to set a new password on a user with ID: %d without having a higher level of access", body.UserMeta.UserID, body.UserID)
 		return nil, &refractor.ServiceResponse{
 			Success:    false,
 			StatusCode: http.StatusBadRequest,

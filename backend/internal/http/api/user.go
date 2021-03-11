@@ -146,8 +146,8 @@ func (h *userHandler) SetUserPassword(c echo.Context) error {
 	claims := c.Get("claims").(*jwt.Claims)
 
 	// Update body to include the setting user's details
-	body.SetterUserID = claims.UserID
-	body.SetterAccessLevel = claims.AccessLevel
+	body.UserMeta.UserID = claims.UserID
+	body.UserMeta.Permissions = claims.Permissions
 
 	_, res := h.service.SetUserPassword(body)
 

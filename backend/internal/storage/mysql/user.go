@@ -15,10 +15,11 @@ func NewUserRepository(db *sql.DB) refractor.UserRepository {
 	}
 }
 
+// The provided user must have the following fields set: Username, Email, Password, Permissions
 func (r *userRepo) Create(user *refractor.User) error {
-	query := "INSERT INTO Users (Username, Email, Password) VALUES (?, ?, ?);"
+	query := "INSERT INTO Users (Username, Email, Password, Permissions) VALUES (?, ?, ?, ?);"
 
-	res, err := r.db.Exec(query, user.Username, user.Email, user.Password)
+	res, err := r.db.Exec(query, user.Username, user.Email, user.Password, user.Permissions)
 	if err != nil {
 		return wrapError(err)
 	}
@@ -154,9 +155,9 @@ func (r *userRepo) GetCount() int {
 
 // Scan helpers
 func (r *userRepo) scanRow(row *sql.Row, user *refractor.User) error {
-	return row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.AccessLevel, &user.Activated, &user.NeedsPasswordChange)
+	return row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.Permissions, &user.Activated, &user.NeedsPasswordChange)
 }
 
 func (r *userRepo) scanRows(rows *sql.Rows, user *refractor.User) error {
-	return rows.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.AccessLevel, &user.Activated, &user.NeedsPasswordChange)
+	return rows.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.Permissions, &user.Activated, &user.NeedsPasswordChange)
 }
