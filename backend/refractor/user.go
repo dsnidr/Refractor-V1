@@ -10,7 +10,7 @@ type User struct {
 	Email               string `json:"email"`
 	Username            string `json:"username"`
 	Password            string `json:"-"`
-	AccessLevel         int    `json:"accessLevel"`
+	Permissions         uint64 `json:"permissions"`
 	Activated           bool   `json:"activated"`
 	NeedsPasswordChange bool   `json:"needsPasswordChange"`
 }
@@ -29,7 +29,7 @@ type UserRepository interface {
 type UserService interface {
 	CreateUser(body params.CreateUserParams) (*User, *ServiceResponse)
 	GetUserInfo(id int64) (*UserInfo, *ServiceResponse)
-	SetUserAccessLevel(body params.SetUserAccessLevelParams) (*User, *ServiceResponse)
+	SetUserPermissions(body params.SetUserPermissionsParams) (*User, *ServiceResponse)
 	ChangeUserPassword(id int64, body params.ChangeUserPassword) (*User, *ServiceResponse)
 	GetAllUsers() ([]*User, *ServiceResponse)
 	UpdateUser(id int64, args UpdateArgs) (*User, *ServiceResponse)
@@ -52,6 +52,6 @@ type UserInfo struct {
 	Email               string `json:"email"`
 	Username            string `json:"username"`
 	Activated           bool   `json:"activated"`
-	AccessLevel         int    `json:"accessLevel"`
+	Permissions         uint64 `json:"permissions"`
 	NeedsPasswordChange bool   `json:"needsPasswordChange"`
 }

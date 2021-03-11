@@ -1,6 +1,7 @@
 package params
 
 import (
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/stretchr/testify/assert"
 	"net/url"
 	"strings"
@@ -108,10 +109,10 @@ func TestCreateUserParams_Validate(t *testing.T) {
 	}
 }
 
-func TestSetUserAccessLevelParams_Validate(t *testing.T) {
+func TestSetUserPermissionsParams_Validate(t *testing.T) {
 	type fields struct {
 		UserID       int64
-		AccessLevel  int
+		Permissions  uint64
 		SetterUserID int64
 		UserMeta     *UserMeta
 	}
@@ -121,23 +122,35 @@ func TestSetUserAccessLevelParams_Validate(t *testing.T) {
 		wantValid bool
 	}{
 		{
-			name: "params.user.setaccesslevel.1",
+			name: "params.user.setpermissions.1",
 			fields: fields{
 				UserID:      1,
-				AccessLevel: config.AL_USER,
+				Permissions: 0,
 				UserMeta: &UserMeta{
 					UserID:      2,
-					AccessLevel: config.AL_ADMIN,
+					Permissions: perms.FULL_ACCESS,
 				},
 			},
 			wantValid: true,
 		},
+		{
+			name: "params.user.setpermissions.2",
+			fields: fields{
+				UserID:      -1,
+				Permissions: 0,
+				UserMeta: &UserMeta{
+					UserID:      2,
+					Permissions: 0,
+				},
+			},
+			wantValid: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			body := &SetUserAccessLevelParams{
+			body := &SetUserPermissionsParams{
 				UserID:      tt.fields.UserID,
-				AccessLevel: tt.fields.AccessLevel,
+				Permissions: tt.fields.Permissions,
 				UserMeta:    tt.fields.UserMeta,
 			}
 			valid, errors := body.Validate()

@@ -7,9 +7,9 @@ import (
 	"github.com/sniddunc/refractor/internal/auth"
 	"github.com/sniddunc/refractor/internal/mock"
 	"github.com/sniddunc/refractor/internal/params"
-	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/jwt"
 	"github.com/sniddunc/refractor/pkg/log"
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -46,7 +46,7 @@ func Test_authHandler_LogInUser(t *testing.T) {
 						Email:               "test@test.com",
 						Username:            "testuser.1",
 						Password:            mock.HashPassword("password"),
-						AccessLevel:         config.AL_USER,
+						Permissions:         perms.DEFAULT_PERMS,
 						Activated:           true,
 						NeedsPasswordChange: false,
 					},
@@ -69,7 +69,7 @@ func Test_authHandler_LogInUser(t *testing.T) {
 						Email:               "test@test.com",
 						Username:            "testuser.1",
 						Password:            mock.HashPassword("password"),
-						AccessLevel:         config.AL_USER,
+						Permissions:         perms.DEFAULT_PERMS,
 						Activated:           true,
 						NeedsPasswordChange: false,
 					},
@@ -153,7 +153,7 @@ func Test_authHandler_RefreshUser(t *testing.T) {
 						Email:               "test@test.com",
 						Username:            "testuser.1",
 						Password:            mock.HashPassword("password"),
-						AccessLevel:         config.AL_USER,
+						Permissions:         perms.DEFAULT_PERMS,
 						Activated:           true,
 						NeedsPasswordChange: false,
 					},
@@ -172,7 +172,7 @@ func Test_authHandler_RefreshUser(t *testing.T) {
 						Email:               "test@test.com",
 						Username:            "testuser.1",
 						Password:            mock.HashPassword("password"),
-						AccessLevel:         config.AL_USER,
+						Permissions:         perms.DEFAULT_PERMS,
 						Activated:           false,
 						NeedsPasswordChange: false,
 					},

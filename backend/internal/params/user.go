@@ -11,7 +11,7 @@ import (
 // on the user who is sending a request.
 type UserMeta struct {
 	UserID      int64
-	AccessLevel int
+	Permissions uint64
 }
 
 // CreateUserParams holds the data we expect when creating a new user.
@@ -47,25 +47,19 @@ func (body *CreateUserParams) Validate() (bool, url.Values) {
 	return len(errors) == 0, errors
 }
 
-// SetUserAccessLevelParams holds the data we expect when setting a user's access level to a new value.
-type SetUserAccessLevelParams struct {
-	UserID      int64 `json:"id" form:"id"`
-	AccessLevel int   `json:"accessLevel" form:"accessLevel"`
+// SetUserPermissionsParams holds the data we expect when setting a user's permissions.
+type SetUserPermissionsParams struct {
+	UserID      int64  `json:"id" form:"id"`
+	Permissions uint64 `json:"permissions" form:"permissions"`
 	*UserMeta
 }
 
 // Validate validates the data inside the attached struct
-func (body *SetUserAccessLevelParams) Validate() (bool, url.Values) {
+func (body *SetUserPermissionsParams) Validate() (bool, url.Values) {
 	errors := url.Values{}
 
 	if body.UserID < 1 {
 		errors.Set("id", "Invalid user ID provided")
-	}
-
-	if body.AccessLevel < config.AL_USER {
-		errors.Set("accessLevel", "Invalid access level provided")
-	} else if body.AccessLevel > config.AL_ADMIN {
-		errors.Set("accessLevel", fmt.Sprintf("Maximum value of access level is %d", config.AL_ADMIN))
 	}
 
 	return len(errors) == 0, errors
@@ -96,10 +90,9 @@ func (body *ChangeUserPassword) Validate() (bool, url.Values) {
 
 // SetUserPasswordParams holds the data we expect when setting a user's password to a new value
 type SetUserPasswordParams struct {
-	UserID            int64  `json:"id" form:"id"`
-	NewPassword       string `json:"newPassword" form:"newPassword"`
-	SetterUserID      int64
-	SetterAccessLevel int
+	UserID      int64  `json:"id" form:"id"`
+	NewPassword string `json:"newPassword" form:"newPassword"`
+	*UserMeta
 }
 
 // Validate validates the data inside the attached struct

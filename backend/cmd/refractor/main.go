@@ -17,7 +17,6 @@ import (
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/user"
 	"github.com/sniddunc/refractor/internal/websocket"
-	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/env"
 	logger "github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
@@ -171,12 +170,12 @@ func setupInitialUser(userService refractor.UserService) error {
 	}
 
 	// Make user a super-admin
-	_, res = userService.SetUserAccessLevel(params.SetUserAccessLevelParams{
+	_, res = userService.SetUserPermissions(params.SetUserPermissionsParams{
 		UserID:      newUser.UserID,
-		AccessLevel: config.AL_SUPERADMIN,
+		Permissions: math.MaxUint64,
 		UserMeta: &params.UserMeta{
 			UserID:      0,
-			AccessLevel: math.MaxInt32,
+			Permissions: math.MaxUint64,
 		},
 	})
 
