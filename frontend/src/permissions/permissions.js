@@ -40,3 +40,15 @@ export function isRestricted(flagName) {
 
 	return false;
 }
+
+export function getGrantedPerms(perms) {
+	const granted = [];
+
+	Object.keys(flags).forEach((flagName) => {
+		if (hasPermission(BigInt(perms), BigInt(flags[flagName]))) {
+			granted.push(flagName);
+		}
+	});
+
+	return granted;
+}

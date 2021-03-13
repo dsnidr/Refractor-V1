@@ -43,3 +43,7 @@ export function setUserPassword(data) {
 export function forceUserPasswordChange(userId) {
 	return axios.patch(`/api/v1/users/forcepasswordchange/${userId}`);
 }
+
+export function setUserPermissions(data) {
+	return axios.patch('/api/v1/users/setpermissions', data, postHeaders);
+}

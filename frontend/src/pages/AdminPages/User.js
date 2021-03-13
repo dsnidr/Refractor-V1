@@ -6,6 +6,7 @@ import {
 	forceUserPasswordChange,
 	getAllUsers,
 	setUserPassword,
+	setUserPermissions,
 } from '../../redux/user/userActions';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
@@ -23,6 +24,7 @@ import {
 	DELETE_ANY_INFRACTION,
 	flags,
 	isRestricted,
+	getGrantedPerms,
 } from '../../permissions/permissions';
 import Alert from '../../components/Alert';
 
@@ -99,7 +101,7 @@ class User extends Component {
 		this.state = {
 			perms: {},
 			errors: {},
-			initialPerms: {},
+			initialPerms: null,
 		};
 	}
 
@@ -116,6 +118,20 @@ class User extends Component {
 				...prevState.errors,
 				newPassword: false,
 			};
+		}
+
+		// Load permissions if user was found
+		if (!prevState.initialPerms && prevState.user) {
+			const grantedPerms = getGrantedPerms(prevState.user.permissions);
+
+			const perms = {};
+
+			grantedPerms.forEach((perm) => {
+				perms[perm] = true;
+			});
+
+			prevState.initialPerms = perms;
+			prevState.perms = perms;
 		}
 
 		if (!nextProps.users) {
@@ -178,10 +194,7 @@ class User extends Component {
 	};
 
 	onPermSaveClick = () => {
-		const { perms } = this.state;
-
-		// TODO: Get user's current flag and start with that as well as make all checkboxes they have activated by default
-		// TODO: This can't be done until the server side perms are set and their perm int is being sent in JWTs.
+		const { user, perms } = this.state;
 
 		/* global BigInt */
 		let flag = BigInt(
@@ -196,7 +209,7 @@ class User extends Component {
 			flag = flag | flags[key];
 		});
 
-		console.log(flag);
+		this.props.setPermissions(user.id, flag);
 	};
 
 	revertPermChanges = () => {
@@ -240,6 +253,8 @@ class User extends Component {
 				</div>
 			);
 		}
+
+		console.log(perms);
 
 		return (
 			<>
@@ -395,6 +410,8 @@ const mapDispatchToProps = (dispatch) => ({
 	getAllUsers: () => dispatch(getAllUsers()),
 	setUserPassword: (userId, data) => dispatch(setUserPassword(userId, data)),
 	forcePasswordChange: (userId) => dispatch(forceUserPasswordChange(userId)),
+	setPermissions: (userId, permissions) =>
+		dispatch(setUserPermissions(userId, permissions)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(User);
