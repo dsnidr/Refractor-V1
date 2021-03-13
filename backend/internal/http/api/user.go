@@ -126,11 +126,14 @@ func (h *userHandler) ForcePasswordChange(c echo.Context) error {
 		})
 	}
 
-	// Update the ForcePasswordChange flag to true
-	_, res := h.service.UpdateUser(userID, refractor.UpdateArgs{
-		"NeedsPasswordChange": true,
-	})
+	claims := c.Get("claims").(*jwt.Claims)
 
+	setterMeta := &params.UserMeta{
+		UserID:      claims.UserID,
+		Permissions: claims.Permissions,
+	}
+
+	res := h.service.ForceUserPasswordChange(userID, setterMeta)
 	return c.JSON(res.StatusCode, Response{
 		Success: res.Success,
 		Message: res.Message,
@@ -146,8 +149,10 @@ func (h *userHandler) SetUserPassword(c echo.Context) error {
 	claims := c.Get("claims").(*jwt.Claims)
 
 	// Update body to include the setting user's details
-	body.UserMeta.UserID = claims.UserID
-	body.UserMeta.Permissions = claims.Permissions
+	body.UserMeta = &params.UserMeta{
+		UserID:      claims.UserID,
+		Permissions: claims.Permissions,
+	}
 
 	_, res := h.service.SetUserPassword(body)
 

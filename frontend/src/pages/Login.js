@@ -60,7 +60,9 @@ class Login extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {};
+		this.state = {
+			errors: {},
+		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -79,7 +81,16 @@ class Login extends Component {
 
 			return {
 				...prevState,
-				errors: nextProps.errors,
+				errors:
+					typeof nextProps.errors === 'string'
+						? {
+								...prevState.errors,
+								general: nextProps.errors,
+						  }
+						: {
+								...prevState.errors,
+								...nextProps.errors,
+						  },
 				success: {},
 			};
 		}
@@ -103,6 +114,7 @@ class Login extends Component {
 	};
 
 	render() {
+		console.log(this.state);
 		return (
 			<Wrapper>
 				{this.props.isLoading && <Spinner />}
@@ -138,7 +150,7 @@ class Login extends Component {
 								<HeadingBox>LOG IN</HeadingBox>
 								<Alert
 									type="error"
-									message={this.state.errors}
+									message={this.state.errors.general}
 								/>
 
 								<Field name="username">

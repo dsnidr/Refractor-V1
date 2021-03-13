@@ -17,7 +17,7 @@ const ProtectedRoute = ({
 			if (user !== null && user.isAuthenticated === true) {
 				if (user.needsPasswordChange && !bypassPasswordChange) {
 					setError(
-						'You need to change your password before accessing the dashboard.'
+						'You need to change your password before accessing Refractor.'
 					);
 
 					return (
@@ -52,7 +52,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-	setError: (error) => dispatch(setErrors('auth', error)),
+	setError: (error) => dispatch(setErrors('changepassword', error)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProtectedRoute);

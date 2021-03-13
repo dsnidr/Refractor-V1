@@ -31,6 +31,7 @@ type UserService interface {
 	GetUserInfo(id int64) (*UserInfo, *ServiceResponse)
 	SetUserPermissions(body params.SetUserPermissionsParams) (*User, *ServiceResponse)
 	ChangeUserPassword(id int64, body params.ChangeUserPassword) (*User, *ServiceResponse)
+	ForceUserPasswordChange(id int64, userMeta *params.UserMeta) *ServiceResponse
 	GetAllUsers() ([]*User, *ServiceResponse)
 	UpdateUser(id int64, args UpdateArgs) (*User, *ServiceResponse)
 	SetUserPassword(body params.SetUserPasswordParams) (*User, *ServiceResponse)
