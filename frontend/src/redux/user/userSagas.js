@@ -73,18 +73,18 @@ function* changeUserPasswordAsync(action) {
 		const { data } = yield call(changeUserPassword, action.payload);
 
 		yield put(setSuccess('changepassword', data.message));
+		yield put(setErrors('changepassword', undefined));
 		yield getUserInfoAsync();
 	} catch (err) {
 		const { data } = err.response;
 
-		let errors;
-		if (data.message) {
-			errors = data.message;
-		} else if (data.errors) {
-			errors = data.errors;
-		}
-
-		yield put(setErrors('changepassword', errors));
+		yield put(setSuccess('changepassword', undefined));
+		yield put(
+			setErrors(
+				'changepassword',
+				data.errors ? data.errors : data.message
+			)
+		);
 	}
 }
 

@@ -73,6 +73,23 @@ class ChangePassword extends Component {
 			setTimeout(() => push('/'), 1500);
 		}
 
+		if (nextProps.errors) {
+			return {
+				...prevState,
+				errors:
+					typeof nextProps.errors === 'string'
+						? {
+								...prevState.errors,
+								general: nextProps.errors,
+						  }
+						: {
+								...prevState.errors,
+								...nextProps.errors,
+						  },
+				success: {},
+			};
+		}
+
 		return prevState;
 	}
 

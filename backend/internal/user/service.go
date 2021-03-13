@@ -137,7 +137,7 @@ func (s *userService) SetUserPermissions(body params.SetUserPermissionsParams) (
 		return nil, &refractor.ServiceResponse{
 			Success:    false,
 			StatusCode: http.StatusBadRequest,
-			Message:    "You do not have permission to set the permissions of this user",
+			Message:    config.MessageNoPermission,
 		}
 	}
 
@@ -165,7 +165,7 @@ func (s *userService) SetUserPermissions(body params.SetUserPermissionsParams) (
 		return nil, &refractor.ServiceResponse{
 			Success:    false,
 			StatusCode: http.StatusBadRequest,
-			Message:    "You do not have permission to set the permissions of this user",
+			Message:    config.MessageNoPermission,
 		}
 	}
 
@@ -180,10 +180,63 @@ func (s *userService) SetUserPermissions(body params.SetUserPermissionsParams) (
 		return nil, refractor.InternalErrorResponse
 	}
 
+	s.log.Info("User ID %d set the permissions for User %s (%d)", body.UserMeta.UserID, foundUser.Username, foundUser.UserID)
+
 	return updatedUser, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Permissions set. Any new access rights will come into effect next time the user logs in",
+	}
+}
+
+func (s *userService) ForceUserPasswordChange(id int64, userMeta *params.UserMeta) *refractor.ServiceResponse {
+	user1Perms := bitperms.PermissionValue(userMeta.Permissions)
+
+	if !perms.UserHasFullAccess(user1Perms) {
+		return &refractor.ServiceResponse{
+			Success:    true,
+			StatusCode: http.StatusBadRequest,
+			Message:    config.MessageNoPermission,
+		}
+	}
+
+	foundUser, err := s.repo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not find user by ID: %d. Error: %v", id, err)
+		return refractor.InternalErrorResponse
+	}
+
+	user2Perms := bitperms.PermissionValue(foundUser.Permissions)
+
+	if !perms.HasHigherAccess(user1Perms, user2Perms) {
+		return &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    config.MessageNoPermission,
+		}
+	}
+
+	// Update the user's password flag
+	_, err = s.repo.Update(foundUser.UserID, refractor.UpdateArgs{
+		"NeedsPasswordChange": true,
+	})
+	if err != nil {
+		s.log.Error("Could not update user ID: %d in repository. Error: %v", foundUser.UserID, err)
+		return refractor.InternalErrorResponse
+	}
+
+	return &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "User will be forced to change their password on their next visit.",
 	}
 }
 
@@ -244,6 +297,8 @@ func (s *userService) ChangeUserPassword(id int64, body params.ChangeUserPasswor
 		s.log.Error("Could not update user ID: %d in repository. Error: %v", foundUser.UserID, err)
 		return nil, refractor.InternalErrorResponse
 	}
+
+	s.log.Info("User %s (%d) has changed their password", foundUser.Username, foundUser.UserID)
 
 	return updatedUser, &refractor.ServiceResponse{
 		Success:    true,
@@ -342,6 +397,8 @@ func (s *userService) SetUserPassword(body params.SetUserPasswordParams) (*refra
 		s.log.Error("Could not set new password for user with ID: %d. Error: %v", body.UserID, err)
 		return nil, refractor.InternalErrorResponse
 	}
+
+	s.log.Info("User ID %d set a new password for User %s (%d)", body.UserMeta.UserID, foundUser.Username, foundUser.UserID)
 
 	return updatedUser, &refractor.ServiceResponse{
 		Success:    true,
