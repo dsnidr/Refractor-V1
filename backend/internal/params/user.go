@@ -2,7 +2,9 @@ package params
 
 import (
 	"fmt"
+	"github.com/sniddunc/bitperms"
 	"github.com/sniddunc/refractor/pkg/config"
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/pkg/validation"
 	"net/url"
 )
@@ -57,6 +59,11 @@ type SetUserPermissionsParams struct {
 // Validate validates the data inside the attached struct
 func (body *SetUserPermissionsParams) Validate() (bool, url.Values) {
 	errors := url.Values{}
+
+	newPerms := bitperms.PermissionValue(body.Permissions)
+	if newPerms.HasFlag(perms.SUPER_ADMIN) {
+		errors.Set("permissions", "For security reasons, you cannot make a user a super admin")
+	}
 
 	if body.UserID < 1 {
 		errors.Set("id", "Invalid user ID provided")
