@@ -7,6 +7,7 @@ import (
 	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/pkg/validation"
 	"net/url"
+	"strconv"
 )
 
 // UserMeta is a struct intended to be attached to other param structs. Its purpose is to provide user metadata
@@ -51,8 +52,9 @@ func (body *CreateUserParams) Validate() (bool, url.Values) {
 
 // SetUserPermissionsParams holds the data we expect when setting a user's permissions.
 type SetUserPermissionsParams struct {
-	UserID      int64  `json:"id" form:"id"`
-	Permissions uint64 `json:"permissions" form:"permissions"`
+	UserID           int64 `json:"id" form:"id"`
+	Permissions      uint64
+	PermissionString string `json:"permissions" form:"permissions"`
 	*UserMeta
 }
 
@@ -60,9 +62,16 @@ type SetUserPermissionsParams struct {
 func (body *SetUserPermissionsParams) Validate() (bool, url.Values) {
 	errors := url.Values{}
 
-	newPerms := bitperms.PermissionValue(body.Permissions)
-	if newPerms.HasFlag(perms.SUPER_ADMIN) {
-		errors.Set("permissions", "For security reasons, you cannot make a user a super admin")
+	permSigned, err := strconv.ParseUint(body.PermissionString, 10, 64)
+	if err != nil {
+		errors.Set("permissions", "Invalid permissions value. Must be a string representing a uint64")
+	} else {
+		body.Permissions = uint64(permSigned)
+
+		newPerms := bitperms.PermissionValue(body.Permissions)
+		if newPerms.HasFlag(perms.SUPER_ADMIN) {
+			errors.Set("permissions", "For security reasons, you cannot make a user a super admin")
+		}
 	}
 
 	if body.UserID < 1 {

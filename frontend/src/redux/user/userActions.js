@@ -63,3 +63,10 @@ export const forceUserPasswordChange = (userId) => ({
 	type: FORCE_USER_PASSWORD_CHANGE,
 	userId: userId,
 });
+
+export const SET_USER_PERMISSIONS = 'SET_USER_PERMISSIONS';
+export const setUserPermissions = (userId, permissions) => ({
+	type: SET_USER_PERMISSIONS,
+	userId: userId,
+	payload: permissions,
+});

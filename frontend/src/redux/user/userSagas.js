@@ -8,6 +8,7 @@ import {
 	getUserInfo,
 	logInUser,
 	setUserPassword,
+	setUserPermissions,
 } from '../../api/userApi';
 import { setToken } from '../../utils/tokenUtils';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
@@ -21,6 +22,7 @@ import {
 	GET_ALL_USERS,
 	LOG_IN,
 	SET_USER_PASSWORD,
+	SET_USER_PERMISSIONS,
 	setAllUsers,
 	setUser,
 } from './userActions';
@@ -206,6 +208,31 @@ function* forceUserPasswordChangeAsync(action) {
 	}
 }
 
+function* setUserPermissionsAsync(action) {
+	try {
+		yield call(setUserPermissions, {
+			id: action.userId,
+			permissions: action.payload.toString(),
+		});
+
+		// yield put(setSuccess('setpermissions', data.message));
+		// yield put(setErrors('setpermissions', undefined));
+	} catch (err) {
+		console.log('Could not set user permissions', err);
+		// const { data } = err.response;
+		//
+		// yield put(setSuccess('adduser', undefined));
+		// yield put(
+		// 	setErrors(
+		// 		'setpermissions',
+		// 		!data.errors
+		// 			? `Could not set permissions for user: ${err.response.data.message}`
+		// 			: data.errors
+		// 	)
+		// );
+	}
+}
+
 function* watchLogIn() {
 	yield takeLatest(LOG_IN, logInAsync);
 }
@@ -242,6 +269,10 @@ function* watchForceUserPasswordChange() {
 	yield takeLatest(FORCE_USER_PASSWORD_CHANGE, forceUserPasswordChangeAsync);
 }
 
+function* watchSetUserPermissions() {
+	yield takeLatest(SET_USER_PERMISSIONS, setUserPermissionsAsync);
+}
+
 export default function* userSagas() {
 	yield all([
 		call(watchLogIn),
@@ -253,5 +284,6 @@ export default function* userSagas() {
 		call(watchDeactivateUser),
 		call(watchSetUserPassword),
 		call(watchForceUserPasswordChange),
+		call(watchSetUserPermissions),
 	]);
 }
