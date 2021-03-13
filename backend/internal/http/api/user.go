@@ -161,3 +161,23 @@ func (h *userHandler) SetUserPassword(c echo.Context) error {
 		Message: res.Message,
 	})
 }
+
+func (h *userHandler) SetUserPermissions(c echo.Context) error {
+	body := params.SetUserPermissionsParams{}
+	if ok := ValidateRequest(&body, c); !ok {
+		return nil
+	}
+
+	claims := c.Get("claims").(*jwt.Claims)
+
+	body.UserMeta = &params.UserMeta{
+		UserID:      claims.UserID,
+		Permissions: claims.Permissions,
+	}
+
+	_, res := h.service.SetUserPermissions(body)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+	})
+}

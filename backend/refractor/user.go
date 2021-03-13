@@ -46,6 +46,7 @@ type UserHandler interface {
 	DeactivateUser(c echo.Context) error
 	ForcePasswordChange(c echo.Context) error
 	SetUserPassword(c echo.Context) error
+	SetUserPermissions(c echo.Context) error
 }
 
 type UserInfo struct {
