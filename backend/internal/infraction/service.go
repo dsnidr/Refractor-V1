@@ -29,8 +29,46 @@ func NewInfractionService(repo refractor.InfractionRepository, playerService ref
 func (s *infractionService) CreateWarning(userID int64, body params.CreateWarningParams) (*refractor.Infraction, *refractor.ServiceResponse) {
 	// No need to check for user perms here since that's handled at the handler level
 
+	warning, res := s.createInfraction(body.PlayerID, userID, body.ServerID, refractor.INFRACTION_TYPE_WARNING, body.Reason,
+		-1, time.Now().Unix(), false)
+
+	return warning, res
+}
+
+func (s *infractionService) CreateMute(userID int64, body params.CreateMuteParams) (*refractor.Infraction, *refractor.ServiceResponse) {
+	// No need to check for user perms here since that's handled at the handler level
+
+	mute, res := s.createInfraction(body.PlayerID, userID, body.ServerID, refractor.INFRACTION_TYPE_MUTE, body.Reason,
+		body.Duration, time.Now().Unix(), false)
+
+	return mute, res
+}
+
+func (s *infractionService) CreateKick(userID int64, body params.CreateKickParams) (*refractor.Infraction, *refractor.ServiceResponse) {
+	// No need to check for user perms here since that's handled at the handler level
+
+	kick, res := s.createInfraction(body.PlayerID, userID, body.ServerID, refractor.INFRACTION_TYPE_KICK, body.Reason,
+		-1, time.Now().Unix(), false)
+
+	return kick, res
+}
+
+func (s *infractionService) CreateBan(userID int64, body params.CreateBanParams) (*refractor.Infraction, *refractor.ServiceResponse) {
+	// No need to check for user perms here since that's handled at the handler level
+
+	ban, res := s.createInfraction(body.PlayerID, userID, body.ServerID, refractor.INFRACTION_TYPE_BAN, body.Reason,
+		body.Duration, time.Now().Unix(), false)
+
+	return ban, res
+}
+
+// We don't just make this function a member of the infraction service interface because there is a good chance we'll need to wrap
+// other code around this logic in the future. To avoid code repetition, the creation logic was moved into this function.
+func (s *infractionService) createInfraction(playerID int64, userID int64, serverID int64, infractionType string,
+	reason string, duration int, timestamp int64, systemAction bool) (*refractor.Infraction, *refractor.ServiceResponse) {
+
 	// Make sure player exists
-	player, _ := s.playerService.GetPlayerByID(body.PlayerID)
+	player, _ := s.playerService.GetPlayerByID(playerID)
 	if player == nil {
 		return nil, &refractor.ServiceResponse{
 			Success:    false,
@@ -42,7 +80,7 @@ func (s *infractionService) CreateWarning(userID int64, body params.CreateWarnin
 	}
 
 	// Make sure server exists
-	server, _ := s.serverService.GetServerByID(body.ServerID)
+	server, _ := s.serverService.GetServerByID(serverID)
 	if server == nil {
 		return nil, &refractor.ServiceResponse{
 			Success:    false,
@@ -54,36 +92,25 @@ func (s *infractionService) CreateWarning(userID int64, body params.CreateWarnin
 	}
 
 	newInfraction := &refractor.Infraction{
-		PlayerID:     body.PlayerID,
+		PlayerID:     playerID,
 		UserID:       userID,
-		ServerID:     body.ServerID,
-		Type:         refractor.INFRACTION_TYPE_WARNING,
-		Reason:       body.Reason,
-		Timestamp:    time.Now().Unix(),
-		SystemAction: false,
+		ServerID:     serverID,
+		Type:         infractionType,
+		Reason:       reason,
+		Duration:     duration,
+		Timestamp:    timestamp,
+		SystemAction: systemAction,
 	}
 
-	warning, err := s.repo.Create(newInfraction)
+	infraction, err := s.repo.Create(newInfraction)
 	if err != nil {
-		s.log.Error("Could not create new warning in repo. Error: %v", err)
+		s.log.Error("Could not create new infraction in repo. Error: %v", err)
 		return nil, refractor.InternalErrorResponse
 	}
 
-	return warning, &refractor.ServiceResponse{
+	return infraction, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
-		Message:    "Warning created",
+		Message:    "Infraction created",
 	}
-}
-
-func (s *infractionService) CreateMute(userID int64, body params.CreateMuteParams) (*refractor.Infraction, *refractor.ServiceResponse) {
-	panic("implement me")
-}
-
-func (s *infractionService) CreateKick(userID int64, body params.CreateKickParams) (*refractor.Infraction, *refractor.ServiceResponse) {
-	panic("implement me")
-}
-
-func (s *infractionService) CreateBan(userID int64, body params.CreateBanParams) (*refractor.Infraction, *refractor.ServiceResponse) {
-	panic("implement me")
 }

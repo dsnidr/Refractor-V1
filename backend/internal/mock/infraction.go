@@ -16,6 +16,13 @@ func NewMockInfractionRepository(mockInfractions map[int64]*refractor.Infraction
 
 func (r *mockInfractionsRepo) Create(infraction *refractor.Infraction) (*refractor.Infraction, error) {
 	newID := int64(len(r.infractions) + 1)
+
+	// -1 means nil in this case, but since we can't assign nil to an int field we do this instead
+	if infraction.Duration == -1 {
+		// in a real database this would be null
+		infraction.Duration = 0
+	}
+
 	r.infractions[newID] = infraction
 
 	infraction.InfractionID = newID

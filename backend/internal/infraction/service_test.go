@@ -63,7 +63,7 @@ func Test_infractionService_CreateWarning(t *testing.T) {
 			wantRes: &refractor.ServiceResponse{
 				Success:    true,
 				StatusCode: http.StatusOK,
-				Message:    "Warning created",
+				Message:    "Infraction created",
 			},
 		},
 	}
