@@ -1,8 +1,10 @@
 package user
 
 import (
+	"github.com/sniddunc/bitperms"
 	"github.com/sniddunc/refractor/internal/mock"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
@@ -110,8 +112,9 @@ func Test_userService_SetUserPermissions(t *testing.T) {
 			},
 			args: args{
 				body: params.SetUserPermissionsParams{
-					UserID:      1,
-					Permissions: perms.FULL_ACCESS,
+					UserID:           1,
+					PermissionString: bitperms.PermissionValue(perms.FULL_ACCESS).Serialize(),
+					Permissions:      perms.FULL_ACCESS,
 					UserMeta: &params.UserMeta{
 						UserID:      2,
 						Permissions: perms.SUPER_ADMIN,
@@ -153,8 +156,9 @@ func Test_userService_SetUserPermissions(t *testing.T) {
 			},
 			args: args{
 				body: params.SetUserPermissionsParams{
-					UserID:      1,
-					Permissions: perms.FULL_ACCESS,
+					UserID:           1,
+					PermissionString: bitperms.PermissionValue(perms.FULL_ACCESS).Serialize(),
+					Permissions:      perms.FULL_ACCESS,
 					UserMeta: &params.UserMeta{
 						UserID:      2,
 						Permissions: perms.DEFAULT_PERMS,
@@ -165,7 +169,7 @@ func Test_userService_SetUserPermissions(t *testing.T) {
 			wantRes: &refractor.ServiceResponse{
 				Success:    false,
 				StatusCode: http.StatusBadRequest,
-				Message:    "You do not have permission to set the permissions of this user",
+				Message:    config.MessageNoPermission,
 			},
 		},
 		{
@@ -188,8 +192,9 @@ func Test_userService_SetUserPermissions(t *testing.T) {
 			},
 			args: args{
 				body: params.SetUserPermissionsParams{
-					UserID:      1,
-					Permissions: perms.SUPER_ADMIN,
+					UserID:           1,
+					PermissionString: bitperms.PermissionValue(perms.SUPER_ADMIN).Serialize(),
+					Permissions:      perms.SUPER_ADMIN,
 					UserMeta: &params.UserMeta{
 						UserID:      2,
 						Permissions: perms.DEFAULT_PERMS,
@@ -200,7 +205,7 @@ func Test_userService_SetUserPermissions(t *testing.T) {
 			wantRes: &refractor.ServiceResponse{
 				Success:    false,
 				StatusCode: http.StatusBadRequest,
-				Message:    "You do not have permission to set the permissions of this user",
+				Message:    config.MessageNoPermission,
 			},
 		},
 	}
