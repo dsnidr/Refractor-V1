@@ -94,6 +94,24 @@ func (s *userService) CreateUser(body params.CreateUserParams) (*refractor.User,
 	}
 }
 
+func (s *userService) GetUserByID(id int64) (*refractor.User, *refractor.ServiceResponse) {
+	foundUser, err := s.repo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not retrieve user by ID: %d. Error: %v", id, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return foundUser, nil
+}
+
 func (s *userService) GetUserInfo(id int64) (*refractor.UserInfo, *refractor.ServiceResponse) {
 	foundUser, err := s.repo.FindByID(id)
 	if err != nil {

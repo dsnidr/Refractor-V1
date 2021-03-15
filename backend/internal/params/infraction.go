@@ -6,19 +6,6 @@ import (
 	"net/url"
 )
 
-type Infraction struct {
-	InfractionID int64  `json:"id"`
-	PlayerID     int64  `json:"playerId"`
-	UserID       int64  `json:"userId"`
-	ServerID     int64  `json:"serverId"`
-	Type         string `json:"type"`
-	Reason       string `json:"reason"`
-	Duration     int    `json:"duration"`
-	Timestamp    int64  `json:"timestamp"`
-	SystemAction bool   `json:"systemAction"`
-	StaffName    string `json:"staffName"` // not a database field
-}
-
 // CreateWarningParams holds the data we expect when creating a new warning
 type CreateWarningParams struct {
 	PlayerID int64  `json:"playerId" form:"playerId"`

@@ -18,7 +18,7 @@ func (r *mockInfractionsRepo) Create(infraction *refractor.Infraction) (*refract
 	newID := int64(len(r.infractions) + 1)
 	r.infractions[newID] = infraction
 
-	infraction.ServerID = newID
+	infraction.InfractionID = newID
 
 	return infraction, nil
 }
