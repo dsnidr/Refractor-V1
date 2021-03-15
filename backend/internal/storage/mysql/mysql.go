@@ -102,6 +102,32 @@ func Setup(db *sql.DB) error {
 		return fmt.Errorf("could not alter PlayerNames table. Error: %v", err)
 	}
 
+	// Create infractions table
+	if _, err := tx.Exec(`
+		CREATE TABLE IF NOT EXISTS Infractions (
+			InfractionID INT NOT NULL AUTO_INCREMENT,
+			PlayerID INT NOT NULL,
+			UserID INT NOT NULL,
+			ServerID INT NOT NULL,
+			Type ENUM("WARNING", "MUTE", "KICK", "BAN") NOT NULL,
+			Reason TEXT,
+			Duration INT,
+			Timestamp INT UNSIGNED NOT NULL,
+			SystemAction BOOLEAN DEFAULT FALSE,
+			
+			PRIMARY KEY (InfractionID),
+			FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID),
+			FOREIGN KEY (UserID) REFERENCES Users(UserID),
+			FOREIGN KEY (ServerID) REFERENCES Servers(ServerID)
+		);
+	`); err != nil {
+		if err = tx.Rollback(); err != nil {
+			return err
+		}
+
+		return fmt.Errorf("could not create Infractions table. Error: %v", err)
+	}
+
 	return tx.Commit()
 }
 

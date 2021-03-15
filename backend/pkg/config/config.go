@@ -1,5 +1,7 @@
 package config
 
+import "math"
+
 var (
 	// Auth
 	UsernameMinLen = 3
@@ -14,4 +16,9 @@ var (
 	ServerGameMaxLen     = 32
 	ServerPasswordMinLen = 1
 	ServerPasswordMaxLen = 64
+
+	// Infraction
+	InfractionReasonMinLen = 1
+	InfractionReasonMaxLen = 4096
+	InfractionDurationMax  = math.MaxInt32
 )
