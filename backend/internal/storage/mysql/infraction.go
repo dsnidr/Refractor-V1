@@ -21,10 +21,17 @@ func (r *infractionRepo) Create(infraction *refractor.Infraction) (*refractor.In
 		infraction.Timestamp = time.Now().Unix()
 	}
 
+	// Since we can't assign nil to an int, we use -1 to signify that this value should not be set.
+	// We do this so that we insert NULL into the database rather than 0 which means permanent duration.
+	var duration interface{} = nil
+	if infraction.Duration != -1 {
+		duration = infraction.Duration
+	}
+
 	query := "INSERT INTO Infractions(PlayerID, UserID, ServerID, Type, Reason, Duration, Timestamp, SystemAction) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
 
 	res, err := r.db.Exec(query, infraction.PlayerID, infraction.UserID, infraction.ServerID, infraction.Type,
-		infraction.Reason, infraction.Duration, infraction.Timestamp, infraction.SystemAction)
+		infraction.Reason, duration, infraction.Timestamp, infraction.SystemAction)
 	if err != nil {
 		return nil, wrapError(err)
 	}
