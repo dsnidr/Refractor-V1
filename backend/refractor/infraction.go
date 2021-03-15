@@ -1,17 +1,15 @@
 package refractor
 
-const (
-	WARNING = "WARNING"
-	MUTE    = "MUTE"
-	KICK    = "KICK"
-	BAN     = "BAN"
-)
+var InfractionTypes = []string{"WARNING", "MUTE", "KICK", "BAN"}
 
 type Infraction struct {
 	InfractionID int64  `json:"id"`
 	PlayerID     int64  `json:"playerId"`
 	UserID       int64  `json:"userId"`
 	ServerID     int64  `json:"serverId"`
+	Type         string `json:"type"`
+	Reason       string `json:"reason"`
+	Duration     int    `json:"duration"`
 	Timestamp    int64  `json:"timestamp"`
 	SystemAction bool   `json:"systemAction"`
 	StaffName    string `json:"staffName"` // not a database field
