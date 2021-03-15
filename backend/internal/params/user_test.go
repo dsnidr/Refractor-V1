@@ -111,10 +111,11 @@ func TestCreateUserParams_Validate(t *testing.T) {
 
 func TestSetUserPermissionsParams_Validate(t *testing.T) {
 	type fields struct {
-		UserID       int64
-		Permissions  uint64
-		SetterUserID int64
-		UserMeta     *UserMeta
+		UserID           int64
+		Permissions      uint64
+		PermissionString string
+		SetterUserID     int64
+		UserMeta         *UserMeta
 	}
 	tests := []struct {
 		name      string
@@ -124,8 +125,8 @@ func TestSetUserPermissionsParams_Validate(t *testing.T) {
 		{
 			name: "params.user.setpermissions.1",
 			fields: fields{
-				UserID:      1,
-				Permissions: 0,
+				UserID:           1,
+				PermissionString: "0",
 				UserMeta: &UserMeta{
 					UserID:      2,
 					Permissions: perms.FULL_ACCESS,
@@ -136,8 +137,8 @@ func TestSetUserPermissionsParams_Validate(t *testing.T) {
 		{
 			name: "params.user.setpermissions.2",
 			fields: fields{
-				UserID:      -1,
-				Permissions: 0,
+				UserID:           -1,
+				PermissionString: "0",
 				UserMeta: &UserMeta{
 					UserID:      2,
 					Permissions: 0,
@@ -149,9 +150,10 @@ func TestSetUserPermissionsParams_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body := &SetUserPermissionsParams{
-				UserID:      tt.fields.UserID,
-				Permissions: tt.fields.Permissions,
-				UserMeta:    tt.fields.UserMeta,
+				UserID:           tt.fields.UserID,
+				Permissions:      tt.fields.Permissions,
+				PermissionString: tt.fields.PermissionString,
+				UserMeta:         tt.fields.UserMeta,
 			}
 			valid, errors := body.Validate()
 
