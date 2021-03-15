@@ -2,7 +2,14 @@ package refractor
 
 import "github.com/sniddunc/refractor/internal/params"
 
-var InfractionTypes = []string{"WARNING", "MUTE", "KICK", "BAN"}
+const (
+	INFRACTION_TYPE_WARNING = "WARNING"
+	INFRACTION_TYPE_MUTE    = "MUTE"
+	INFRACTION_TYPE_KICK    = "KICK"
+	INFRACTION_TYPE_BAN     = "BAN"
+)
+
+var InfractionTypes = []string{INFRACTION_TYPE_WARNING, INFRACTION_TYPE_MUTE, INFRACTION_TYPE_KICK, INFRACTION_TYPE_BAN}
 
 type Infraction struct {
 	InfractionID int64  `json:"id"`
@@ -29,8 +36,8 @@ type InfractionRepository interface {
 }
 
 type InfractionService interface {
-	CreateWarning(body params.CreateWarningParams) error
-	CreateMute(body params.CreateMuteParams) error
-	CreateKick(body params.CreateKickParams) error
-	CreateBan(body params.CreateBanParams) error
+	CreateWarning(userID int64, body params.CreateWarningParams) (*Infraction, *ServiceResponse)
+	CreateMute(userID int64, body params.CreateMuteParams) (*Infraction, *ServiceResponse)
+	CreateKick(userID int64, body params.CreateKickParams) (*Infraction, *ServiceResponse)
+	CreateBan(userID int64, body params.CreateBanParams) (*Infraction, *ServiceResponse)
 }
