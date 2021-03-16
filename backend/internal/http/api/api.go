@@ -104,6 +104,7 @@ func (api *API) setupRoutes() {
 	infractionGroup.POST("/mute", api.InfractionHandler.CreateMute, api.RequirePerms(perms.LOG_MUTE))
 	infractionGroup.POST("/kick", api.InfractionHandler.CreateKick, api.RequirePerms(perms.LOG_KICK))
 	infractionGroup.POST("/ban", api.InfractionHandler.CreateBan, api.RequirePerms(perms.LOG_BAN))
+	infractionGroup.DELETE("/:id", api.InfractionHandler.DeleteInfraction, api.RequireOneOfPerms(perms.DELETE_OWN_INFRACTIONS, perms.DELETE_ANY_INFRACTION))
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)

@@ -1,43 +1,38 @@
 package mock
 
 import (
+	"database/sql"
 	"github.com/sniddunc/refractor/refractor"
 )
 
 type mockInfractionsRepo struct {
-	infractions map[int64]*refractor.Infraction
+	infractions map[int64]*refractor.DBInfraction
 }
 
-func NewMockInfractionRepository(mockInfractions map[int64]*refractor.Infraction) refractor.InfractionRepository {
+func NewMockInfractionRepository(mockInfractions map[int64]*refractor.DBInfraction) refractor.InfractionRepository {
 	return &mockInfractionsRepo{
 		infractions: mockInfractions,
 	}
 }
 
-func (r *mockInfractionsRepo) Create(infraction *refractor.Infraction) (*refractor.Infraction, error) {
+func (r *mockInfractionsRepo) Create(infraction *refractor.DBInfraction) (*refractor.Infraction, error) {
 	newID := int64(len(r.infractions) + 1)
-
-	// -1 means nil in this case, but since we can't assign nil to an int field we do this instead
-	if infraction.Duration == -1 {
-		// in a real database this would be null
-		infraction.Duration = 0
-	}
 
 	r.infractions[newID] = infraction
 
 	infraction.InfractionID = newID
 
-	return infraction, nil
+	return infraction.Infraction(), nil
 }
 
 func (r *mockInfractionsRepo) FindByID(id int64) (*refractor.Infraction, error) {
-	foundServer := r.infractions[id]
+	foundInfraction := r.infractions[id]
 
-	if foundServer == nil {
+	if foundInfraction == nil {
 		return nil, refractor.ErrNotFound
 	}
 
-	return foundServer, nil
+	return foundInfraction.Infraction(), nil
 }
 
 type Infraction struct {
@@ -58,7 +53,7 @@ func (r *mockInfractionsRepo) FindManyByPlayerID(playerID int64) ([]*refractor.I
 
 	for _, infraction := range r.infractions {
 		if infraction.PlayerID == playerID {
-			foundInfractions = append(foundInfractions, infraction)
+			foundInfractions = append(foundInfractions, infraction.Infraction())
 		}
 	}
 
@@ -87,11 +82,11 @@ func (r *mockInfractionsRepo) Exists(args refractor.FindArgs) (bool, error) {
 			continue
 		}
 
-		if args["Reason"] != nil && args["Reason"].(string) != infraction.Reason {
+		if args["Reason"] != nil && args["Reason"].(string) != infraction.Reason.String {
 			continue
 		}
 
-		if args["Duration"] != nil && args["Duration"].(int) != infraction.Duration {
+		if args["Duration"] != nil && args["Duration"].(int32) != infraction.Duration.Int32 {
 			continue
 		}
 
@@ -125,16 +120,16 @@ func (r *mockInfractionsRepo) FindOne(args refractor.FindArgs) (*refractor.Infra
 			continue
 		}
 
-		if args["Reason"] != nil && args["Reason"].(string) != infraction.Reason {
+		if args["Reason"] != nil && args["Reason"].(string) != infraction.Reason.String {
 			continue
 		}
 
-		if args["Duration"] != nil && args["Duration"].(int) != infraction.Duration {
+		if args["Duration"] != nil && args["Duration"].(int32) != infraction.Duration.Int32 {
 			continue
 		}
 
 		// If none of the above conditions failed, return user since it's a match
-		return infraction, nil
+		return infraction.Infraction(), nil
 	}
 
 	// If no matches were found, return ErrNotFound by default
@@ -145,7 +140,7 @@ func (r *mockInfractionsRepo) FindAll() ([]*refractor.Infraction, error) {
 	var allServers []*refractor.Infraction
 
 	for _, infraction := range r.infractions {
-		allServers = append(allServers, infraction)
+		allServers = append(allServers, infraction.Infraction())
 	}
 
 	return allServers, nil
@@ -157,14 +152,14 @@ func (r *mockInfractionsRepo) Update(id int64, args refractor.UpdateArgs) (*refr
 	}
 
 	if args["Reason"] != nil {
-		r.infractions[id].Reason = args["Reason"].(string)
+		r.infractions[id].Reason = sql.NullString{String: args["Reason"].(string), Valid: true}
 	}
 
 	if args["Duration"] != nil {
-		r.infractions[id].Reason = args["Duration"].(string)
+		r.infractions[id].Duration = sql.NullInt32{Int32: args["Duration"].(int32), Valid: true}
 	}
 
-	return r.infractions[id], nil
+	return r.infractions[id].Infraction(), nil
 }
 
 func (r *mockInfractionsRepo) Delete(id int64) error {

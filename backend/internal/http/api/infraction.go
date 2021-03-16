@@ -80,3 +80,7 @@ func (h *infractionHandler) CreateBan(c echo.Context) error {
 		Payload: ban,
 	})
 }
+
+func (h *infractionHandler) DeleteInfraction(c echo.Context) error {
+	return nil
+}

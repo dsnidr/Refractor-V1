@@ -2,8 +2,11 @@ package infraction
 
 import (
 	"database/sql"
+	"github.com/sniddunc/bitperms"
 	"github.com/sniddunc/refractor/internal/params"
+	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
 	"net/http"
 	"net/url"
@@ -121,5 +124,55 @@ func (s *infractionService) createInfraction(playerID int64, userID int64, serve
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Infraction created",
+	}
+}
+
+func (s *infractionService) DeleteInfraction(id int64, user params.UserMeta) *refractor.ServiceResponse {
+	userPerms := bitperms.PermissionValue(user.Permissions)
+
+	infraction, err := s.repo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not find infraction by id %d. Error: %v", id, err)
+		return refractor.InternalErrorResponse
+	}
+
+	hasPermission := false
+
+	// Check if the user has full access or can delete any infraction. If they do, skip the permissions check
+	if perms.UserHasFullAccess(userPerms) || userPerms.HasFlag(perms.DELETE_ANY_INFRACTION) {
+		hasPermission = true
+	}
+
+	// Check if the user created this infraction. If they did, check if they have permission to delete their own infractions.
+	if user.UserID == infraction.UserID && userPerms.HasFlag(perms.DELETE_OWN_INFRACTIONS) {
+		hasPermission = true
+	}
+
+	if !hasPermission {
+		return &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    config.MessageNoPermission,
+		}
+	}
+
+	// If the above statement didn't return, the user has permission. Delete infraction.
+	if err := s.repo.Delete(id); err != nil {
+		s.log.Error("Could not delete infraction ID %d. Error: %v", id, err)
+		return refractor.InternalErrorResponse
+	}
+
+	return &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Infraction deleted",
 	}
 }
