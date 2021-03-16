@@ -16,22 +16,15 @@ func NewInfractionRepository(db *sql.DB) refractor.InfractionRepository {
 	}
 }
 
-func (r *infractionRepo) Create(infraction *refractor.Infraction) (*refractor.Infraction, error) {
+func (r *infractionRepo) Create(infraction *refractor.DBInfraction) (*refractor.Infraction, error) {
 	if infraction.Timestamp == 0 {
 		infraction.Timestamp = time.Now().Unix()
-	}
-
-	// Since we can't assign nil to an int, we use -1 to signify that this value should not be set.
-	// We do this so that we insert NULL into the database rather than 0 which means permanent duration.
-	var duration interface{} = nil
-	if infraction.Duration != -1 {
-		duration = infraction.Duration
 	}
 
 	query := "INSERT INTO Infractions(PlayerID, UserID, ServerID, Type, Reason, Duration, Timestamp, SystemAction) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
 
 	res, err := r.db.Exec(query, infraction.PlayerID, infraction.UserID, infraction.ServerID, infraction.Type,
-		infraction.Reason, duration, infraction.Timestamp, infraction.SystemAction)
+		infraction.Reason, infraction.Duration, infraction.Timestamp, infraction.SystemAction)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -41,9 +34,9 @@ func (r *infractionRepo) Create(infraction *refractor.Infraction) (*refractor.In
 		return nil, wrapError(err)
 	}
 
-	infraction.ServerID = id
+	infraction.InfractionID = id
 
-	return infraction, nil
+	return infraction.Infraction(), nil
 }
 
 func (r *infractionRepo) FindByID(id int64) (*refractor.Infraction, error) {
