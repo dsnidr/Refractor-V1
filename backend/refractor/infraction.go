@@ -1,6 +1,10 @@
 package refractor
 
-import "github.com/sniddunc/refractor/internal/params"
+import (
+	"database/sql"
+	"github.com/labstack/echo/v4"
+	"github.com/sniddunc/refractor/internal/params"
+)
 
 const (
 	INFRACTION_TYPE_WARNING = "WARNING"
@@ -21,11 +25,38 @@ type Infraction struct {
 	Duration     int    `json:"duration"`
 	Timestamp    int64  `json:"timestamp"`
 	SystemAction bool   `json:"systemAction"`
-	StaffName    string `json:"staffName"` // not a database field
+	StaffName    string `json:"-"` // not a database field
+}
+
+type DBInfraction struct {
+	InfractionID int64
+	PlayerID     int64
+	UserID       int64
+	ServerID     int64
+	Type         string
+	Reason       sql.NullString
+	Duration     sql.NullInt32
+	Timestamp    int64
+	SystemAction bool
+}
+
+// Infraction builds a Infraction instance from the DBInstance it was called upon.
+func (dbi *DBInfraction) Infraction() *Infraction {
+	return &Infraction{
+		InfractionID: dbi.InfractionID,
+		PlayerID:     dbi.PlayerID,
+		UserID:       dbi.UserID,
+		ServerID:     dbi.ServerID,
+		Reason:       dbi.Reason.String,
+		Duration:     int(dbi.Duration.Int32),
+		Type:         dbi.Type,
+		Timestamp:    dbi.Timestamp,
+		SystemAction: dbi.SystemAction,
+	}
 }
 
 type InfractionRepository interface {
-	Create(infraction *Infraction) (*Infraction, error)
+	Create(infraction *DBInfraction) (*Infraction, error)
 	FindByID(id int64) (*Infraction, error)
 	Exists(args FindArgs) (bool, error)
 	FindOne(args FindArgs) (*Infraction, error)
@@ -40,4 +71,11 @@ type InfractionService interface {
 	CreateMute(userID int64, body params.CreateMuteParams) (*Infraction, *ServiceResponse)
 	CreateKick(userID int64, body params.CreateKickParams) (*Infraction, *ServiceResponse)
 	CreateBan(userID int64, body params.CreateBanParams) (*Infraction, *ServiceResponse)
+}
+
+type InfractionHandler interface {
+	CreateWarning(c echo.Context) error
+	CreateMute(c echo.Context) error
+	CreateKick(c echo.Context) error
+	CreateBan(c echo.Context) error
 }
