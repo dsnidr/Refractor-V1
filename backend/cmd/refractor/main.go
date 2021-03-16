@@ -10,6 +10,7 @@ import (
 	"github.com/sniddunc/refractor/internal/game/mordhau"
 	"github.com/sniddunc/refractor/internal/gameserver"
 	"github.com/sniddunc/refractor/internal/http/api"
+	"github.com/sniddunc/refractor/internal/infraction"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/player"
 	"github.com/sniddunc/refractor/internal/rcon"
@@ -95,6 +96,10 @@ func main() {
 	rconService.SubscribeOnline(websocketService.OnServerOnline)
 	rconService.SubscribeOffline(websocketService.OnServerOffline)
 
+	infractionRepo := mysql.NewInfractionRepository(db)
+	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, loggerInst)
+	infractionHandler := api.NewInfractionHandler(infractionService)
+
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
 		if err := setupInitialUser(userService); err != nil {
@@ -115,6 +120,7 @@ func main() {
 		UserHandler:       userHandler,
 		ServerHandler:     serverHandler,
 		GameServerHandler: gameServerHandler,
+		InfractionHandler: infractionHandler,
 	}
 
 	// Done. Begin serving.

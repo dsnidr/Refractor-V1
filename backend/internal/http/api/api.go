@@ -26,6 +26,7 @@ type Handlers struct {
 	UserHandler       refractor.UserHandler
 	ServerHandler     refractor.ServerHandler
 	GameServerHandler refractor.GameServerHandler
+	InfractionHandler refractor.InfractionHandler
 }
 
 type Response struct {
@@ -96,6 +97,13 @@ func (api *API) setupRoutes() {
 	serverGroup.GET("/data", api.ServerHandler.GetAllServerData)
 	serverGroup.PATCH("/:id", api.ServerHandler.UpdateServer, api.RequirePerms(perms.FULL_ACCESS))
 	serverGroup.DELETE("/:id", api.ServerHandler.DeleteServer, api.RequirePerms(perms.FULL_ACCESS))
+
+	// Infraction endpoints
+	infractionGroup := apiGroup.Group("/infractions", jwtMiddleware, AttachClaims())
+	infractionGroup.POST("/warning", api.InfractionHandler.CreateWarning, api.RequirePerms(perms.LOG_WARNING))
+	infractionGroup.POST("/mute", api.InfractionHandler.CreateMute, api.RequirePerms(perms.LOG_MUTE))
+	infractionGroup.POST("/kick", api.InfractionHandler.CreateKick, api.RequirePerms(perms.LOG_KICK))
+	infractionGroup.POST("/ban", api.InfractionHandler.CreateBan, api.RequirePerms(perms.LOG_BAN))
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)
