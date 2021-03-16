@@ -63,3 +63,28 @@ func (api *API) RequirePerms(flag uint64) echo.MiddlewareFunc {
 		}
 	}
 }
+
+func (api *API) RequireOneOfPerms(flags ...uint64) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			claims := c.Get("claims").(*jwt.Claims)
+
+			userPerms := bitperms.PermissionValue(claims.Permissions)
+
+			if perms.UserHasFullAccess(userPerms) {
+				return next(c)
+			}
+
+			for _, flag := range flags {
+				if userPerms.HasFlag(flag) {
+					return next(c)
+				}
+			}
+
+			api.log.Warn("User ID %d tried to access an endpoint which they did not have permission to use: %s %s",
+				claims.UserID, c.Request().Method, c.Request().URL.String())
+
+			return c.String(http.StatusUnauthorized, "Unauthorized")
+		}
+	}
+}

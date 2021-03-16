@@ -71,6 +71,7 @@ type InfractionService interface {
 	CreateMute(userID int64, body params.CreateMuteParams) (*Infraction, *ServiceResponse)
 	CreateKick(userID int64, body params.CreateKickParams) (*Infraction, *ServiceResponse)
 	CreateBan(userID int64, body params.CreateBanParams) (*Infraction, *ServiceResponse)
+	DeleteInfraction(id int64, user params.UserMeta) *ServiceResponse
 }
 
 type InfractionHandler interface {
@@ -78,4 +79,5 @@ type InfractionHandler interface {
 	CreateMute(c echo.Context) error
 	CreateKick(c echo.Context) error
 	CreateBan(c echo.Context) error
+	DeleteInfraction(c echo.Context) error
 }

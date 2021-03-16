@@ -1,6 +1,8 @@
 package perms
 
-import "github.com/sniddunc/bitperms"
+import (
+	"github.com/sniddunc/bitperms"
+)
 
 const (
 	SUPER_ADMIN            = uint64(0b1000000000000000000000000000000000000000000000000000000000000000)
