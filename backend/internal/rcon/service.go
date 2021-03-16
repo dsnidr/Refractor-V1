@@ -8,6 +8,7 @@ import (
 	"github.com/sniddunc/refractor/pkg/regexutils"
 	"github.com/sniddunc/refractor/refractor"
 	"strconv"
+	"time"
 )
 
 type rconService struct {
@@ -19,6 +20,10 @@ type rconService struct {
 	quitSubscribers    []refractor.BroadcastSubscriber
 	onlineSubscribers  []refractor.StatusSubscriber
 	offlineSubscribers []refractor.StatusSubscriber
+
+	// used to store players for future comparison if broadcasts are not enabled
+	// prevPlayers[serverId][playerGameID] = onlinePlayer
+	prevPlayers map[int64]map[string]*onlinePlayer
 }
 
 func NewRCONService(gameService refractor.GameService, playerService refractor.PlayerService, log log.Logger) refractor.RCONService {
@@ -31,6 +36,7 @@ func NewRCONService(gameService refractor.GameService, playerService refractor.P
 		quitSubscribers:    []refractor.BroadcastSubscriber{},
 		onlineSubscribers:  []refractor.StatusSubscriber{},
 		offlineSubscribers: []refractor.StatusSubscriber{},
+		prevPlayers:        map[int64]map[string]*onlinePlayer{},
 	}
 }
 
@@ -78,6 +84,8 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 				break
 			}
 		}()
+	} else {
+		go s.startPlayerListPolling(server.ServerID, game)
 	}
 
 	// Add to list of clients
@@ -93,7 +101,7 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 		for _, sub := range s.joinSubscribers {
 			sub(broadcast.Fields{
 				game.GetConfig().PlayerGameIDField: onlinePlayer.PlayerGameID,
-				"Name": onlinePlayer.Name,
+				"Name":                             onlinePlayer.Name,
 			}, server.ServerID, game.GetConfig())
 		}
 	}
@@ -109,12 +117,72 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 	return nil
 }
 
+func (s *rconService) startPlayerListPolling(serverID int64, game refractor.Game) {
+	// Set up prevPlayers map for this server
+	s.prevPlayers[serverID] = map[string]*onlinePlayer{}
+
+	for {
+		time.Sleep(game.GetConfig().PlayerListPollingInterval)
+
+		client := s.clients[serverID]
+		if client == nil {
+			s.log.Warn("Player list polling routine could not get the client for server ID %d", serverID)
+			s.log.Warn("Exiting player list polling routine for server ID %d", serverID)
+			return
+		}
+
+		players := s.getOnlinePlayers(serverID, game)
+
+		onlinePlayers := map[string]*onlinePlayer{}
+		for _, player := range players {
+			onlinePlayers[player.PlayerGameID] = player
+		}
+
+		prevPlayers := s.prevPlayers[serverID]
+
+		// Check for new player joins
+		for playerGameID, player := range onlinePlayers {
+			if prevPlayers[playerGameID] == nil {
+				s.log.Info("Player joined server ID %d: %s", serverID, player.Name)
+				prevPlayers[playerGameID] = player
+
+				// Player was not online previously so broadcast join
+				for _, sub := range s.joinSubscribers {
+					sub(broadcast.Fields{
+						game.GetConfig().PlayerGameIDField: player.PlayerGameID,
+						"Name":                             player.Name,
+					}, serverID, game.GetConfig())
+				}
+			}
+		}
+
+		// Check for existing player quits
+		for prevPlayerGameID, prevPlayer := range prevPlayers {
+			if onlinePlayers[prevPlayerGameID] == nil {
+				s.log.Info("Player left server ID %d: %s", serverID, prevPlayer.Name)
+				delete(prevPlayers, prevPlayerGameID)
+
+				// Player quit so broadcast quit
+				for _, sub := range s.quitSubscribers {
+					sub(broadcast.Fields{
+						game.GetConfig().PlayerGameIDField: prevPlayer.PlayerGameID,
+						"Name":                             prevPlayer.Name,
+					}, serverID, game.GetConfig())
+				}
+			}
+		}
+
+		// Update prevPlayers for this server
+		s.prevPlayers[serverID] = prevPlayers
+	}
+}
+
 func (s *rconService) GetClients() map[int64]*refractor.RCONClient {
-	panic("implement me")
+	return s.clients
 }
 
 func (s *rconService) DeleteClient(serverID int64) {
-	panic("implement me")
+	delete(s.clients, serverID)
 }
 
 // SubscribeJoin adds a function to a slice of functions to be called when a player joins a server
@@ -192,7 +260,7 @@ func (s *rconService) getOnlinePlayers(serverID int64, game refractor.Game) []*o
 
 		onlinePlayers = append(onlinePlayers, &onlinePlayer{
 			PlayerGameID: playerGameID,
-			Name: name,
+			Name:         name,
 		})
 	}
 

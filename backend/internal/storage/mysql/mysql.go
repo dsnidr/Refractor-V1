@@ -60,7 +60,8 @@ func Setup(db *sql.DB) error {
 	if _, err := tx.Exec(`
 		CREATE TABLE IF NOT EXISTS Players(
 			PlayerID INT NOT NULL AUTO_INCREMENT,
-			PlayFabID VARCHAR(32) UNIQUE NOT NULL,
+			PlayFabID VARCHAR(32) UNIQUE,
+		    MCUUID VARCHAR(36) UNIQUE,
 			LastSeen BIGINT DEFAULT 0,
 			
 			PRIMARY KEY (PlayerID)

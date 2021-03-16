@@ -20,6 +20,9 @@ type GameConfig struct {
 	BroadcastPatterns map[string]*regexp.Regexp
 	CmdOutputPatterns map[string]*regexp.Regexp
 
+	// If EnableBroadcasts is set to false, we will use polling for the playerlist instead of broadcasts
+	PlayerListPollingInterval time.Duration
+
 	// PlayerGameIDField holds the name of the regex named properly containing the player's unique identifier for a game.
 	// Using Mordhau as an example, it would be "PlayFabID".
 	PlayerGameIDField string
