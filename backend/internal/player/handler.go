@@ -16,9 +16,9 @@ func NewPlayerHandler(service refractor.PlayerService) refractor.PlayerHandler {
 }
 
 func (h *playerHandler) OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
-	h.service.OnPlayerJoin(serverID, fields[gameConfig.PlayerGameIDField], fields["Name"])
+	h.service.OnPlayerJoin(serverID, fields[gameConfig.PlayerGameIDField], fields["Name"], gameConfig)
 }
 
 func (h *playerHandler) OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
-	h.service.OnPlayerQuit(serverID, fields[gameConfig.PlayerGameIDField])
+	h.service.OnPlayerQuit(serverID, fields[gameConfig.PlayerGameIDField], gameConfig)
 }

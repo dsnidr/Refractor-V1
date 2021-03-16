@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/sniddunc/refractor/internal/auth"
 	"github.com/sniddunc/refractor/internal/game"
+	"github.com/sniddunc/refractor/internal/game/minecraft"
 	"github.com/sniddunc/refractor/internal/game/mordhau"
 	"github.com/sniddunc/refractor/internal/gameserver"
 	"github.com/sniddunc/refractor/internal/http/api"
@@ -62,6 +63,7 @@ func main() {
 	// Set up application components
 	gameService := game.NewGameService()
 	gameService.AddGame(mordhau.NewMordhauGame())
+	gameService.AddGame(minecraft.NewMinecraftGame())
 
 	userRepo := mysql.NewUserRepository(db)
 	userService := user.NewUserService(userRepo, loggerInst)
@@ -203,7 +205,7 @@ func setupServerClients(rconService refractor.RCONService, serverService refract
 
 		if err := rconService.CreateClient(server); err != nil {
 			log.Info("Could not connect RCON client to server: %s", server.Name)
-			return nil
+			continue
 		}
 
 		log.Info("RCON Client connected to %s", server.Name)

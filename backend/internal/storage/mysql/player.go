@@ -21,10 +21,10 @@ func NewPlayerRepository(db *sql.DB) refractor.PlayerRepository {
 // Create inserts a player into the Players table as well as inserting their current name into the PlayerNames table.
 // The following values must be present on the passed in Player reference for Create to function properly:
 // PlayFabID, LastSeen and CurrentName.
-func (r *playerRepo) Create(player *refractor.Player) error {
-	query := "INSERT INTO Players (PlayFabID, LastSeen) VALUES (?, ?);"
+func (r *playerRepo) Create(player *refractor.DBPlayer) error {
+	query := "INSERT INTO Players (PlayFabID, MCUUID, LastSeen) VALUES (?, ?, ?);"
 
-	res, err := r.db.Exec(query, player.PlayFabID, player.LastSeen)
+	res, err := r.db.Exec(query, player.PlayFabID, player.MCUUID, player.LastSeen)
 	if err != nil {
 		return wrapError(err)
 	}
@@ -74,12 +74,12 @@ func (r *playerRepo) FindByID(id int64) (*refractor.Player, error) {
 
 	row := r.db.QueryRow(query, id)
 
-	foundPlayer := &refractor.Player{}
+	foundPlayer := &refractor.DBPlayer{}
 	if err := r.scanRow(row, foundPlayer); err != nil {
 		return nil, wrapError(err)
 	}
 
-	return foundPlayer, nil
+	return foundPlayer.Player(), nil
 }
 
 func (r *playerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error) {
@@ -87,7 +87,7 @@ func (r *playerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error
 
 	row := r.db.QueryRow(query, playFabID)
 
-	foundPlayer := &refractor.Player{}
+	foundPlayer := &refractor.DBPlayer{}
 	if err := r.scanRow(row, foundPlayer); err != nil {
 		return nil, wrapError(err)
 	}
@@ -101,7 +101,7 @@ func (r *playerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error
 	foundPlayer.CurrentName = currentName
 	foundPlayer.PreviousNames = previousNames
 
-	return foundPlayer, nil
+	return foundPlayer.Player(), nil
 }
 
 func (r *playerRepo) Exists(args refractor.FindArgs) (bool, error) {
@@ -146,7 +146,7 @@ func (r *playerRepo) FindOne(args refractor.FindArgs) (*refractor.Player, error)
 
 	row := r.db.QueryRow(query, values...)
 
-	var foundPlayer = &refractor.Player{}
+	var foundPlayer = &refractor.DBPlayer{}
 
 	if err := r.scanRow(row, foundPlayer); err != nil {
 		return nil, wrapError(err)
@@ -162,7 +162,7 @@ func (r *playerRepo) FindOne(args refractor.FindArgs) (*refractor.Player, error)
 	foundPlayer.CurrentName = currentName
 	foundPlayer.PreviousNames = previousNames
 
-	return foundPlayer, nil
+	return foundPlayer.Player(), nil
 }
 
 func (r *playerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.Player, error) {
@@ -175,12 +175,12 @@ func (r *playerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.Pla
 	query = "SELECT * FROM Players WHERE PlayerID = ?;"
 	row := r.db.QueryRow(query, id)
 
-	updatedPlayer := &refractor.Player{}
+	updatedPlayer := &refractor.DBPlayer{}
 	if err := r.scanRow(row, updatedPlayer); err != nil {
 		return nil, wrapError(err)
 	}
 
-	return updatedPlayer, nil
+	return updatedPlayer.Player(), nil
 }
 
 func (r *playerRepo) getPlayerNames(playerID int64) (string, []string, error) {
@@ -213,10 +213,10 @@ func (r *playerRepo) getPlayerNames(playerID int64) (string, []string, error) {
 }
 
 // Scan helpers
-func (r *playerRepo) scanRow(row *sql.Row, player *refractor.Player) error {
-	return row.Scan(&player.PlayerID, &player.PlayFabID, &player.LastSeen)
+func (r *playerRepo) scanRow(row *sql.Row, player *refractor.DBPlayer) error {
+	return row.Scan(&player.PlayerID, &player.PlayFabID, &player.MCUUID, &player.LastSeen)
 }
 
-func (r *playerRepo) scanRows(rows *sql.Rows, player *refractor.Player) error {
-	return rows.Scan(&player.PlayerID, &player.PlayFabID, &player.LastSeen)
+func (r *playerRepo) scanRows(rows *sql.Rows, player *refractor.DBPlayer) error {
+	return rows.Scan(&player.PlayerID, &player.PlayFabID, &player.MCUUID, &player.LastSeen)
 }

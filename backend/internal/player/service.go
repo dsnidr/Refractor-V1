@@ -1,10 +1,12 @@
 package player
 
 import (
+	"database/sql"
 	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
 	"net/http"
+	"reflect"
 	"time"
 )
 
@@ -20,13 +22,13 @@ func NewPlayerService(repo refractor.PlayerRepository, log log.Logger) refractor
 	}
 }
 
-func (s *playerService) CreatePlayer(newPlayer *refractor.Player) (*refractor.Player, *refractor.ServiceResponse) {
+func (s *playerService) CreatePlayer(newPlayer *refractor.DBPlayer) (*refractor.Player, *refractor.ServiceResponse) {
 	if err := s.repo.Create(newPlayer); err != nil {
 		s.log.Error("Could not create a new player with name %s. Error: %v", newPlayer.CurrentName, err)
 		return nil, refractor.InternalErrorResponse
 	}
 
-	return newPlayer, &refractor.ServiceResponse{
+	return newPlayer.Player(), &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Player created",
@@ -55,25 +57,33 @@ func (s *playerService) GetPlayerByID(id int64) (*refractor.Player, *refractor.S
 	}
 }
 
-func (s *playerService) OnPlayerJoin(serverID int64, playerGameID string, currentName string) (*refractor.Player, *refractor.ServiceResponse) {
-	// TODO: Differentiate between playerGameID per game. An additional method on the Game interface will likely be required.
-	// For now, we just assume that this is Mordhau and work via PlayFabIDs.
+func (s *playerService) OnPlayerJoin(serverID int64, playerGameID string, currentName string, gameConfig *refractor.GameConfig) (*refractor.Player, *refractor.ServiceResponse) {
 	// Check if the player is recorded in storage
-	foundPlayer, err := s.repo.FindByPlayFabID(playerGameID)
+	foundPlayer, err := s.repo.FindOne(refractor.FindArgs{
+		gameConfig.PlayerGameIDField: playerGameID,
+	})
 	if err != nil && err != refractor.ErrNotFound {
 		// If there is an error and it isn't an instance of ErrNotFound, an actual error occurred that we should
 		// log for traceability.
-		s.log.Error("Could not check if player with player game ID of %s exists. Error: %v", playerGameID, err)
+		s.log.Error("Could not check if player with %s of %s exists. Error: %v", gameConfig.PlayerGameIDField, playerGameID, err)
 		return nil, refractor.InternalErrorResponse
 	}
 
 	// If foundPlayer == nil we know they don't exist, so we record them in storage
 	if foundPlayer == nil {
-		newPlayer, _ := s.CreatePlayer(&refractor.Player{
-			PlayFabID:   playerGameID,
+		nullablePlayerGameID := sql.NullString{String: playerGameID, Valid: true}
+
+		newDBPlayer := &refractor.DBPlayer{
 			CurrentName: currentName,
 			LastSeen:    time.Now().Unix(),
-		})
+		}
+
+		// Set proper field using reflection
+		r := reflect.ValueOf(newDBPlayer)
+		field := reflect.Indirect(r).FieldByName(gameConfig.PlayerGameIDField)
+		field.Set(reflect.ValueOf(nullablePlayerGameID))
+
+		newPlayer, _ := s.CreatePlayer(newDBPlayer)
 
 		if newPlayer == nil {
 			s.log.Error("Could not create new player")
@@ -104,20 +114,22 @@ func (s *playerService) OnPlayerJoin(serverID int64, playerGameID string, curren
 	}
 }
 
-func (s *playerService) OnPlayerQuit(serverID int64, playerGameID string) (*refractor.Player, *refractor.ServiceResponse) {
+func (s *playerService) OnPlayerQuit(serverID int64, playerGameID string, gameConfig *refractor.GameConfig) (*refractor.Player, *refractor.ServiceResponse) {
 	// TODO: Differentiate between playerGameID per game. An additional method on the Game interface will likely be required.
 	// For now, we just assume that this is Mordhau and work via PlayFabIDs.
 	// Check if the player is recorded in storage
-	foundPlayer, err := s.repo.FindByPlayFabID(playerGameID)
+	foundPlayer, err := s.repo.FindOne(refractor.FindArgs{
+		gameConfig.PlayerGameIDField: playerGameID,
+	})
 	if err != nil && err != refractor.ErrNotFound {
 		// If there is an error and it isn't an instance of ErrNotFound, an actual error occurred that we should
 		// log for traceability.
-		s.log.Error("Could not get player by PlayFabID from repo. Error: %v", err)
+		s.log.Error("Could not get player by %s from repo. Error: %v", gameConfig.PlayerGameIDField, err)
 		return nil, refractor.InternalErrorResponse
 	}
 
 	if foundPlayer == nil {
-		s.log.Error("foundPlayer with PlayFabID: %s was nil", playerGameID)
+		s.log.Error("foundPlayer with %s: %s was nil", gameConfig.PlayerGameIDField, playerGameID)
 		return nil, refractor.InternalErrorResponse
 	}
 
