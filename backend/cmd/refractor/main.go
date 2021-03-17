@@ -18,6 +18,7 @@ import (
 	"github.com/sniddunc/refractor/internal/server"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/user"
+	"github.com/sniddunc/refractor/internal/watchdog"
 	"github.com/sniddunc/refractor/internal/websocket"
 	"github.com/sniddunc/refractor/pkg/env"
 	logger "github.com/sniddunc/refractor/pkg/log"
@@ -115,6 +116,9 @@ func main() {
 	if err := setupServerClients(rconService, serverService, loggerInst); err != nil {
 		log.Fatalf("Could not set up server RCON clients. Error: %v", err)
 	}
+
+	// Start RCON client watchdog
+	go watchdog.StartRCONServerWatchdog(rconService, serverService, loggerInst)
 
 	// API Setup
 	apiHandlers := &api.Handlers{

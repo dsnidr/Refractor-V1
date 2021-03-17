@@ -225,6 +225,8 @@ func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor
 
 func (s *rconService) getDisconnectHandler(serverID int64) func(error, bool) {
 	return func(err error, expected bool) {
+		delete(s.clients, serverID)
+
 		// Notify all subscribers of a server offline event
 		for _, sub := range s.offlineSubscribers {
 			sub(serverID)
