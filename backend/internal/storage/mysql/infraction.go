@@ -40,15 +40,15 @@ func (r *infractionRepo) Create(infraction *refractor.DBInfraction) (*refractor.
 }
 
 func (r *infractionRepo) FindByID(id int64) (*refractor.Infraction, error) {
-	query := "SELECT * FROM Servers WHERE ServerID = ?;"
+	query := "SELECT * FROM Infractions WHERE InfractionID = ?;"
 	row := r.db.QueryRow(query, id)
 
-	foundInfraction := &refractor.Infraction{}
+	foundInfraction := &refractor.DBInfraction{}
 	if err := r.scanRow(row, foundInfraction); err != nil {
 		return nil, wrapError(err)
 	}
 
-	return foundInfraction, nil
+	return foundInfraction.Infraction(), nil
 }
 
 func (r *infractionRepo) Exists(args refractor.FindArgs) (bool, error) {
@@ -67,14 +67,14 @@ func (r *infractionRepo) Exists(args refractor.FindArgs) (bool, error) {
 func (r *infractionRepo) FindOne(args refractor.FindArgs) (*refractor.Infraction, error) {
 	query, values := buildFindQuery("Infractions", args)
 
-	foundInfraction := &refractor.Infraction{}
+	foundInfraction := &refractor.DBInfraction{}
 
 	row := r.db.QueryRow(query, values...)
 	if err := r.scanRow(row, foundInfraction); err != nil {
 		return nil, wrapError(err)
 	}
 
-	return foundInfraction, nil
+	return foundInfraction.Infraction(), nil
 }
 
 func (r *infractionRepo) FindManyByPlayerID(playerID int64) ([]*refractor.Infraction, error) {
@@ -88,13 +88,13 @@ func (r *infractionRepo) FindManyByPlayerID(playerID int64) ([]*refractor.Infrac
 	var foundInfractions []*refractor.Infraction
 
 	for rows.Next() {
-		infraction := &refractor.Infraction{}
+		infraction := &refractor.DBInfraction{}
 
 		if err := r.scanRows(rows, infraction); err != nil {
 			return nil, wrapError(err)
 		}
 
-		foundInfractions = append(foundInfractions, infraction)
+		foundInfractions = append(foundInfractions, infraction.Infraction())
 	}
 
 	return foundInfractions, nil
@@ -111,13 +111,13 @@ func (r *infractionRepo) FindAll() ([]*refractor.Infraction, error) {
 	var foundInfractions []*refractor.Infraction
 
 	for rows.Next() {
-		infraction := &refractor.Infraction{}
+		infraction := &refractor.DBInfraction{}
 
 		if err := r.scanRows(rows, infraction); err != nil {
 			return nil, wrapError(err)
 		}
 
-		foundInfractions = append(foundInfractions, infraction)
+		foundInfractions = append(foundInfractions, infraction.Infraction())
 	}
 
 	return foundInfractions, nil
@@ -135,12 +135,12 @@ func (r *infractionRepo) Update(id int64, args refractor.UpdateArgs) (*refractor
 	query = "SELECT * FROM Infractions WHERE InfractionID = ?;"
 	row := r.db.QueryRow(query, id)
 
-	updatedInfraction := &refractor.Infraction{}
+	updatedInfraction := &refractor.DBInfraction{}
 	if err := r.scanRow(row, updatedInfraction); err != nil {
 		return nil, wrapError(err)
 	}
 
-	return updatedInfraction, nil
+	return updatedInfraction.Infraction(), nil
 }
 
 func (r *infractionRepo) Delete(id int64) error {
@@ -164,10 +164,12 @@ func (r *infractionRepo) Delete(id int64) error {
 }
 
 // Scan helpers
-func (r *infractionRepo) scanRow(row *sql.Row, infr *refractor.Infraction) error {
-	return row.Scan(infr.InfractionID, infr.PlayerID, infr.UserID, infr.ServerID, infr.Type, infr.Reason, infr.Duration, infr.Timestamp, infr.SystemAction)
+func (r *infractionRepo) scanRow(row *sql.Row, infr *refractor.DBInfraction) error {
+	return row.Scan(&infr.InfractionID, &infr.PlayerID, &infr.UserID, &infr.ServerID, &infr.Type, &infr.Reason,
+		&infr.Duration, &infr.Timestamp, &infr.SystemAction)
 }
 
-func (r *infractionRepo) scanRows(row *sql.Rows, infr *refractor.Infraction) error {
-	return row.Scan(infr.InfractionID, infr.PlayerID, infr.UserID, infr.ServerID, infr.Type, infr.Reason, infr.Duration, infr.Timestamp, infr.SystemAction)
+func (r *infractionRepo) scanRows(row *sql.Rows, infr *refractor.DBInfraction) error {
+	return row.Scan(&infr.InfractionID, &infr.PlayerID, &infr.UserID, &infr.ServerID, &infr.Type, &infr.Reason,
+		&infr.Duration, &infr.Timestamp, &infr.SystemAction)
 }

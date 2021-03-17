@@ -267,6 +267,244 @@ func Test_infractionService_DeleteInfraction(t *testing.T) {
 	}
 }
 
+func Test_infractionService_UpdateInfraction(t *testing.T) {
+	testLogger, _ := log.NewLogger(true, false)
+
+	type fields struct {
+		mockInfractions map[int64]*refractor.DBInfraction
+	}
+	type args struct {
+		id       int64
+		reason   string
+		duration int
+		userMeta *params.UserMeta
+	}
+	tests := []struct {
+		name           string
+		fields         fields
+		args           args
+		wantInfraction *refractor.Infraction
+		wantRes        *refractor.ServiceResponse
+	}{
+		{
+			name: "infraction.updateinfraction.1",
+			fields: fields{
+				mockInfractions: map[int64]*refractor.DBInfraction{
+					1: {
+						InfractionID: 1,
+						PlayerID:     1,
+						UserID:       1,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_WARNING,
+						Reason:       sql.NullString{String: strings.Repeat("a", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 0, Valid: false},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+				},
+			},
+			args: args{
+				id:       1,
+				reason:   "Updated reason test.1",
+				duration: 1440,
+				userMeta: &params.UserMeta{
+					UserID:      1,
+					Permissions: perms.SUPER_ADMIN,
+				},
+			},
+			wantInfraction: &refractor.Infraction{
+				InfractionID: 1,
+				PlayerID:     1,
+				UserID:       1,
+				ServerID:     1,
+				Type:         refractor.INFRACTION_TYPE_WARNING,
+				Reason:       "Updated reason test.1",
+				Duration:     0,
+				Timestamp:    0,
+				SystemAction: false,
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Infraction updated",
+			},
+		},
+		{
+			name: "infraction.updateinfraction.2",
+			fields: fields{
+				mockInfractions: map[int64]*refractor.DBInfraction{
+					1: {
+						InfractionID: 1,
+						PlayerID:     1,
+						UserID:       1,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_KICK,
+						Reason:       sql.NullString{String: strings.Repeat("a", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 0, Valid: false},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+				},
+			},
+			args: args{
+				id:       1,
+				reason:   "Updated reason test.2",
+				duration: 1440,
+				userMeta: &params.UserMeta{
+					UserID:      1,
+					Permissions: 0,
+				},
+			},
+			wantInfraction: nil,
+			wantRes: &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageNoPermission,
+			},
+		},
+		{
+			name: "infraction.updateinfraction.3",
+			fields: fields{
+				mockInfractions: map[int64]*refractor.DBInfraction{
+					1: {
+						InfractionID: 1,
+						PlayerID:     1,
+						UserID:       1,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_BAN,
+						Reason:       sql.NullString{String: strings.Repeat("a", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 60, Valid: true},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+				},
+			},
+			args: args{
+				id:       1,
+				reason:   "Updated ban reason.3",
+				duration: 1440,
+				userMeta: &params.UserMeta{
+					UserID:      1,
+					Permissions: perms.EDIT_OWN_INFRACTIONS,
+				},
+			},
+			wantInfraction: &refractor.Infraction{
+				InfractionID: 1,
+				PlayerID:     1,
+				UserID:       1,
+				ServerID:     1,
+				Type:         refractor.INFRACTION_TYPE_BAN,
+				Reason:       "Updated ban reason.3",
+				Duration:     1440,
+				Timestamp:    0,
+				SystemAction: false,
+				StaffName:    "",
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Infraction updated",
+			},
+		},
+		{
+			name: "infraction.updateinfraction.4",
+			fields: fields{
+				mockInfractions: map[int64]*refractor.DBInfraction{
+					1: {
+						InfractionID: 1,
+						PlayerID:     1,
+						UserID:       2,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_BAN,
+						Reason:       sql.NullString{String: strings.Repeat("a", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 60, Valid: true},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+				},
+			},
+			args: args{
+				id:       1,
+				reason:   "Updated ban reason.4",
+				duration: 1440,
+				userMeta: &params.UserMeta{
+					UserID:      1,
+					Permissions: perms.EDIT_OWN_INFRACTIONS,
+				},
+			},
+			wantInfraction: nil,
+			wantRes: &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageNoPermission,
+			},
+		},
+		{
+			name: "infraction.updateinfraction.5",
+			fields: fields{
+				mockInfractions: map[int64]*refractor.DBInfraction{
+					1: {
+						InfractionID: 1,
+						PlayerID:     1,
+						UserID:       2,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_MUTE,
+						Reason:       sql.NullString{String: strings.Repeat("a", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 60, Valid: true},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+				},
+			},
+			args: args{
+				id:       1,
+				reason:   "Updated mute reason.5",
+				duration: 120,
+				userMeta: &params.UserMeta{
+					UserID:      1,
+					Permissions: perms.EDIT_ANY_INFRACTION,
+				},
+			},
+			wantInfraction: &refractor.Infraction{
+				InfractionID: 1,
+				PlayerID:     1,
+				UserID:       2,
+				ServerID:     1,
+				Type:         refractor.INFRACTION_TYPE_MUTE,
+				Reason:       "Updated mute reason.5",
+				Duration:     120,
+				Timestamp:    0,
+				SystemAction: false,
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Infraction updated",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockInfractionRepo := mock.NewMockInfractionRepository(tt.fields.mockInfractions)
+			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, testLogger)
+
+			body := params.UpdateInfractionParams{
+				Reason:   &tt.args.reason,
+				Duration: &tt.args.duration,
+				UserMeta: tt.args.userMeta,
+			}
+
+			updatedInfraction, res := infractionService.UpdateInfraction(tt.args.id, body)
+
+			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
+
+			if tt.wantRes.Success {
+				assert.True(t, infractionsAreEqual(tt.wantInfraction, updatedInfraction), "Infractions were not equal\nwant = %v\ngot  = %v", tt.wantInfraction, updatedInfraction)
+			}
+		})
+	}
+}
+
 // infractionsAreEqual compares the following fields to determine is two infractions are equal:
 // InfractionID, PlayerID, ServerID, UserID, Type, Reason, SystemAction
 func infractionsAreEqual(infraction1 *refractor.Infraction, infraction2 *refractor.Infraction) bool {
