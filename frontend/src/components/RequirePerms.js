@@ -29,12 +29,6 @@ const RequirePerms = (props) => {
 		mode = 'all';
 	}
 
-	console.log(
-		userPerms,
-		'Can kick',
-		hasPermission(userPerms, flags.LOG_KICK)
-	);
-
 	/* global BigInt */
 	switch (mode) {
 		case 'all':
