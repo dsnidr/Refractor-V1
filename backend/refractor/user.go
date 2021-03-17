@@ -10,8 +10,17 @@ type User struct {
 	Email               string `json:"email"`
 	Username            string `json:"username"`
 	Password            string `json:"-"`
-	Permissions         uint64 `json:"permissions"`
+	Permissions         int64 `json:"permissions"`
 	Activated           bool   `json:"activated"`
+	NeedsPasswordChange bool   `json:"needsPasswordChange"`
+}
+
+type UserInfo struct {
+	ID                  int64  `json:"id"`
+	Email               string `json:"email"`
+	Username            string `json:"username"`
+	Activated           bool   `json:"activated"`
+	Permissions         int64 `json:"permissions"`
 	NeedsPasswordChange bool   `json:"needsPasswordChange"`
 }
 
@@ -48,13 +57,4 @@ type UserHandler interface {
 	ForcePasswordChange(c echo.Context) error
 	SetUserPassword(c echo.Context) error
 	SetUserPermissions(c echo.Context) error
-}
-
-type UserInfo struct {
-	ID                  int64  `json:"id"`
-	Email               string `json:"email"`
-	Username            string `json:"username"`
-	Activated           bool   `json:"activated"`
-	Permissions         uint64 `json:"permissions"`
-	NeedsPasswordChange bool   `json:"needsPasswordChange"`
 }

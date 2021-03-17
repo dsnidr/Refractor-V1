@@ -1,18 +1,21 @@
 package mock
 
-import "github.com/sniddunc/refractor/refractor"
+import (
+	"database/sql"
+	"github.com/sniddunc/refractor/refractor"
+)
 
 type mockPlayerRepo struct {
-	players map[int64]*refractor.Player
+	players map[int64]*refractor.DBPlayer
 }
 
-func NewMockPlayerRepository(mockPlayers map[int64]*refractor.Player) refractor.PlayerRepository {
+func NewMockPlayerRepository(mockPlayers map[int64]*refractor.DBPlayer) refractor.PlayerRepository {
 	return &mockPlayerRepo{
 		players: mockPlayers,
 	}
 }
 
-func (r *mockPlayerRepo) Create(player *refractor.Player) error {
+func (r *mockPlayerRepo) Create(player *refractor.DBPlayer) error {
 	newID := int64(len(r.players) + 1)
 	r.players[newID] = player
 
@@ -28,13 +31,13 @@ func (r *mockPlayerRepo) FindByID(id int64) (*refractor.Player, error) {
 		return nil, refractor.ErrNotFound
 	}
 
-	return foundPlayer, nil
+	return foundPlayer.Player(), nil
 }
 
 func (r *mockPlayerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error) {
 	for _, player := range r.players {
-		if player.PlayFabID == playFabID {
-			return player, nil
+		if player.PlayFabID.String == playFabID {
+			return player.Player(), nil
 		}
 	}
 
@@ -47,7 +50,11 @@ func (r *mockPlayerRepo) FindOne(args refractor.FindArgs) (*refractor.Player, er
 			continue
 		}
 
-		if args["PlayFabID"] != nil && args["PlayFabID"].(string) != player.PlayFabID {
+		if args["PlayFabID"] != nil && args["PlayFabID"].(string) != player.PlayFabID.String {
+			continue
+		}
+
+		if args["MCUUID"] != nil && args["MCUUID"].(string) != player.PlayFabID.String {
 			continue
 		}
 
@@ -55,7 +62,7 @@ func (r *mockPlayerRepo) FindOne(args refractor.FindArgs) (*refractor.Player, er
 			continue
 		}
 
-		return player, nil
+		return player.Player(), nil
 	}
 
 	return nil, refractor.ErrNotFound
@@ -67,7 +74,11 @@ func (r *mockPlayerRepo) Exists(args refractor.FindArgs) (bool, error) {
 			continue
 		}
 
-		if args["PlayFabID"] != nil && args["PlayFabID"].(string) != player.PlayFabID {
+		if args["PlayFabID"] != nil && args["PlayFabID"].(string) != player.PlayFabID.String {
+			continue
+		}
+
+		if args["MCUUID"] != nil && args["MCUUID"].(string) != player.PlayFabID.String {
 			continue
 		}
 
@@ -95,12 +106,16 @@ func (r *mockPlayerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor
 	}
 
 	if args["PlayFabID"] != nil {
-		r.players[id].PlayFabID = args["PlayFabID"].(string)
+		r.players[id].PlayFabID = sql.NullString{String: args["PlayFabID"].(string), Valid: true}
+	}
+
+	if args["MCUUID"] != nil {
+		r.players[id].PlayFabID = sql.NullString{String: args["MCUUID"].(string), Valid: true}
 	}
 
 	if args["LastSeen"] != nil {
 		r.players[id].LastSeen = args["LastSeen"].(int64)
 	}
 
-	return r.players[id], nil
+	return r.players[id].Player(), nil
 }

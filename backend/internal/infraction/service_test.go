@@ -20,7 +20,7 @@ func Test_infractionService_CreateWarning(t *testing.T) {
 	testLogger, _ := log.NewLogger(true, false)
 
 	type fields struct {
-		mockPlayers map[int64]*refractor.Player
+		mockPlayers map[int64]*refractor.DBPlayer
 		mockServers map[int64]*refractor.Server
 	}
 	type args struct {
@@ -37,7 +37,7 @@ func Test_infractionService_CreateWarning(t *testing.T) {
 		{
 			name: "infraction.createwarning.1",
 			fields: fields{
-				mockPlayers: map[int64]*refractor.Player{
+				mockPlayers: map[int64]*refractor.DBPlayer{
 					1: {
 						PlayerID: 1,
 					},

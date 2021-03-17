@@ -22,7 +22,7 @@ func Setup(db *sql.DB) error {
 			Username VARCHAR(32) UNIQUE NOT NULL,
 			Email VARCHAR(254) UNIQUE NOT NULL,
 			Password BINARY(60) NOT NULL,
-			Permissions BIGINT UNSIGNED DEFAULT 0,
+			Permissions BIGINT DEFAULT 0,
 			Activated BOOLEAN DEFAULT TRUE,
 			NeedsPasswordChange BOOLEAN DEFAULT TRUE,
 			

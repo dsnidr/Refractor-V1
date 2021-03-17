@@ -6,7 +6,7 @@ export default {
 	colorDanger: '#FF0035',
 	colorAlert: '#FBB13C',
 	colorWarning: '#FFFD82',
-	colorSuccess: '#45CB85',
+	colorSuccess: '#30db64',
 	colorAccent: '#cfe3ff',
 	colorDisabled: '#a2b2b8',
 

@@ -112,7 +112,7 @@ func TestCreateUserParams_Validate(t *testing.T) {
 func TestSetUserPermissionsParams_Validate(t *testing.T) {
 	type fields struct {
 		UserID           int64
-		Permissions      uint64
+		Permissions      int64
 		PermissionString string
 		SetterUserID     int64
 		UserMeta         *UserMeta
