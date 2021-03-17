@@ -24,7 +24,7 @@ import {
 	getToken,
 	tokenIsCurrent,
 } from '../utils/tokenUtils';
-import RequireAccessLevel from '../components/RequireAccessLevel';
+import RequireAccessLevel from '../components/RequirePerms';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import Main from './DashboardPages/Main';
 import { Route, Switch } from 'react-router';
@@ -45,6 +45,8 @@ import AddServer from './AdminPages/AddServer';
 import Users from './AdminPages/Users';
 import AddUser from './AdminPages/AddUser';
 import User from './AdminPages/User';
+import RequirePerms from '../components/RequirePerms';
+import { flags } from '../permissions/permissions';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -182,25 +184,43 @@ class Dashboard extends Component {
 							</SidebarItem>
 
 							<div>
-								{this.props.games.map((game) => (
+								{games.map((game) => (
 									<SidebarSection key={game.name}>
-										<SidebarItem icon={<SingleServer />}>
-											Test Server
-										</SidebarItem>
+										<h1>&#62; {game.name.toLowerCase()}</h1>
+										{game.servers.map((server) => (
+											<SidebarItem
+												key={server.id}
+												icon={<SingleServer />}
+												to={`/server/${server.id}`}
+											>
+												{server.name}
+											</SidebarItem>
+										))}
 									</SidebarSection>
 								))}
-								<SidebarSection>
-									<h1>&#62; admin</h1>
-									<SidebarItem
-										to="/servers"
-										icon={<ServerIcon />}
-									>
-										Servers
-									</SidebarItem>
-									<SidebarItem to="/users" icon={<Avatar />}>
-										Users
-									</SidebarItem>
-								</SidebarSection>
+								<RequirePerms
+									mode={'any'}
+									perms={[
+										flags.SUPER_ADMIN,
+										flags.FULL_ACCESS,
+									]}
+								>
+									<SidebarSection>
+										<h1>&#62; admin</h1>
+										<SidebarItem
+											to="/servers"
+											icon={<ServerIcon />}
+										>
+											Servers
+										</SidebarItem>
+										<SidebarItem
+											to="/users"
+											icon={<Avatar />}
+										>
+											Users
+										</SidebarItem>
+									</SidebarSection>
+								</RequirePerms>
 							</div>
 						</DrawerItems>
 						<DrawerOverlay onClick={this.closeDrawer} />
@@ -249,7 +269,10 @@ class Dashboard extends Component {
 									))}
 								</SidebarSection>
 							))}
-							<RequireAccessLevel minAccessLevel={10}>
+							<RequirePerms
+								mode={'any'}
+								perms={[flags.SUPER_ADMIN, flags.FULL_ACCESS]}
+							>
 								<SidebarSection>
 									<h1>&#62; admin</h1>
 									<SidebarItem
@@ -262,7 +285,7 @@ class Dashboard extends Component {
 										Users
 									</SidebarItem>
 								</SidebarSection>
-							</RequireAccessLevel>
+							</RequirePerms>
 
 							<SidebarSection>
 								<h1>&#62; theme</h1>
