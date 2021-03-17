@@ -177,7 +177,7 @@ func buildFindQuery(table string, args map[string]interface{}) (string, []interf
 }
 
 func buildUpdateQuery(table string, id int64, idName string, args map[string]interface{}) (string, []interface{}) {
-	var query string = fmt.Sprintf("UPDATE %s SET ", table)
+	var query = fmt.Sprintf("UPDATE %s SET ", table)
 	var values []interface{}
 
 	// Build query

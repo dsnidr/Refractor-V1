@@ -72,6 +72,7 @@ type InfractionService interface {
 	CreateKick(userID int64, body params.CreateKickParams) (*Infraction, *ServiceResponse)
 	CreateBan(userID int64, body params.CreateBanParams) (*Infraction, *ServiceResponse)
 	DeleteInfraction(id int64, user params.UserMeta) *ServiceResponse
+	UpdateInfraction(id int64, body params.UpdateInfractionParams) (*Infraction, *ServiceResponse)
 }
 
 type InfractionHandler interface {
@@ -80,4 +81,5 @@ type InfractionHandler interface {
 	CreateKick(c echo.Context) error
 	CreateBan(c echo.Context) error
 	DeleteInfraction(c echo.Context) error
+	UpdateInfraction(c echo.Context) error
 }

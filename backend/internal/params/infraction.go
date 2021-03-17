@@ -131,3 +131,36 @@ func (body *CreateBanParams) Validate() (bool, url.Values) {
 
 	return len(errors) == 0, errors
 }
+
+// UpdateInfractionParams holds the data we expect when updating an infraction
+type UpdateInfractionParams struct {
+	Reason   *string `json:"reason" form:"reason"`
+	Duration *int    `json:"duration" form:"duration"`
+	*UserMeta
+}
+
+func (body *UpdateInfractionParams) Validate() (bool, url.Values) {
+	errors := url.Values{}
+
+	if body.Reason != nil {
+		reason := *body.Reason
+
+		if reason != "" && (len(reason) < config.InfractionReasonMinLen || len(reason) > config.InfractionReasonMaxLen) {
+			errors.Set("reason", fmt.Sprintf("Reason must be between %d and %d characters in length", config.InfractionReasonMinLen, config.InfractionReasonMaxLen))
+		}
+	}
+
+	if body.Duration != nil {
+		duration := *body.Duration
+
+		if duration > config.InfractionDurationMax {
+			errors.Set("duration", fmt.Sprintf("The maximum duration a ban can have is %d minutes", config.InfractionDurationMax))
+		}
+
+		if duration < 0 || duration > config.InfractionDurationMax {
+			errors.Set("duration", "Invalid duration")
+		}
+	}
+
+	return len(errors) == 0, errors
+}

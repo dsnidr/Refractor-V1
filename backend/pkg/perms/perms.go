@@ -1,7 +1,6 @@
 package perms
 
 import (
-	"fmt"
 	"github.com/sniddunc/bitperms"
 )
 
@@ -19,10 +18,6 @@ const (
 
 	DEFAULT_PERMS = LOG_WARNING | LOG_MUTE | LOG_KICK | LOG_BAN | EDIT_OWN_INFRACTIONS // 4467570830351532032
 )
-
-func init() {
-	fmt.Printf("%d: %b\n", SUPER_ADMIN, SUPER_ADMIN)
-}
 
 // UserIsSuperAdmin returns true if the user has the super admin flag set.
 func UserIsSuperAdmin(userPerms bitperms.PermissionValue) bool {

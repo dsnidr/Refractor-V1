@@ -156,7 +156,7 @@ func (r *mockInfractionsRepo) Update(id int64, args refractor.UpdateArgs) (*refr
 	}
 
 	if args["Duration"] != nil {
-		r.infractions[id].Duration = sql.NullInt32{Int32: args["Duration"].(int32), Valid: true}
+		r.infractions[id].Duration = sql.NullInt32{Int32: int32(args["Duration"].(int)), Valid: true}
 	}
 
 	return r.infractions[id].Infraction(), nil

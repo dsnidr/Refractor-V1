@@ -176,3 +176,84 @@ func (s *infractionService) DeleteInfraction(id int64, user params.UserMeta) *re
 		Message:    "Infraction deleted",
 	}
 }
+
+func (s *infractionService) UpdateInfraction(id int64, body params.UpdateInfractionParams) (*refractor.Infraction, *refractor.ServiceResponse) {
+	// Make sure infraction exists
+	foundInfraction, err := s.repo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return nil, &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not get infraction by id %d. Error: %v", id, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	userPerms := bitperms.PermissionValue(body.UserMeta.Permissions)
+
+	// We need to make sure that the user has permission to update this infraction.
+	// We do this by:
+	//   a) checking if they're a super admin, have full access or can edit any infraction.
+	//   b) checking if they created this infraction and if they have permission to edit their own infractions.
+
+	hasPermission := false
+
+	// Check if the user is a super admin, has full access or can edit any infraction
+	if perms.UserIsSuperAdmin(userPerms) || perms.UserHasFullAccess(userPerms) || userPerms.HasFlag(perms.EDIT_ANY_INFRACTION) {
+		hasPermission = true
+	}
+
+	// Check if the user created this infraction and has permission to edit their own infractions
+	if !hasPermission && foundInfraction.UserID == body.UserMeta.UserID && userPerms.HasFlag(perms.EDIT_OWN_INFRACTIONS) {
+		hasPermission = true
+	}
+
+	// Final check of hasPermission
+	if !hasPermission {
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    config.MessageNoPermission,
+		}
+	}
+
+	// If the above statement didn't return, we know the user has permission so we proceed with updating the infraction.
+	updateArgs := refractor.UpdateArgs{}
+	if body.Reason != nil {
+		updateArgs["Reason"] = *body.Reason
+	}
+
+	// This is a bit messy and definitely not the best way to handle this.
+	// Ideally we'd have an infraction type with a list of allowed fields on it, but for now we just check if
+	// it's a mute or ban and only allow the duration field to be set if it is.
+	if foundInfraction.Type == refractor.INFRACTION_TYPE_MUTE ||
+		foundInfraction.Type == refractor.INFRACTION_TYPE_BAN {
+		if body.Duration != nil {
+			updateArgs["Duration"] = *body.Duration
+		}
+	}
+
+	if len(updateArgs) == 0 {
+		return nil, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    "No update fields provided",
+		}
+	}
+
+	updatedInfraction, err := s.repo.Update(foundInfraction.InfractionID, updateArgs)
+	if err != nil {
+		s.log.Error("Could not update infraction with id %d. Error: %v", id, err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return updatedInfraction, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Infraction updated",
+	}
+}
