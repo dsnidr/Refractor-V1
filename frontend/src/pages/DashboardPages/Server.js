@@ -5,6 +5,8 @@ import styled, { css } from 'styled-components';
 import respondTo from '../../mixins/respondTo';
 import { Link } from 'react-router-dom';
 import StatusTag from '../../components/StatusTag';
+import RequirePerms from '../../components/RequirePerms';
+import { flags } from '../../permissions/permissions';
 
 const ServerSummary = styled.div`
 	${(props) => css`
@@ -201,9 +203,24 @@ class Server extends Component {
 									<h1>{player.currentName}</h1>
 								</Link>
 								<PlayerButtons>
-									<div>Warn</div>
-									<div>Kick</div>
-									<div>Ban</div>
+									<RequirePerms
+										mode={'all'}
+										perms={[flags.LOG_WARNING]}
+									>
+										<div>Warn</div>
+									</RequirePerms>
+									<RequirePerms
+										mode={'all'}
+										perms={[flags.LOG_KICK]}
+									>
+										<div>Kick</div>
+									</RequirePerms>
+									<RequirePerms
+										mode={'all'}
+										perms={[flags.LOG_BAN]}
+									>
+										<div>Ban</div>
+									</RequirePerms>
 								</PlayerButtons>
 							</Player>
 						))}
