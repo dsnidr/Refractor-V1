@@ -14,7 +14,7 @@ import (
 // on the user who is sending a request.
 type UserMeta struct {
 	UserID      int64
-	Permissions uint64
+	Permissions int64
 }
 
 // CreateUserParams holds the data we expect when creating a new user.
@@ -53,7 +53,7 @@ func (body *CreateUserParams) Validate() (bool, url.Values) {
 // SetUserPermissionsParams holds the data we expect when setting a user's permissions.
 type SetUserPermissionsParams struct {
 	UserID           int64 `json:"id" form:"id"`
-	Permissions      uint64
+	Permissions      int64
 	PermissionString string `json:"permissions" form:"permissions"`
 	*UserMeta
 }
@@ -66,7 +66,7 @@ func (body *SetUserPermissionsParams) Validate() (bool, url.Values) {
 	if err != nil {
 		errors.Set("permissions", "Invalid permissions value. Must be a string representing a uint64")
 	} else {
-		body.Permissions = uint64(permSigned)
+		body.Permissions = int64(permSigned)
 
 		newPerms := bitperms.PermissionValue(body.Permissions)
 		if newPerms.HasFlag(perms.SUPER_ADMIN) {

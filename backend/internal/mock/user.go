@@ -146,7 +146,7 @@ func (r *mockUserRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.U
 	}
 
 	if args["Permissions"] != nil {
-		r.users[id].Permissions = args["Permissions"].(uint64)
+		r.users[id].Permissions = args["Permissions"].(int64)
 	}
 
 	if args["Activated"] != nil {

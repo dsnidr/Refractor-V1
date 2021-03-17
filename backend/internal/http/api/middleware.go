@@ -45,7 +45,7 @@ func AttachClaims() echo.MiddlewareFunc {
 //	}
 //}
 
-func (api *API) RequirePerms(flag uint64) echo.MiddlewareFunc {
+func (api *API) RequirePerms(flag int64) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			claims := c.Get("claims").(*jwt.Claims)
@@ -64,7 +64,7 @@ func (api *API) RequirePerms(flag uint64) echo.MiddlewareFunc {
 	}
 }
 
-func (api *API) RequireOneOfPerms(flags ...uint64) echo.MiddlewareFunc {
+func (api *API) RequireOneOfPerms(flags ...int64) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			claims := c.Get("claims").(*jwt.Claims)

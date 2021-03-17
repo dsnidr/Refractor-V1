@@ -21,9 +21,9 @@ import (
 	"github.com/sniddunc/refractor/internal/websocket"
 	"github.com/sniddunc/refractor/pkg/env"
 	logger "github.com/sniddunc/refractor/pkg/log"
+	"github.com/sniddunc/refractor/pkg/perms"
 	"github.com/sniddunc/refractor/refractor"
 	"log"
-	"math"
 	"os"
 )
 
@@ -180,10 +180,10 @@ func setupInitialUser(userService refractor.UserService) error {
 	// Make user a super-admin
 	_, res = userService.SetUserPermissions(params.SetUserPermissionsParams{
 		UserID:      newUser.UserID,
-		Permissions: math.MaxUint64,
+		Permissions: perms.SUPER_ADMIN,
 		UserMeta: &params.UserMeta{
 			UserID:      0,
-			Permissions: math.MaxUint64,
+			Permissions: perms.SUPER_ADMIN,
 		},
 	})
 

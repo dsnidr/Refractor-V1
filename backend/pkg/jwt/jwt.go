@@ -10,7 +10,7 @@ import (
 // Claims represents the auth claims made in our JWTs
 type Claims struct {
 	UserID      int64  `json:"id"`
-	Permissions uint64 `json:"permissions"`
+	Permissions int64 `json:"permissions"`
 	jwt.StandardClaims
 }
 
