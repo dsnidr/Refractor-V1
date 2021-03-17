@@ -43,6 +43,8 @@ github.com/sniddunc/mordhau-rcon v0.1.3 h1:RoRmO070MQKtkf6/lvOxzcO2ulJBb4MMq1hku
 github.com/sniddunc/mordhau-rcon v0.1.3/go.mod h1:q/+H893G6yTl4SgGEbj7LYjIzsDl3Z38F1DE+KadH3M=
 github.com/sniddunc/mordhau-rcon v0.1.4 h1:hv58QKxtjgHi+tYclh5tfXEfAzVLAWJnuyofRMknSME=
 github.com/sniddunc/mordhau-rcon v0.1.4/go.mod h1:q/+H893G6yTl4SgGEbj7LYjIzsDl3Z38F1DE+KadH3M=
+github.com/sniddunc/mordhau-rcon v0.1.5 h1:D4/NBkvaolgv1qR02Gno8POVXu1p5JX3GOfPqnBUQ/M=
+github.com/sniddunc/mordhau-rcon v0.1.5/go.mod h1:q/+H893G6yTl4SgGEbj7LYjIzsDl3Z38F1DE+KadH3M=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
