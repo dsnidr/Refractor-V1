@@ -47,7 +47,6 @@ const onMessage = (client, actions) => (msg) => {
 
 	console.log('Received message: ', wsMsg);
 
-	// TODO: Handle message types and take proper actions
 	switch (type) {
 		case 'player-join':
 			actions.addPlayer(body.serverId, {
@@ -64,10 +63,12 @@ const onMessage = (client, actions) => (msg) => {
 			});
 			break;
 		case 'server-online':
-			actions.setServerStatus(body.serverId, true);
+			actions.setServerStatus(body, true);
 			break;
 		case 'server-offline':
-			actions.setServerStatus(body.serverId, false);
+			actions.setServerStatus(body, false);
 			break;
+		default:
+			console.log('Unknown message type received:', type);
 	}
 };
