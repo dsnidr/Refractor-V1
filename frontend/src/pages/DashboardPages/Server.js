@@ -147,10 +147,6 @@ class Server extends Component {
 					show: false,
 					ctx: {},
 				},
-				mute: {
-					show: false,
-					ctx: {},
-				},
 				kick: {
 					show: false,
 					ctx: {},
@@ -199,7 +195,7 @@ class Server extends Component {
 			}),
 			() => {
 				const ref = this[`${type}ModalRef`];
-				if (ref) {
+				if (ref.current) {
 					ref.current.focus();
 				}
 			}
@@ -222,7 +218,7 @@ class Server extends Component {
 
 	render() {
 		const { server, modals } = this.state;
-		const { warn, kick, ban } = modals;
+		const { warn, kick, ban, mute } = modals;
 
 		if (!server) {
 			return null;
