@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import StatusTag from '../../components/StatusTag';
 import RequirePerms from '../../components/RequirePerms';
 import { flags } from '../../permissions/permissions';
+import WarnModal from '../../components/modals/WarnModal';
 
 const ServerSummary = styled.div`
 	${(props) => css`
@@ -138,7 +139,28 @@ class Server extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {};
+		this.state = {
+			modals: {
+				warn: {
+					show: false,
+					ctx: {},
+				},
+				mute: {
+					show: false,
+					ctx: {},
+				},
+				kick: {
+					show: false,
+					ctx: {},
+				},
+				ban: {
+					show: false,
+					ctx: {},
+				},
+			},
+		};
+
+		this.warnModalRef = React.createRef();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -158,8 +180,42 @@ class Server extends Component {
 		return prevState;
 	}
 
+	showModal = (type, ctx) => () => {
+		this.setState(
+			(prevState) => ({
+				...prevState,
+				modals: {
+					...prevState.modals,
+					[type]: {
+						...prevState.modals[type],
+						show: true,
+						ctx: ctx,
+					},
+				},
+			}),
+			() => {
+				this.warnModalRef.current.focus();
+			}
+		);
+	};
+
+	closeModal = (type) => () => {
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				[type]: {
+					...prevState.modals[type],
+					show: false,
+					ctx: {},
+				},
+			},
+		}));
+	};
+
 	render() {
-		const { server } = this.state;
+		const { server, modals } = this.state;
+		const { warn } = modals;
 
 		if (!server) {
 			return null;
@@ -169,6 +225,13 @@ class Server extends Component {
 
 		return (
 			<>
+				<WarnModal
+					player={warn.ctx}
+					show={warn.show}
+					onClose={this.closeModal('warn')}
+					inputRef={this.warnModalRef}
+				/>
+
 				<div>
 					<Heading headingStyle={'title'}>{server.name}</Heading>
 					<ServerSummary>
@@ -207,7 +270,14 @@ class Server extends Component {
 										mode={'all'}
 										perms={[flags.LOG_WARNING]}
 									>
-										<div>Warn</div>
+										<div
+											onClick={this.showModal(
+												'warn',
+												player
+											)}
+										>
+											Warn
+										</div>
 									</RequirePerms>
 									<RequirePerms
 										mode={'all'}
