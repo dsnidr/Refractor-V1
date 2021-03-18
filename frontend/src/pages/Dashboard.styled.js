@@ -21,7 +21,7 @@ export const Wrapper = styled.div`
 
 export const Sidebar = styled.div`
 	${(props) => css`
-		width: 22rem;
+		width: 23rem;
 		grid-row: 2;
 		grid-column: 1;
 		background-color: ${props.theme.colorBackgroundAlt};
