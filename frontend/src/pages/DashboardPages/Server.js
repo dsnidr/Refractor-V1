@@ -9,6 +9,7 @@ import RequirePerms from '../../components/RequirePerms';
 import { flags } from '../../permissions/permissions';
 import WarnModal from '../../components/modals/WarnModal';
 import KickModal from '../../components/modals/KickModal';
+import BanModal from '../../components/modals/BanModal';
 
 const ServerSummary = styled.div`
 	${(props) => css`
@@ -163,6 +164,7 @@ class Server extends Component {
 
 		this.warnModalRef = React.createRef();
 		this.kickModalRef = React.createRef();
+		this.banModalRef = React.createRef();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -196,7 +198,10 @@ class Server extends Component {
 				},
 			}),
 			() => {
-				this[`${type}ModalRef`].current.focus();
+				const ref = this[`${type}ModalRef`];
+				if (ref) {
+					ref.current.focus();
+				}
 			}
 		);
 	};
@@ -239,6 +244,13 @@ class Server extends Component {
 					show={kick.show}
 					onClose={this.closeModal('kick')}
 					inputRef={this.kickModalRef}
+				/>
+
+				<BanModal
+					player={ban.ctx}
+					show={ban.show}
+					onClose={this.closeModal('ban')}
+					inputRef={this.banModalRef}
 				/>
 
 				<div>
