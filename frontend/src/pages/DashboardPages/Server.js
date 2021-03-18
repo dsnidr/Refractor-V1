@@ -8,6 +8,7 @@ import StatusTag from '../../components/StatusTag';
 import RequirePerms from '../../components/RequirePerms';
 import { flags } from '../../permissions/permissions';
 import WarnModal from '../../components/modals/WarnModal';
+import KickModal from '../../components/modals/KickModal';
 
 const ServerSummary = styled.div`
 	${(props) => css`
@@ -161,6 +162,7 @@ class Server extends Component {
 		};
 
 		this.warnModalRef = React.createRef();
+		this.kickModalRef = React.createRef();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -194,7 +196,7 @@ class Server extends Component {
 				},
 			}),
 			() => {
-				this.warnModalRef.current.focus();
+				this[`${type}ModalRef`].current.focus();
 			}
 		);
 	};
@@ -215,7 +217,7 @@ class Server extends Component {
 
 	render() {
 		const { server, modals } = this.state;
-		const { warn } = modals;
+		const { warn, kick, ban } = modals;
 
 		if (!server) {
 			return null;
@@ -230,6 +232,13 @@ class Server extends Component {
 					show={warn.show}
 					onClose={this.closeModal('warn')}
 					inputRef={this.warnModalRef}
+				/>
+
+				<KickModal
+					player={kick.ctx}
+					show={kick.show}
+					onClose={this.closeModal('kick')}
+					inputRef={this.kickModalRef}
 				/>
 
 				<div>
@@ -283,13 +292,27 @@ class Server extends Component {
 										mode={'all'}
 										perms={[flags.LOG_KICK]}
 									>
-										<div>Kick</div>
+										<div
+											onClick={this.showModal(
+												'kick',
+												player
+											)}
+										>
+											Kick
+										</div>
 									</RequirePerms>
 									<RequirePerms
 										mode={'all'}
 										perms={[flags.LOG_BAN]}
 									>
-										<div>Ban</div>
+										<div
+											onClick={this.showModal(
+												'ban',
+												player
+											)}
+										>
+											Ban
+										</div>
 									</RequirePerms>
 								</PlayerButtons>
 							</Player>

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { reasonIsValid } from '../../utils/infractionUtils';
 import Modal, { ModalButtonBox, ModalContent } from '../Modal';
 import Alert from '../Alert';
-import Button from '../Button';
-import { reasonIsValid } from '../../utils/infractionUtils';
-import { connect } from 'react-redux';
 import TextArea from '../TextArea';
+import Button from '../Button';
 
-class WarnModal extends Component {
+class KickModal extends Component {
 	constructor(props) {
 		super(props);
 
@@ -60,7 +59,7 @@ class WarnModal extends Component {
 		if (!reasonIsValid(reason)) {
 			return this.setState((prevState) => ({
 				...prevState,
-				error: 'Please enter a reason for the warning',
+				error: 'Please enter a reason for the kick',
 			}));
 		}
 
@@ -72,12 +71,8 @@ class WarnModal extends Component {
 
 		reason = reason.trim();
 
-		// TODO: Create warning
+		// TODO: Create the kick
 		console.log('Creating warning:', player.id, reason);
-	};
-
-	focus = () => {
-		this.inputRef.focus();
 	};
 
 	render() {
@@ -86,11 +81,11 @@ class WarnModal extends Component {
 
 		return (
 			<Modal show={show} onContainerClick={this.onClose}>
-				<h1>Log a warning for {player.currentName}</h1>
+				<h1>Log a kick for {player.currentName}</h1>
 				<ModalContent>
 					<Alert type="success" message={success} />
 					<TextArea
-						placeholder={'Reason for warning'}
+						placeholder={'Reason for kick'}
 						onChange={this.onReasonChange}
 						error={error}
 						ref={inputRef}
@@ -105,7 +100,7 @@ class WarnModal extends Component {
 						color="primary"
 						onClick={this.onSubmit}
 					>
-						Submit Warning
+						Submit Kick
 					</Button>
 				</ModalButtonBox>
 			</Modal>
@@ -113,7 +108,7 @@ class WarnModal extends Component {
 	}
 }
 
-WarnModal.propTypes = {
+KickModal.propTypes = {
 	player: PropTypes.object,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
@@ -121,6 +116,4 @@ WarnModal.propTypes = {
 	inputRef: PropTypes.object,
 };
 
-const mapDispatchToProps = (dispatch) => ({});
-
-export default connect(null, mapDispatchToProps)(WarnModal);
+export default KickModal;
