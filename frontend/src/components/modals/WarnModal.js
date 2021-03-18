@@ -6,6 +6,9 @@ import Button from '../Button';
 import { reasonIsValid } from '../../utils/infractionUtils';
 import { connect } from 'react-redux';
 import TextArea from '../TextArea';
+import { createWarning } from '../../redux/infractions/infractionActions';
+import { setErrors } from '../../redux/error/errorActions';
+import { setSuccess } from '../../redux/success/successActions';
 
 class WarnModal extends Component {
 	constructor(props) {
@@ -13,15 +16,36 @@ class WarnModal extends Component {
 
 		this.state = {
 			player: null,
+			serverId: null,
 			reason: '',
-			error: null,
+			errors: {},
 			success: null,
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.success) {
+			prevState = {
+				...prevState,
+				errors: {},
+				success: nextProps.success,
+			};
+		}
+
+		if (nextProps.errors) {
+			prevState = {
+				...prevState,
+				errors: nextProps.errors,
+				success: {},
+			};
+		}
+
 		if (nextProps.player) {
 			prevState.player = nextProps.player;
+		}
+
+		if (nextProps.serverId) {
+			prevState.serverId = nextProps.serverId;
 		}
 
 		return prevState;
@@ -31,10 +55,15 @@ class WarnModal extends Component {
 		this.setState((prevState) => ({
 			...prevState,
 			player: null,
+			serverId: null,
 			reason: '',
-			error: null,
+			errors: {},
 			success: null,
 		}));
+
+		// Clear errors and success messages
+		this.props.clearErrors();
+		this.props.clearSuccess();
 
 		if (this.props.onClose) {
 			this.props.onClose();
@@ -54,26 +83,28 @@ class WarnModal extends Component {
 
 	onSubmit = () => {
 		let { reason } = this.state;
-		const { player } = this.state;
+		const { player, serverId } = this.state;
 
 		// Basic validation
 		if (!reasonIsValid(reason)) {
 			return this.setState((prevState) => ({
 				...prevState,
-				error: 'Please enter a reason for the warning',
+				errors: {
+					reason: 'Please enter a reason for the warning',
+				},
 			}));
 		}
 
 		// Clear error
 		this.setState((prevState) => ({
 			...prevState,
-			error: null,
+			errors: {},
 		}));
 
 		reason = reason.trim();
 
-		// TODO: Create warning
-		console.log('Creating warning:', player.id, reason);
+		// Create the warning
+		this.props.createWarning(serverId, player.id, { reason });
 	};
 
 	focus = () => {
@@ -81,8 +112,10 @@ class WarnModal extends Component {
 	};
 
 	render() {
-		const { player, success, error } = this.state;
+		const { player, success, errors } = this.state;
 		const { show, inputRef } = this.props;
+
+		console.log(success, errors);
 
 		return (
 			<Modal show={show} onContainerClick={this.onClose}>
@@ -92,7 +125,7 @@ class WarnModal extends Component {
 					<TextArea
 						placeholder={'Reason for warning'}
 						onChange={this.onReasonChange}
-						error={error}
+						error={errors.reason}
 						ref={inputRef}
 					/>
 				</ModalContent>
@@ -114,13 +147,24 @@ class WarnModal extends Component {
 }
 
 WarnModal.propTypes = {
-	player: PropTypes.object,
+	player: PropTypes.object.isRequired,
+	serverId: PropTypes.number.isRequired,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func,
 	inputRef: PropTypes.object,
 };
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapStateToProps = (state) => ({
+	success: state.success.createwarning,
+	errors: state.error.createwarning,
+});
 
-export default connect(null, mapDispatchToProps)(WarnModal);
+const mapDispatchToProps = (dispatch) => ({
+	createWarning: (serverId, playerId, data) =>
+		dispatch(createWarning(serverId, playerId, data)),
+	clearErrors: () => dispatch(setErrors('createwarning', undefined)),
+	clearSuccess: () => dispatch(setSuccess('createwarning', undefined)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(WarnModal);
