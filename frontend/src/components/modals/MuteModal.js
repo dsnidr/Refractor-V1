@@ -25,7 +25,7 @@ const Shortcuts = styled.div`
 	`}
 `;
 
-class BanModal extends Component {
+class MuteModal extends Component {
 	constructor(props) {
 		super(props);
 
@@ -144,16 +144,28 @@ class BanModal extends Component {
 
 		return (
 			<Modal show={show} onContainerClick={this.onClose}>
-				<h1>Log a ban for {player.currentName}</h1>
+				<h1>Log a mute for {player.currentName}</h1>
 				<ModalContent>
 					<Alert type="success" message={success} />
 					<TextArea
-						placeholder={'Reason for ban'}
+						placeholder={'Reason for mute'}
 						onChange={this.onReasonChange}
 						error={errors.reason}
 						ref={inputRef}
 					/>
 					<Shortcuts>
+						<span
+							minutes={30}
+							onClick={this.onDurationShortcutClick}
+						>
+							30 minutes
+						</span>
+						<span
+							minutes={60}
+							onClick={this.onDurationShortcutClick}
+						>
+							1 hour
+						</span>
 						<span
 							minutes={1440}
 							onClick={this.onDurationShortcutClick}
@@ -167,12 +179,6 @@ class BanModal extends Component {
 							1 week
 						</span>
 						<span
-							minutes={40320}
-							onClick={this.onDurationShortcutClick}
-						>
-							1 month
-						</span>
-						<span
 							minutes={0}
 							onClick={this.onDurationShortcutClick}
 						>
@@ -181,7 +187,7 @@ class BanModal extends Component {
 					</Shortcuts>
 					<TextInput
 						type={'text'}
-						placeholder={'Ban duration (minutes)'}
+						placeholder={'Mute duration (minutes)'}
 						onKeyPress={this.onDurationKeyPress}
 						onChange={this.onDurationChange}
 						value={duration}
@@ -197,7 +203,7 @@ class BanModal extends Component {
 						color="primary"
 						onClick={this.onSubmit}
 					>
-						Submit Ban
+						Submit Mute
 					</Button>
 				</ModalButtonBox>
 			</Modal>
@@ -205,7 +211,7 @@ class BanModal extends Component {
 	}
 }
 
-BanModal.propTypes = {
+MuteModal.propTypes = {
 	player: PropTypes.object,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
@@ -213,4 +219,4 @@ BanModal.propTypes = {
 	inputRef: PropTypes.object,
 };
 
-export default BanModal;
+export default MuteModal;
