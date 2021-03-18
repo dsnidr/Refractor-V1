@@ -218,7 +218,7 @@ class Server extends Component {
 
 	render() {
 		const { server, modals } = this.state;
-		const { warn, kick, ban, mute } = modals;
+		const { warn, kick, ban } = modals;
 
 		if (!server) {
 			return null;
@@ -230,6 +230,7 @@ class Server extends Component {
 			<>
 				<WarnModal
 					player={warn.ctx}
+					serverId={server.id}
 					show={warn.show}
 					onClose={this.closeModal('warn')}
 					inputRef={this.warnModalRef}
