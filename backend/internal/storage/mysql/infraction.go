@@ -77,6 +77,29 @@ func (r *infractionRepo) FindOne(args refractor.FindArgs) (*refractor.Infraction
 	return foundInfraction.Infraction(), nil
 }
 
+func (r *infractionRepo) FindMany(args refractor.FindArgs) ([]*refractor.Infraction, error) {
+	query, values := buildFindQuery("Infractions", args)
+
+	rows, err := r.db.Query(query, values...)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	var foundInfractions []*refractor.Infraction
+
+	for rows.Next() {
+		infraction := &refractor.DBInfraction{}
+
+		if err := r.scanRows(rows, infraction); err != nil {
+			return nil, wrapError(err)
+		}
+
+		foundInfractions = append(foundInfractions, infraction.Infraction())
+	}
+
+	return foundInfractions, nil
+}
+
 func (r *infractionRepo) FindManyByPlayerID(playerID int64) ([]*refractor.Infraction, error) {
 	query := "SELECT * FROM Infractions WHERE PlayerID = ?;"
 

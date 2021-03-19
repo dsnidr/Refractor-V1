@@ -60,6 +60,7 @@ type InfractionRepository interface {
 	FindByID(id int64) (*Infraction, error)
 	Exists(args FindArgs) (bool, error)
 	FindOne(args FindArgs) (*Infraction, error)
+	FindMany(args FindArgs) ([]*Infraction, error)
 	FindManyByPlayerID(playerID int64) ([]*Infraction, error)
 	FindAll() ([]*Infraction, error)
 	Update(id int64, args UpdateArgs) (*Infraction, error)
@@ -73,6 +74,7 @@ type InfractionService interface {
 	CreateBan(userID int64, body params.CreateBanParams) (*Infraction, *ServiceResponse)
 	DeleteInfraction(id int64, user params.UserMeta) *ServiceResponse
 	UpdateInfraction(id int64, body params.UpdateInfractionParams) (*Infraction, *ServiceResponse)
+	GetInfractions(infractionType string, playerID int64) ([]*Infraction, *ServiceResponse)
 }
 
 type InfractionHandler interface {
@@ -82,4 +84,5 @@ type InfractionHandler interface {
 	CreateBan(c echo.Context) error
 	DeleteInfraction(c echo.Context) error
 	UpdateInfraction(c echo.Context) error
+	GetInfractions(infractionType string) echo.HandlerFunc
 }
