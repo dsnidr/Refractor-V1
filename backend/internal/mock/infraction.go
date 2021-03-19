@@ -136,6 +136,51 @@ func (r *mockInfractionsRepo) FindOne(args refractor.FindArgs) (*refractor.Infra
 	return nil, refractor.ErrNotFound
 }
 
+func (r *mockInfractionsRepo) FindMany(args refractor.FindArgs) ([]*refractor.Infraction, error) {
+	var infractions []*refractor.Infraction
+
+	for _, infraction := range r.infractions {
+		if args["InfractionID"] != nil && args["InfractionID"].(int64) != infraction.InfractionID {
+			continue
+		}
+
+		if args["PlayerID"] != nil && args["PlayerID"].(int64) != infraction.PlayerID {
+			continue
+		}
+
+		if args["UserID"] != nil && args["UserID"].(int64) != infraction.UserID {
+			continue
+		}
+
+		if args["ServerID"] != nil && args["ServerID"].(int64) != infraction.ServerID {
+			continue
+		}
+
+		if args["Type"] != nil && args["Type"].(string) != infraction.Type {
+			continue
+		}
+
+		if args["Reason"] != nil && args["Reason"].(string) != infraction.Reason.String {
+			continue
+		}
+
+		if args["Duration"] != nil && args["Duration"].(int32) != infraction.Duration.Int32 {
+			continue
+		}
+
+		// If none of the above conditions failed, append since this infraction is a match
+		infractions = append(infractions, infraction.Infraction())
+	}
+
+	// If no matches were found, return ErrNotFound
+	if len(infractions) < 1 {
+		return nil, refractor.ErrNotFound
+	}
+
+	// Otherwise return the matches
+	return infractions, nil
+}
+
 func (r *mockInfractionsRepo) FindAll() ([]*refractor.Infraction, error) {
 	var allServers []*refractor.Infraction
 
