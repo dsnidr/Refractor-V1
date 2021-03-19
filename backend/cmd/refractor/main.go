@@ -17,6 +17,7 @@ import (
 	"github.com/sniddunc/refractor/internal/rcon"
 	"github.com/sniddunc/refractor/internal/server"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
+	"github.com/sniddunc/refractor/internal/summary"
 	"github.com/sniddunc/refractor/internal/user"
 	"github.com/sniddunc/refractor/internal/watchdog"
 	"github.com/sniddunc/refractor/internal/websocket"
@@ -103,6 +104,9 @@ func main() {
 	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, loggerInst)
 	infractionHandler := api.NewInfractionHandler(infractionService)
 
+	summaryService := summary.NewSummaryService(playerService, infractionService, loggerInst)
+	summaryHandler := api.NewSummaryHandler(summaryService)
+
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
 		if err := setupInitialUser(userService); err != nil {
@@ -127,6 +131,7 @@ func main() {
 		ServerHandler:     serverHandler,
 		GameServerHandler: gameServerHandler,
 		InfractionHandler: infractionHandler,
+		SummaryHandler:    summaryHandler,
 	}
 
 	// Done. Begin serving.

@@ -27,6 +27,7 @@ type Handlers struct {
 	ServerHandler     refractor.ServerHandler
 	GameServerHandler refractor.GameServerHandler
 	InfractionHandler refractor.InfractionHandler
+	SummaryHandler    refractor.SummaryHandler
 }
 
 type Response struct {
@@ -106,6 +107,14 @@ func (api *API) setupRoutes() {
 	infractionGroup.POST("/ban", api.InfractionHandler.CreateBan, api.RequirePerms(perms.LOG_BAN))
 	infractionGroup.DELETE("/:id", api.InfractionHandler.DeleteInfraction, api.RequireOneOfPerms(perms.DELETE_OWN_INFRACTIONS, perms.DELETE_ANY_INFRACTION))
 	infractionGroup.PATCH("/:id", api.InfractionHandler.UpdateInfraction, api.RequireOneOfPerms(perms.EDIT_OWN_INFRACTIONS, perms.EDIT_ANY_INFRACTION))
+	infractionGroup.GET("/:id/warnings", api.InfractionHandler.GetPlayerInfractions(refractor.INFRACTION_TYPE_WARNING))
+	infractionGroup.GET("/:id/mutes", api.InfractionHandler.GetPlayerInfractions(refractor.INFRACTION_TYPE_MUTE))
+	infractionGroup.GET("/:id/kicks", api.InfractionHandler.GetPlayerInfractions(refractor.INFRACTION_TYPE_KICK))
+	infractionGroup.GET("/:id/bans", api.InfractionHandler.GetPlayerInfractions(refractor.INFRACTION_TYPE_BAN))
+
+	// Player endpoints
+	playerGroup := apiGroup.Group("/players", jwtMiddleware, AttachClaims())
+	playerGroup.GET("/summary/:id", api.SummaryHandler.GetPlayerSummary)
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)
