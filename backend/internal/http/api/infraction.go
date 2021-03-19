@@ -144,3 +144,24 @@ func (h *infractionHandler) UpdateInfraction(c echo.Context) error {
 		Payload: updatedInfraction,
 	})
 }
+
+func (h *infractionHandler) GetPlayerInfractions(infractionType string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		idString := c.Param("id")
+
+		playerID, err := strconv.ParseInt(idString, 10, 32)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, Response{
+				Success: false,
+				Message: config.MessageInvalidIDProvided,
+			})
+		}
+
+		infractions, res := h.service.GetPlayerInfractionsType(infractionType, playerID)
+		return c.JSON(res.StatusCode, Response{
+			Success: res.Success,
+			Message: res.Message,
+			Payload: infractions,
+		})
+	}
+}

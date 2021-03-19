@@ -612,7 +612,7 @@ func Test_infractionService_GetPlayerInfractions(t *testing.T) {
 			mockInfractionRepo := mock.NewMockInfractionRepository(tt.fields.mockInfractions)
 			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, testLogger)
 
-			foundInfractions, res := infractionService.GetPlayerInfractions(tt.args.infractionType, tt.args.playerID)
+			foundInfractions, res := infractionService.GetPlayerInfractionsType(tt.args.infractionType, tt.args.playerID)
 
 			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
 

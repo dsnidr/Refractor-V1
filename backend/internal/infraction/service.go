@@ -259,7 +259,7 @@ func (s *infractionService) UpdateInfraction(id int64, body params.UpdateInfract
 	}
 }
 
-func (s *infractionService) GetPlayerInfractions(infractionType string, playerID int64) ([]*refractor.Infraction, *refractor.ServiceResponse) {
+func (s *infractionService) GetPlayerInfractionsType(infractionType string, playerID int64) ([]*refractor.Infraction, *refractor.ServiceResponse) {
 	infractions, err := s.repo.FindMany(refractor.FindArgs{
 		"PlayerID": playerID,
 		"Type":     infractionType,
@@ -274,6 +274,28 @@ func (s *infractionService) GetPlayerInfractions(infractionType string, playerID
 		}
 
 		s.log.Error("Could not find many infractions. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return infractions, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Fetched %d infractions", len(infractions)),
+	}
+}
+
+func (s *infractionService) GetPlayerInfractions(playerID int64) ([]*refractor.Infraction, *refractor.ServiceResponse) {
+	infractions, err := s.repo.FindManyByPlayerID(playerID)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return []*refractor.Infraction{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Fetched 0 infractions",
+			}
+		}
+
+		s.log.Error("Could not find many infractions by player ID. Error: %v", err)
 		return nil, refractor.InternalErrorResponse
 	}
 

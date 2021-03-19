@@ -74,7 +74,8 @@ type InfractionService interface {
 	CreateBan(userID int64, body params.CreateBanParams) (*Infraction, *ServiceResponse)
 	DeleteInfraction(id int64, user params.UserMeta) *ServiceResponse
 	UpdateInfraction(id int64, body params.UpdateInfractionParams) (*Infraction, *ServiceResponse)
-	GetPlayerInfractions(infractionType string, playerID int64) ([]*Infraction, *ServiceResponse)
+	GetPlayerInfractionsType(infractionType string, playerID int64) ([]*Infraction, *ServiceResponse)
+	GetPlayerInfractions(playerID int64) ([]*Infraction, *ServiceResponse)
 }
 
 type InfractionHandler interface {
