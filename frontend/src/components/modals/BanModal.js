@@ -7,6 +7,11 @@ import Button from '../Button';
 import { reasonIsValid } from '../../utils/infractionUtils';
 import styled, { css } from 'styled-components';
 import TextInput from '../TextInput';
+import { createBan } from '../../redux/infractions/infractionActions';
+import { setErrors } from '../../redux/error/errorActions';
+import { setSuccess } from '../../redux/success/successActions';
+import { connect } from 'react-redux';
+import { getModalStateFromProps } from './modalHelpers';
 
 const Shortcuts = styled.div`
 	${(props) => css`
@@ -33,20 +38,13 @@ class BanModal extends Component {
 			player: null,
 			reason: '',
 			duration: '',
-			errors: {
-				reason: null,
-				duration: null,
-			},
+			errors: {},
 			success: null,
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.player) {
-			prevState.player = nextProps.player;
-		}
-
-		return prevState;
+		return getModalStateFromProps(nextProps, prevState);
 	}
 
 	onClose = () => {
@@ -58,6 +56,10 @@ class BanModal extends Component {
 			errors: {},
 			success: null,
 		}));
+
+		// Clear errors and success messages
+		this.props.clearErrors();
+		this.props.clearSuccess();
 
 		if (this.props.onClose) {
 			this.props.onClose();
@@ -107,7 +109,7 @@ class BanModal extends Component {
 
 	onSubmit = () => {
 		let { reason } = this.state;
-		const { player, duration } = this.state;
+		const { player, serverId, duration } = this.state;
 
 		let errorsExist = false;
 		const errors = {};
@@ -134,13 +136,16 @@ class BanModal extends Component {
 
 		reason = reason.trim();
 
-		// TODO: Create the mute
-		console.log('Create mute', player.id, reason, duration);
+		this.props.createBan(serverId, player.id, { reason, duration });
 	};
 
 	render() {
 		const { player, success, errors, duration } = this.state;
 		const { show, inputRef } = this.props;
+
+		if (success) {
+			setTimeout(() => this.onClose(), 1500);
+		}
 
 		return (
 			<Modal show={show} onContainerClick={this.onClose}>
@@ -207,10 +212,23 @@ class BanModal extends Component {
 
 BanModal.propTypes = {
 	player: PropTypes.object,
+	serverId: PropTypes.number.isRequired,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func,
 	inputRef: PropTypes.object,
 };
 
-export default BanModal;
+const mapStateToProps = (state) => ({
+	success: state.success.createban,
+	errors: state.error.createban,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+	createBan: (serverId, playerId, data) =>
+		dispatch(createBan(serverId, playerId, data)),
+	clearErrors: () => dispatch(setErrors('createban', undefined)),
+	clearSuccess: () => dispatch(setSuccess('createban', undefined)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(BanModal);

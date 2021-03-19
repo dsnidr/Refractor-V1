@@ -238,6 +238,7 @@ class Server extends Component {
 
 				<KickModal
 					player={kick.ctx}
+					serverId={server.id}
 					show={kick.show}
 					onClose={this.closeModal('kick')}
 					inputRef={this.kickModalRef}
@@ -245,6 +246,7 @@ class Server extends Component {
 
 				<BanModal
 					player={ban.ctx}
+					serverId={server.id}
 					show={ban.show}
 					onClose={this.closeModal('ban')}
 					inputRef={this.banModalRef}
