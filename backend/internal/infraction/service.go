@@ -2,6 +2,7 @@ package infraction
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/sniddunc/bitperms"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/pkg/config"
@@ -255,5 +256,30 @@ func (s *infractionService) UpdateInfraction(id int64, body params.UpdateInfract
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Infraction updated",
+	}
+}
+
+func (s *infractionService) GetPlayerInfractions(infractionType string, playerID int64) ([]*refractor.Infraction, *refractor.ServiceResponse) {
+	infractions, err := s.repo.FindMany(refractor.FindArgs{
+		"PlayerID": playerID,
+		"Type":     infractionType,
+	})
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return []*refractor.Infraction{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Fetched 0 infractions",
+			}
+		}
+
+		s.log.Error("Could not find many infractions. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return infractions, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Fetched %d infractions", len(infractions)),
 	}
 }

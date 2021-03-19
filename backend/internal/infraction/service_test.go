@@ -505,6 +505,124 @@ func Test_infractionService_UpdateInfraction(t *testing.T) {
 	}
 }
 
+func Test_infractionService_GetPlayerInfractions(t *testing.T) {
+	testLogger, _ := log.NewLogger(true, false)
+
+	type fields struct {
+		mockInfractions map[int64]*refractor.DBInfraction
+	}
+	type args struct {
+		infractionType string
+		playerID       int64
+	}
+	tests := []struct {
+		name            string
+		fields          fields
+		args            args
+		wantInfractions []*refractor.Infraction
+		wantRes         *refractor.ServiceResponse
+	}{
+		{
+			name: "infraction.getplayerinfractions.1",
+			fields: fields{
+				mockInfractions: map[int64]*refractor.DBInfraction{
+					1: {
+						InfractionID: 1,
+						PlayerID:     1,
+						UserID:       1,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_WARNING,
+						Reason:       sql.NullString{String: strings.Repeat("a", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 0, Valid: false},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+					2: {
+						InfractionID: 2,
+						PlayerID:     1,
+						UserID:       1,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_WARNING,
+						Reason:       sql.NullString{String: strings.Repeat("b", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 0, Valid: false},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+					3: {
+						InfractionID: 3,
+						PlayerID:     2,
+						UserID:       1,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_WARNING,
+						Reason:       sql.NullString{String: strings.Repeat("c", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 0, Valid: false},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+					4: {
+						InfractionID: 4,
+						PlayerID:     1,
+						UserID:       1,
+						ServerID:     1,
+						Type:         refractor.INFRACTION_TYPE_KICK,
+						Reason:       sql.NullString{String: strings.Repeat("d", config.InfractionReasonMinLen), Valid: true},
+						Duration:     sql.NullInt32{Int32: 1440, Valid: true},
+						Timestamp:    0,
+						SystemAction: false,
+					},
+				},
+			},
+			args: args{
+				infractionType: refractor.INFRACTION_TYPE_WARNING,
+				playerID:       1,
+			},
+			wantInfractions: []*refractor.Infraction{
+				{
+					InfractionID: 1,
+					PlayerID:     1,
+					UserID:       1,
+					ServerID:     1,
+					Type:         refractor.INFRACTION_TYPE_WARNING,
+					Reason:       strings.Repeat("a", config.InfractionReasonMinLen),
+					Duration:     0,
+					Timestamp:    0,
+					SystemAction: false,
+				},
+				{
+					InfractionID: 2,
+					PlayerID:     1,
+					UserID:       1,
+					ServerID:     1,
+					Type:         refractor.INFRACTION_TYPE_WARNING,
+					Reason:       strings.Repeat("b", config.InfractionReasonMinLen),
+					Duration:     0,
+					Timestamp:    0,
+					SystemAction: false,
+				},
+			},
+			wantRes: &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Fetched 2 infractions",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockInfractionRepo := mock.NewMockInfractionRepository(tt.fields.mockInfractions)
+			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, testLogger)
+
+			foundInfractions, res := infractionService.GetPlayerInfractions(tt.args.infractionType, tt.args.playerID)
+
+			assert.True(t, tt.wantRes.Equals(res), "tt.wantRes = %v and res = %v should be equal", tt.wantRes, res)
+
+			if tt.wantRes.Success {
+				assert.Equal(t, tt.wantInfractions, foundInfractions, "Infraction slices were not equal")
+			}
+		})
+	}
+}
+
 // infractionsAreEqual compares the following fields to determine is two infractions are equal:
 // InfractionID, PlayerID, ServerID, UserID, Type, Reason, SystemAction
 func infractionsAreEqual(infraction1 *refractor.Infraction, infraction2 *refractor.Infraction) bool {
