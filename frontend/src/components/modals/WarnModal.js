@@ -9,6 +9,7 @@ import TextArea from '../TextArea';
 import { createWarning } from '../../redux/infractions/infractionActions';
 import { setErrors } from '../../redux/error/errorActions';
 import { setSuccess } from '../../redux/success/successActions';
+import { getModalStateFromProps } from './modalHelpers';
 
 class WarnModal extends Component {
 	constructor(props) {
@@ -24,31 +25,7 @@ class WarnModal extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.success) {
-			prevState = {
-				...prevState,
-				errors: {},
-				success: nextProps.success,
-			};
-		}
-
-		if (nextProps.errors) {
-			prevState = {
-				...prevState,
-				errors: nextProps.errors,
-				success: {},
-			};
-		}
-
-		if (nextProps.player) {
-			prevState.player = nextProps.player;
-		}
-
-		if (nextProps.serverId) {
-			prevState.serverId = nextProps.serverId;
-		}
-
-		return prevState;
+		return getModalStateFromProps(nextProps, prevState);
 	}
 
 	onClose = () => {
@@ -115,7 +92,9 @@ class WarnModal extends Component {
 		const { player, success, errors } = this.state;
 		const { show, inputRef } = this.props;
 
-		console.log(success, errors);
+		if (success) {
+			setTimeout(() => this.onClose(), 1500);
+		}
 
 		return (
 			<Modal show={show} onContainerClick={this.onClose}>

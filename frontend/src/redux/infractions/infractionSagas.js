@@ -7,7 +7,12 @@ import {
 } from './infractionActions';
 import { setErrors } from '../error/errorActions';
 import { setSuccess } from '../success/successActions';
-import { createWarning } from '../../api/infractionApi';
+import {
+	createBan,
+	createKick,
+	createMute,
+	createWarning,
+} from '../../api/infractionApi';
 
 function* createWarningAsync(action) {
 	try {
@@ -16,8 +21,6 @@ function* createWarningAsync(action) {
 			serverId: action.serverId,
 			...action.payload,
 		});
-
-		console.log('Warning created', data);
 
 		yield put(setSuccess('createwarning', 'Warning logged'));
 		yield put(setErrors('createwarning', undefined));
@@ -35,11 +38,68 @@ function* createWarningAsync(action) {
 	}
 }
 
-function* createMuteAsync(action) {}
+function* createMuteAsync(action) {
+	try {
+		const { data } = yield call(createMute, {
+			playerId: action.playerId,
+			serverId: action.serverId,
+			...action.payload,
+		});
 
-function* createKickAsync(action) {}
+		yield put(setSuccess('createmute', 'Mute logged'));
+		yield put(setErrors('createmute', undefined));
+	} catch (err) {
+		console.log('Could not create mute', err);
+		const { data } = err.response;
 
-function* createBanAsync(action) {}
+		yield put(setSuccess('createmute', undefined));
+		yield put(
+			setErrors('createmute', !data.errors ? data.message : data.errors)
+		);
+	}
+}
+
+function* createKickAsync(action) {
+	try {
+		const { data } = yield call(createKick, {
+			playerId: action.playerId,
+			serverId: action.serverId,
+			...action.payload,
+		});
+
+		yield put(setSuccess('createkick', 'Kick logged'));
+		yield put(setErrors('createkick', undefined));
+	} catch (err) {
+		console.log('Could not create kick', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('createkick', undefined));
+		yield put(
+			setErrors('createkick', !data.errors ? data.message : data.errors)
+		);
+	}
+}
+
+function* createBanAsync(action) {
+	try {
+		const { data } = yield call(createBan, {
+			playerId: action.playerId,
+			serverId: action.serverId,
+			...action.payload,
+		});
+
+		yield put(setSuccess('createban', 'Ban logged'));
+		yield put(setErrors('createban', undefined));
+	} catch (err) {
+		console.log('Could not create ban', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('createban', undefined));
+		yield put(
+			setErrors('createban', !data.errors ? data.message : data.errors)
+		);
+	}
+}
 
 function* watchCreateWarning() {
 	yield takeLatest(CREATE_WARNING, createWarningAsync);

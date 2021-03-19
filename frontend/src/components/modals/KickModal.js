@@ -5,6 +5,11 @@ import Modal, { ModalButtonBox, ModalContent } from '../Modal';
 import Alert from '../Alert';
 import TextArea from '../TextArea';
 import Button from '../Button';
+import { createKick } from '../../redux/infractions/infractionActions';
+import { setErrors } from '../../redux/error/errorActions';
+import { setSuccess } from '../../redux/success/successActions';
+import { connect } from 'react-redux';
+import { getModalStateFromProps } from './modalHelpers';
 
 class KickModal extends Component {
 	constructor(props) {
@@ -13,27 +18,28 @@ class KickModal extends Component {
 		this.state = {
 			player: null,
 			reason: '',
-			error: null,
+			errors: {},
 			success: null,
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.player) {
-			prevState.player = nextProps.player;
-		}
-
-		return prevState;
+		return getModalStateFromProps(nextProps, prevState);
 	}
 
 	onClose = () => {
 		this.setState((prevState) => ({
 			...prevState,
 			player: null,
+			serverId: null,
 			reason: '',
-			error: null,
+			errors: {},
 			success: null,
 		}));
+
+		// Clear errors and success messages
+		this.props.clearErrors();
+		this.props.clearSuccess();
 
 		if (this.props.onClose) {
 			this.props.onClose();
@@ -53,7 +59,7 @@ class KickModal extends Component {
 
 	onSubmit = () => {
 		let { reason } = this.state;
-		const { player } = this.state;
+		const { player, serverId } = this.state;
 
 		// Basic validation
 		if (!reasonIsValid(reason)) {
@@ -71,13 +77,16 @@ class KickModal extends Component {
 
 		reason = reason.trim();
 
-		// TODO: Create the kick
-		console.log('Creating warning:', player.id, reason);
+		this.props.createKick(serverId, player.id, { reason });
 	};
 
 	render() {
 		const { player, success, error } = this.state;
 		const { show, inputRef } = this.props;
+
+		if (success) {
+			setTimeout(() => this.onClose(), 1500);
+		}
 
 		return (
 			<Modal show={show} onContainerClick={this.onClose}>
@@ -110,10 +119,23 @@ class KickModal extends Component {
 
 KickModal.propTypes = {
 	player: PropTypes.object,
+	serverId: PropTypes.number.isRequired,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func,
 	inputRef: PropTypes.object,
 };
 
-export default KickModal;
+const mapStateToProps = (state) => ({
+	success: state.success.createkick,
+	errors: state.error.createkick,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+	createKick: (serverId, playerId, data) =>
+		dispatch(createKick(serverId, playerId, data)),
+	clearErrors: () => dispatch(setErrors('createkick', undefined)),
+	clearSuccess: () => dispatch(setSuccess('createkick', undefined)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(KickModal);

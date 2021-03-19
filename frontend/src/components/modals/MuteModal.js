@@ -7,6 +7,11 @@ import Button from '../Button';
 import { reasonIsValid } from '../../utils/infractionUtils';
 import styled, { css } from 'styled-components';
 import TextInput from '../TextInput';
+import { createMute } from '../../redux/infractions/infractionActions';
+import { setErrors } from '../../redux/error/errorActions';
+import { setSuccess } from '../../redux/success/successActions';
+import { connect } from 'react-redux';
+import { getModalStateFromProps } from './modalHelpers';
 
 const Shortcuts = styled.div`
 	${(props) => css`
@@ -31,28 +36,23 @@ class MuteModal extends Component {
 
 		this.state = {
 			player: null,
+			serverId: null,
 			reason: '',
 			duration: '',
-			errors: {
-				reason: null,
-				duration: null,
-			},
+			errors: {},
 			success: null,
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.player) {
-			prevState.player = nextProps.player;
-		}
-
-		return prevState;
+		return getModalStateFromProps(nextProps, prevState);
 	}
 
 	onClose = () => {
 		this.setState((prevState) => ({
 			...prevState,
 			player: null,
+			serverId: null,
 			reason: '',
 			duration: '',
 			errors: {},
@@ -106,11 +106,13 @@ class MuteModal extends Component {
 	};
 
 	onSubmit = () => {
-		let { reason } = this.state;
-		const { player, duration } = this.state;
+		let { reason, errors: prevErrors } = this.state;
+		const { player, serverId, duration } = this.state;
 
 		let errorsExist = false;
-		const errors = {};
+		const errors = {
+			...prevErrors,
+		};
 
 		// Basic validation
 		if (!reasonIsValid(reason)) {
@@ -134,13 +136,16 @@ class MuteModal extends Component {
 
 		reason = reason.trim();
 
-		// TODO: Create the mute
-		console.log('Create mute', player.id, reason, duration);
+		this.props.createMute(serverId, player.id, { reason, duration });
 	};
 
 	render() {
 		const { player, success, errors, duration } = this.state;
 		const { show, inputRef } = this.props;
+
+		if (success) {
+			setTimeout(() => this.onClose(), 1500);
+		}
 
 		return (
 			<Modal show={show} onContainerClick={this.onClose}>
@@ -213,10 +218,23 @@ class MuteModal extends Component {
 
 MuteModal.propTypes = {
 	player: PropTypes.object,
+	serverId: PropTypes.number.isRequired,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func,
 	inputRef: PropTypes.object,
 };
 
-export default MuteModal;
+const mapStateToProps = (state) => ({
+	success: state.success.createmute,
+	errors: state.error.createmute,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+	createMute: (serverId, playerId, data) =>
+		dispatch(createMute(serverId, playerId, data)),
+	clearErrors: () => dispatch(setErrors('createmute', undefined)),
+	clearSuccess: () => dispatch(setSuccess('createmute', undefined)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(MuteModal);
