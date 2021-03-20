@@ -29,7 +29,7 @@ func (s *summaryService) GetPlayerSummary(playerID int64) (*refractor.PlayerSumm
 
 	// Get all player infractions
 	infractions, res := s.infractionService.GetPlayerInfractions(playerID)
-	if !res.Success || infractions == nil {
+	if !res.Success {
 		return nil, res
 	}
 
