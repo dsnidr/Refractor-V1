@@ -25,7 +25,7 @@ type Infraction struct {
 	Duration     int    `json:"duration"`
 	Timestamp    int64  `json:"timestamp"`
 	SystemAction bool   `json:"systemAction"`
-	StaffName    string `json:"-"` // not a database field
+	StaffName    string `json:"staffName"` // not a database field
 }
 
 type DBInfraction struct {

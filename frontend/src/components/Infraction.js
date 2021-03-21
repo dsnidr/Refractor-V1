@@ -2,6 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { respondTo } from '../mixins/respondTo';
 import PropTypes from 'prop-types';
+import { buildTimeRemainingString } from '../utils/timeUtils';
 
 const InfractionBox = styled.div`
 	${(props) => css`
@@ -46,12 +47,13 @@ const Infraction = (props) => {
 			</MetaDisplay>
 			{props.duration && (
 				<MetaDisplay>
-					<span>Duration:</span> {props.duration}
+					<span>Duration:</span> {props.duration} minutes
 				</MetaDisplay>
 			)}
 			{props.remaining && (
 				<MetaDisplay>
-					<span>Remaining:</span> {props.remaining}
+					<span>Time left:</span>{' '}
+					{buildTimeRemainingString(props.remaining)}
 				</MetaDisplay>
 			)}
 			<InfractionInfo>{props.reason}</InfractionInfo>

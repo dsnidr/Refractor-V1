@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { getPlayerSummary } from '../../redux/players/playerActions';
 import styled, { css } from 'styled-components';
 import respondTo from '../../mixins/respondTo';
-import { timestampToDateTime } from '../../utils/timeUtils';
+import { timestampToDateTime, getTimeRemaining } from '../../utils/timeUtils';
 import Button from '../../components/Button';
 import Infraction from '../../components/Infraction';
 
@@ -190,26 +190,107 @@ class Player extends Component {
 				</div>
 
 				<InfractionSection>
-					<Heading headingStyle={'subtitle'}>Warnings</Heading>
-					<Infraction
-						date={'2021-02-20'}
-						issuer={'Void'}
-						duration={1000}
-						remaining={'60 minutes'}
-						reason={''}
-					/>
+					{warnings.length > 0 ? (
+						<>
+							<Heading headingStyle={'subtitle'}>
+								Warnings
+							</Heading>
+							{warnings.map(
+								(warning) =>
+									warning !== undefined && (
+										<Infraction
+											date={timestampToDateTime(
+												warning.timestamp
+											)}
+											issuer={warning.staffName}
+											reason={warning.reason}
+										/>
+									)
+							)}
+						</>
+					) : (
+						<Heading headingStyle="subtitle">
+							No warnings on record
+						</Heading>
+					)}
 				</InfractionSection>
 
 				<InfractionSection>
-					<Heading headingStyle={'subtitle'}>Mutes</Heading>
+					{mutes.length > 0 ? (
+						<>
+							<Heading headingStyle={'subtitle'}>Mutes</Heading>
+							{mutes.map(
+								(mute) =>
+									mute !== undefined && (
+										<Infraction
+											date={timestampToDateTime(
+												mute.timestamp
+											)}
+											issuer={mute.staffName}
+											reason={mute.reason}
+											duration={mute.duration}
+										/>
+									)
+							)}
+						</>
+					) : (
+						<Heading headingStyle="subtitle">
+							No mutes on record
+						</Heading>
+					)}
 				</InfractionSection>
 
 				<InfractionSection>
-					<Heading headingStyle={'subtitle'}>Kicks</Heading>
+					{kicks.length > 0 ? (
+						<>
+							<Heading headingStyle={'subtitle'}>Kicks</Heading>
+							{kicks.map(
+								(kick) =>
+									kick !== undefined && (
+										<Infraction
+											date={timestampToDateTime(
+												kick.timestamp
+											)}
+											issuer={kick.staffName}
+											reason={kick.reason}
+										/>
+									)
+							)}
+						</>
+					) : (
+						<Heading headingStyle="subtitle">
+							No kicks on record
+						</Heading>
+					)}
 				</InfractionSection>
 
 				<InfractionSection>
-					<Heading headingStyle={'subtitle'}>Bans</Heading>
+					{bans.length > 0 ? (
+						<>
+							<Heading headingStyle={'subtitle'}>Bans</Heading>
+							{bans.map(
+								(ban) =>
+									ban !== undefined && (
+										<Infraction
+											date={timestampToDateTime(
+												ban.timestamp
+											)}
+											issuer={ban.staffName}
+											reason={ban.reason}
+											duration={ban.duration}
+											remaining={getTimeRemaining(
+												ban.timestamp,
+												ban.duration
+											)}
+										/>
+									)
+							)}
+						</>
+					) : (
+						<Heading headingStyle="subtitle">
+							No bans on record
+						</Heading>
+					)}
 				</InfractionSection>
 			</>
 		);
