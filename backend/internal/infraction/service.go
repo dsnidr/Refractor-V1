@@ -18,15 +18,17 @@ type infractionService struct {
 	repo          refractor.InfractionRepository
 	playerService refractor.PlayerService
 	serverService refractor.ServerService
+	userService   refractor.UserService
 	log           log.Logger
 }
 
 func NewInfractionService(repo refractor.InfractionRepository, playerService refractor.PlayerService,
-	serverService refractor.ServerService, log log.Logger) refractor.InfractionService {
+	serverService refractor.ServerService, userService refractor.UserService, log log.Logger) refractor.InfractionService {
 	return &infractionService{
 		repo:          repo,
 		playerService: playerService,
 		serverService: serverService,
+		userService:   userService,
 		log:           log,
 	}
 }
@@ -277,6 +279,18 @@ func (s *infractionService) GetPlayerInfractionsType(infractionType string, play
 		return nil, refractor.InternalErrorResponse
 	}
 
+	// Get staff names
+	for _, infraction := range infractions {
+		user, err := s.userService.GetUserByID(infraction.UserID)
+		if err != nil {
+			s.log.Error("Could not get infraction user by ID. Error: %v", err)
+			continue
+		}
+
+		// Set StaffName to contain the staff member's username
+		infraction.StaffName = user.Username
+	}
+
 	return infractions, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
@@ -297,6 +311,18 @@ func (s *infractionService) GetPlayerInfractions(playerID int64) ([]*refractor.I
 
 		s.log.Error("Could not find many infractions by player ID. Error: %v", err)
 		return nil, refractor.InternalErrorResponse
+	}
+
+	// Get staff names
+	for _, infraction := range infractions {
+		user, err := s.userService.GetUserByID(infraction.UserID)
+		if err != nil {
+			s.log.Error("Could not get infraction user by ID. Error: %v", err)
+			continue
+		}
+
+		// Set StaffName to contain the staff member's username
+		infraction.StaffName = user.Username
 	}
 
 	return infractions, &refractor.ServiceResponse{
