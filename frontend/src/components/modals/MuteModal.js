@@ -12,6 +12,7 @@ import { setErrors } from '../../redux/error/errorActions';
 import { setSuccess } from '../../redux/success/successActions';
 import { connect } from 'react-redux';
 import { getModalStateFromProps } from './modalHelpers';
+import ServerSelector from '../ServerSelector';
 
 const Shortcuts = styled.div`
 	${(props) => css`
@@ -106,21 +107,29 @@ class MuteModal extends Component {
 	};
 
 	onSubmit = () => {
-		let { reason, errors: prevErrors } = this.state;
+		let { reason } = this.state;
 		const { player, serverId, duration } = this.state;
 
-		let errorsExist = false;
-		const errors = {
-			...prevErrors,
-		};
-
 		// Basic validation
+		let errorsExist = false;
+		const errors = {};
+
 		if (!reasonIsValid(reason)) {
 			errorsExist = true;
 			errors.reason = 'Please enter a reason for the ban';
 		}
 
-		if (duration === null || duration < 0 || isNaN(duration)) {
+		if (!serverId) {
+			errorsExist = true;
+			errors.server = 'Please select a server';
+		}
+
+		if (
+			duration === null ||
+			duration === '' ||
+			duration < 0 ||
+			isNaN(duration)
+		) {
 			errorsExist = true;
 			errors.duration = "Please enter the ban's duration";
 		}
@@ -139,6 +148,13 @@ class MuteModal extends Component {
 		this.props.createMute(serverId, player.id, { reason, duration });
 	};
 
+	onServerSelectionChange = (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			serverId: parseInt(e.target.value),
+		}));
+	};
+
 	render() {
 		const { player, success, errors, duration } = this.state;
 		const { show, inputRef } = this.props;
@@ -152,6 +168,12 @@ class MuteModal extends Component {
 				<h1>Log a mute for {player.currentName}</h1>
 				<ModalContent>
 					<Alert type="success" message={success} />
+					{!this.props.serverId && (
+						<ServerSelector
+							onChange={this.onServerSelectionChange}
+							error={errors.server}
+						/>
+					)}
 					<TextArea
 						placeholder={'Reason for mute'}
 						onChange={this.onReasonChange}
@@ -218,7 +240,7 @@ class MuteModal extends Component {
 
 MuteModal.propTypes = {
 	player: PropTypes.object,
-	serverId: PropTypes.number.isRequired,
+	serverId: PropTypes.number,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func,
@@ -228,6 +250,7 @@ MuteModal.propTypes = {
 const mapStateToProps = (state) => ({
 	success: state.success.createmute,
 	errors: state.error.createmute,
+	games: state.games,
 });
 
 const mapDispatchToProps = (dispatch) => ({

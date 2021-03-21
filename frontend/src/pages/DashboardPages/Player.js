@@ -11,6 +11,7 @@ import WarnModal from '../../components/modals/WarnModal';
 import KickModal from '../../components/modals/KickModal';
 import BanModal from '../../components/modals/BanModal';
 import MuteModal from '../../components/modals/MuteModal';
+import { setLoading } from '../../redux/loading/loadingActions';
 
 const PlayerInfo = styled.div`
 	${(props) => css`
@@ -108,21 +109,28 @@ class Player extends Component {
 		this.banModalRef = React.createRef();
 	}
 
+	componentDidMount() {
+		this.props.setLoading(true);
+	}
+
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const id = parseInt(nextProps.match.params.id);
 		if (!id) {
-			return {
-				...prevState,
-				error: 'Player not found',
-			};
+			prevState.error = 'Player not found';
+			nextProps.setLoading(false);
 		}
 
-		if (!prevState.player) {
+		if (!prevState.player || prevState.player.id !== id) {
 			nextProps.getPlayerSummary(id);
+		}
 
-			if (nextProps.player) {
-				prevState.player = nextProps.player;
-			}
+		if (
+			!prevState.player &&
+			nextProps.player &&
+			nextProps.player.id === id
+		) {
+			nextProps.setLoading(false);
+			prevState.player = nextProps.player;
 		}
 
 		return prevState;
@@ -159,6 +167,8 @@ class Player extends Component {
 	render() {
 		const { player, error, modals } = this.state;
 		const { warn, mute, kick, ban } = modals;
+
+		console.log('PLAYER', player, this.state.playerFetched);
 
 		if (error) {
 			return (
@@ -204,7 +214,6 @@ class Player extends Component {
 			<>
 				<WarnModal
 					player={warn.ctx}
-					serverId={1}
 					show={warn.show}
 					onClose={this.closeModal('warn')}
 					inputRef={this.warnModalRef}
@@ -212,7 +221,6 @@ class Player extends Component {
 
 				<MuteModal
 					player={mute.ctx}
-					serverId={1}
 					show={mute.show}
 					onClose={this.closeModal('mute')}
 					inputRef={this.muteModalRef}
@@ -220,7 +228,6 @@ class Player extends Component {
 
 				<KickModal
 					player={kick.ctx}
-					serverId={1}
 					show={kick.show}
 					onClose={this.closeModal('kick')}
 					inputRef={this.kickModalRef}
@@ -228,7 +235,6 @@ class Player extends Component {
 
 				<BanModal
 					player={ban.ctx}
-					serverId={1}
 					show={ban.show}
 					onClose={this.closeModal('ban')}
 					inputRef={this.banModalRef}
@@ -339,6 +345,10 @@ class Player extends Component {
 											issuer={mute.staffName}
 											reason={mute.reason}
 											duration={mute.duration}
+											remaining={getTimeRemaining(
+												mute.timestamp,
+												mute.duration
+											)}
 										/>
 									)
 							)}
@@ -420,10 +430,12 @@ class Player extends Component {
 
 const mapStateToProps = (state) => ({
 	player: state.players.currentPlayer,
+	loading: state.loading.playersummary,
 });
 
 const mapDispatchToProps = (dispatch) => ({
 	getPlayerSummary: (playerId) => dispatch(getPlayerSummary(playerId)),
+	setLoading: (isLoading) => dispatch(setLoading('main', isLoading)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

@@ -10,6 +10,7 @@ import { createWarning } from '../../redux/infractions/infractionActions';
 import { setErrors } from '../../redux/error/errorActions';
 import { setSuccess } from '../../redux/success/successActions';
 import { getModalStateFromProps } from './modalHelpers';
+import ServerSelector from '../ServerSelector';
 
 class WarnModal extends Component {
 	constructor(props) {
@@ -63,20 +64,28 @@ class WarnModal extends Component {
 		const { player, serverId } = this.state;
 
 		// Basic validation
+		let errorsExist = false;
+		const errors = {};
+
+		// Basic validation
 		if (!reasonIsValid(reason)) {
-			return this.setState((prevState) => ({
-				...prevState,
-				errors: {
-					reason: 'Please enter a reason for the warning',
-				},
-			}));
+			errorsExist = true;
+			errors.reason = 'Please enter a reason for the ban';
 		}
 
-		// Clear error
+		if (!serverId) {
+			errorsExist = true;
+			errors.server = 'Please select a server';
+		}
+
 		this.setState((prevState) => ({
 			...prevState,
-			errors: {},
+			errors: errors,
 		}));
+
+		if (errorsExist) {
+			return;
+		}
 
 		reason = reason.trim();
 
@@ -86,6 +95,13 @@ class WarnModal extends Component {
 
 	focus = () => {
 		this.inputRef.focus();
+	};
+
+	onServerSelectionChange = (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			serverId: parseInt(e.target.value),
+		}));
 	};
 
 	render() {
@@ -101,6 +117,12 @@ class WarnModal extends Component {
 				<h1>Log a warning for {player.currentName}</h1>
 				<ModalContent>
 					<Alert type="success" message={success} />
+					{!this.props.serverId && (
+						<ServerSelector
+							onChange={this.onServerSelectionChange}
+							error={errors.server}
+						/>
+					)}
 					<TextArea
 						placeholder={'Reason for warning'}
 						onChange={this.onReasonChange}
@@ -127,7 +149,7 @@ class WarnModal extends Component {
 
 WarnModal.propTypes = {
 	player: PropTypes.object.isRequired,
-	serverId: PropTypes.number.isRequired,
+	serverId: PropTypes.number,
 	show: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func,
