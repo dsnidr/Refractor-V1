@@ -7,6 +7,10 @@ import respondTo from '../../mixins/respondTo';
 import { timestampToDateTime, getTimeRemaining } from '../../utils/timeUtils';
 import Button from '../../components/Button';
 import Infraction from '../../components/Infraction';
+import WarnModal from '../../components/modals/WarnModal';
+import KickModal from '../../components/modals/KickModal';
+import BanModal from '../../components/modals/BanModal';
+import MuteModal from '../../components/modals/MuteModal';
 
 const PlayerInfo = styled.div`
 	${(props) => css`
@@ -78,7 +82,30 @@ class Player extends Component {
 
 		this.state = {
 			player: null,
+			modals: {
+				warn: {
+					show: false,
+					ctx: {},
+				},
+				mute: {
+					show: false,
+					ctx: {},
+				},
+				kick: {
+					show: false,
+					ctx: {},
+				},
+				ban: {
+					show: false,
+					ctx: {},
+				},
+			},
 		};
+
+		this.warnModalRef = React.createRef();
+		this.muteModalRef = React.createRef();
+		this.kickModalRef = React.createRef();
+		this.banModalRef = React.createRef();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -101,8 +128,37 @@ class Player extends Component {
 		return prevState;
 	}
 
+	showModal = (modal, ctx) => () => {
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				[modal]: {
+					...prevState.modals[modal],
+					show: true,
+					ctx,
+				},
+			},
+		}));
+	};
+
+	closeModal = (modal) => () => {
+		this.setState((prevState) => ({
+			...prevState,
+			modals: {
+				...prevState.modals,
+				[modal]: {
+					...prevState.modals[modal],
+					show: false,
+					ctx: {},
+				},
+			},
+		}));
+	};
+
 	render() {
-		const { player, error } = this.state;
+		const { player, error, modals } = this.state;
+		const { warn, mute, kick, ban } = modals;
 
 		if (error) {
 			return (
@@ -146,21 +202,69 @@ class Player extends Component {
 
 		return (
 			<>
+				<WarnModal
+					player={warn.ctx}
+					serverId={1}
+					show={warn.show}
+					onClose={this.closeModal('warn')}
+					inputRef={this.warnModalRef}
+				/>
+
+				<MuteModal
+					player={mute.ctx}
+					serverId={1}
+					show={mute.show}
+					onClose={this.closeModal('mute')}
+					inputRef={this.muteModalRef}
+				/>
+
+				<KickModal
+					player={kick.ctx}
+					serverId={1}
+					show={kick.show}
+					onClose={this.closeModal('kick')}
+					inputRef={this.kickModalRef}
+				/>
+
+				<BanModal
+					player={ban.ctx}
+					serverId={1}
+					show={ban.show}
+					onClose={this.closeModal('ban')}
+					inputRef={this.banModalRef}
+				/>
+
 				<div>
 					<Heading headingStyle={'title'}>
 						Viewing: {player.currentName}
 					</Heading>
 					<LogButtons>
-						<Button size={'normal'} color={'primary'}>
+						<Button
+							size={'normal'}
+							color={'primary'}
+							onClick={this.showModal('warn', player)}
+						>
 							Log Warning
 						</Button>
-						<Button size={'normal'} color={'primary'}>
+						<Button
+							size={'normal'}
+							color={'primary'}
+							onClick={this.showModal('mute', player)}
+						>
 							Log Mute
 						</Button>
-						<Button size={'normal'} color={'alert'}>
+						<Button
+							size={'normal'}
+							color={'alert'}
+							onClick={this.showModal('kick', player)}
+						>
 							Log Kick
 						</Button>
-						<Button size={'normal'} color={'danger'}>
+						<Button
+							size={'normal'}
+							color={'danger'}
+							onClick={this.showModal('ban', player)}
+						>
 							Log Ban
 						</Button>
 					</LogButtons>
