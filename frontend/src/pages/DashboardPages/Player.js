@@ -12,6 +12,9 @@ import KickModal from '../../components/modals/KickModal';
 import BanModal from '../../components/modals/BanModal';
 import MuteModal from '../../components/modals/MuteModal';
 import { setLoading } from '../../redux/loading/loadingActions';
+import EditInfractionModal from '../../components/modals/EditInfractionModal';
+import BasicModal from '../../components/modals/BasicModal';
+import DeleteInfractionModal from '../../components/modals/DeleteInfractionModal';
 
 const PlayerInfo = styled.div`
 	${(props) => css`
@@ -65,8 +68,12 @@ const InfractionSection = styled.div`
 		display: flex;
 		flex-direction: column;
 
-		> :first-child {
+		> * {
 			margin-bottom: 1rem;
+		}
+
+		> :last-child {
+			margin-bottom: 0;
 		}
 	`}
 `;
@@ -100,6 +107,14 @@ class Player extends Component {
 					show: false,
 					ctx: {},
 				},
+				edit: {
+					show: false,
+					ctx: {},
+				},
+				del: {
+					show: false,
+					ctx: {},
+				},
 			},
 		};
 
@@ -109,15 +124,10 @@ class Player extends Component {
 		this.banModalRef = React.createRef();
 	}
 
-	componentDidMount() {
-		this.props.setLoading(true);
-	}
-
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const id = parseInt(nextProps.match.params.id);
 		if (!id) {
 			prevState.error = 'Player not found';
-			nextProps.setLoading(false);
 		}
 
 		if (!prevState.player || prevState.player.id !== id) {
@@ -129,7 +139,6 @@ class Player extends Component {
 			nextProps.player &&
 			nextProps.player.id === id
 		) {
-			nextProps.setLoading(false);
 			prevState.player = nextProps.player;
 		}
 
@@ -137,17 +146,25 @@ class Player extends Component {
 	}
 
 	showModal = (modal, ctx) => () => {
-		this.setState((prevState) => ({
-			...prevState,
-			modals: {
-				...prevState.modals,
-				[modal]: {
-					...prevState.modals[modal],
-					show: true,
-					ctx,
+		this.setState(
+			(prevState) => ({
+				...prevState,
+				modals: {
+					...prevState.modals,
+					[modal]: {
+						...prevState.modals[modal],
+						show: true,
+						ctx,
+					},
 				},
-			},
-		}));
+			}),
+			() => {
+				const ref = this[`${modal}ModalRef`];
+				if (ref && ref.current) {
+					ref.current.focus();
+				}
+			}
+		);
 	};
 
 	closeModal = (modal) => () => {
@@ -166,9 +183,7 @@ class Player extends Component {
 
 	render() {
 		const { player, error, modals } = this.state;
-		const { warn, mute, kick, ban } = modals;
-
-		console.log('PLAYER', player, this.state.playerFetched);
+		const { warn, mute, kick, ban, edit, del } = modals;
 
 		if (error) {
 			return (
@@ -238,6 +253,18 @@ class Player extends Component {
 					show={ban.show}
 					onClose={this.closeModal('ban')}
 					inputRef={this.banModalRef}
+				/>
+
+				<EditInfractionModal
+					infraction={edit.ctx}
+					show={edit.show}
+					onClose={this.closeModal('edit')}
+				/>
+
+				<DeleteInfractionModal
+					infraction={del.ctx}
+					show={del.show}
+					onClose={this.closeModal('del')}
 				/>
 
 				<div>
@@ -320,6 +347,14 @@ class Player extends Component {
 											)}
 											issuer={warning.staffName}
 											reason={warning.reason}
+											onEditClick={this.showModal(
+												'edit',
+												warning
+											)}
+											onDeleteClick={this.showModal(
+												'del',
+												warning
+											)}
 										/>
 									)
 							)}
@@ -349,6 +384,14 @@ class Player extends Component {
 												mute.timestamp,
 												mute.duration
 											)}
+											onEditClick={this.showModal(
+												'edit',
+												mute
+											)}
+											onDeleteClick={this.showModal(
+												'del',
+												mute
+											)}
 										/>
 									)
 							)}
@@ -373,6 +416,14 @@ class Player extends Component {
 											)}
 											issuer={kick.staffName}
 											reason={kick.reason}
+											onEditClick={this.showModal(
+												'edit',
+												kick
+											)}
+											onDeleteClick={this.showModal(
+												'del',
+												kick
+											)}
 										/>
 									)
 							)}
@@ -401,6 +452,14 @@ class Player extends Component {
 											remaining={getTimeRemaining(
 												ban.timestamp,
 												ban.duration
+											)}
+											onEditClick={this.showModal(
+												'edit',
+												ban
+											)}
+											onDeleteClick={this.showModal(
+												'del',
+												ban
 											)}
 										/>
 									)

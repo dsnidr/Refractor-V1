@@ -29,3 +29,16 @@ export const createBan = (serverId, playerId, data) => ({
 	playerId: playerId,
 	payload: data,
 });
+
+export const UPDATE_INFRACTION = 'UPDATE_INFRACTION';
+export const updateInfraction = (infractionId, data) => ({
+	type: UPDATE_INFRACTION,
+	infractionId: infractionId,
+	payload: data,
+});
+
+export const DELETE_INFRACTION = 'DELETE_INFRACTION';
+export const deleteInfraction = (infractionId, data) => ({
+	type: DELETE_INFRACTION,
+	infractionId: infractionId,
+});
