@@ -101,7 +101,7 @@ func main() {
 	rconService.SubscribeOffline(websocketService.OnServerOffline)
 
 	infractionRepo := mysql.NewInfractionRepository(db)
-	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, loggerInst)
+	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, userService, loggerInst)
 	infractionHandler := api.NewInfractionHandler(infractionService)
 
 	summaryService := summary.NewSummaryService(playerService, infractionService, loggerInst)

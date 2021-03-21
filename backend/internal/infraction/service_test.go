@@ -6,6 +6,7 @@ import (
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/player"
 	"github.com/sniddunc/refractor/internal/server"
+	"github.com/sniddunc/refractor/internal/user"
 	"github.com/sniddunc/refractor/pkg/config"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/pkg/perms"
@@ -78,7 +79,7 @@ func Test_infractionService_CreateWarning(t *testing.T) {
 			mockServerRepo := mock.NewMockServerRepository(tt.fields.mockServers)
 			serverService := server.NewServerService(mockServerRepo, nil, testLogger)
 			mockInfractionRepo := mock.NewMockInfractionRepository(map[int64]*refractor.DBInfraction{})
-			infractionService := NewInfractionService(mockInfractionRepo, playerService, serverService, testLogger)
+			infractionService := NewInfractionService(mockInfractionRepo, playerService, serverService, nil, testLogger)
 
 			warning, res := infractionService.CreateWarning(tt.args.userID, tt.args.body)
 
@@ -258,7 +259,7 @@ func Test_infractionService_DeleteInfraction(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockInfractionRepo := mock.NewMockInfractionRepository(tt.fields.mockInfractions)
-			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, testLogger)
+			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, nil, testLogger)
 
 			res := infractionService.DeleteInfraction(tt.args.id, tt.args.user)
 
@@ -486,7 +487,7 @@ func Test_infractionService_UpdateInfraction(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockInfractionRepo := mock.NewMockInfractionRepository(tt.fields.mockInfractions)
-			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, testLogger)
+			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, nil, testLogger)
 
 			body := params.UpdateInfractionParams{
 				Reason:   &tt.args.reason,
@@ -510,6 +511,7 @@ func Test_infractionService_GetPlayerInfractions(t *testing.T) {
 
 	type fields struct {
 		mockInfractions map[int64]*refractor.DBInfraction
+		mockUsers       map[int64]*mock.MockUser
 	}
 	type args struct {
 		infractionType string
@@ -525,6 +527,20 @@ func Test_infractionService_GetPlayerInfractions(t *testing.T) {
 		{
 			name: "infraction.getplayerinfractions.1",
 			fields: fields{
+				mockUsers: map[int64]*mock.MockUser{
+					1: {
+						UnhashedPassword: "",
+						User: &refractor.User{
+							UserID:              1,
+							Email:               "yudsgdus@ydwtgtsss.com",
+							Username:            "infractionusername",
+							Password:            "",
+							Permissions:         0,
+							Activated:           true,
+							NeedsPasswordChange: false,
+						},
+					},
+				},
 				mockInfractions: map[int64]*refractor.DBInfraction{
 					1: {
 						InfractionID: 1,
@@ -587,6 +603,7 @@ func Test_infractionService_GetPlayerInfractions(t *testing.T) {
 					Duration:     0,
 					Timestamp:    0,
 					SystemAction: false,
+					StaffName:    "infractionusername",
 				},
 				{
 					InfractionID: 2,
@@ -598,6 +615,7 @@ func Test_infractionService_GetPlayerInfractions(t *testing.T) {
 					Duration:     0,
 					Timestamp:    0,
 					SystemAction: false,
+					StaffName:    "infractionusername",
 				},
 			},
 			wantRes: &refractor.ServiceResponse{
@@ -609,8 +627,10 @@ func Test_infractionService_GetPlayerInfractions(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			mockUserRepo := mock.NewMockUserRepository(tt.fields.mockUsers)
+			userService := user.NewUserService(mockUserRepo, testLogger)
 			mockInfractionRepo := mock.NewMockInfractionRepository(tt.fields.mockInfractions)
-			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, testLogger)
+			infractionService := NewInfractionService(mockInfractionRepo, nil, nil, userService, testLogger)
 
 			foundInfractions, res := infractionService.GetPlayerInfractionsType(tt.args.infractionType, tt.args.playerID)
 
