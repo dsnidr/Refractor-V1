@@ -21,7 +21,11 @@ export function createBan(data) {
 }
 
 export function updateInfraction(infractionId, data) {
-	return axios.post(`/api/v1/infractions/${infractionId}`, data, postHeaders);
+	return axios.patch(
+		`/api/v1/infractions/${infractionId}`,
+		data,
+		postHeaders
+	);
 }
 
 export function deleteInfraction(infractionId, data) {

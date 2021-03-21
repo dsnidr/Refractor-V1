@@ -4,6 +4,8 @@ import {
 	CREATE_KICK,
 	CREATE_MUTE,
 	CREATE_WARNING,
+	DELETE_INFRACTION,
+	UPDATE_INFRACTION,
 } from './infractionActions';
 import { setErrors } from '../error/errorActions';
 import { setSuccess } from '../success/successActions';
@@ -12,6 +14,8 @@ import {
 	createKick,
 	createMute,
 	createWarning,
+	deleteInfraction,
+	updateInfraction,
 } from '../../api/infractionApi';
 
 function* createWarningAsync(action) {
@@ -101,6 +105,43 @@ function* createBanAsync(action) {
 	}
 }
 
+function* updateInfractionAsync(action) {
+	try {
+		yield call(updateInfraction, action.infractionId, action.payload);
+
+		yield put(
+			setSuccess('updateinfraction', 'Infraction has been updated')
+		);
+		yield put(setErrors('updateinfraction', undefined));
+	} catch (err) {
+		console.log('Could not update infraction', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('updateinfraction', undefined));
+		yield put(
+			setErrors(
+				'updateinfraction',
+				!data.errors ? data.message : data.errors
+			)
+		);
+	}
+}
+
+function* deleteInfractionAsync(action) {
+	try {
+		yield call(deleteInfraction, action.infractionId);
+
+		yield put(setSuccess('deleteinfraction', 'Infraction deleted'));
+		yield put(setErrors('deleteinfraction', undefined));
+	} catch (err) {
+		console.log('Could not delete infraction', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('deleteinfraction', undefined));
+		yield put(setErrors('deleteinfraction', data.message));
+	}
+}
+
 function* watchCreateWarning() {
 	yield takeLatest(CREATE_WARNING, createWarningAsync);
 }
@@ -117,11 +158,21 @@ function* watchCreateBan() {
 	yield takeLatest(CREATE_BAN, createBanAsync);
 }
 
+function* watchUpdateInfraction() {
+	yield takeLatest(UPDATE_INFRACTION, updateInfractionAsync);
+}
+
+function* watchDeleteInfraction() {
+	yield takeLatest(DELETE_INFRACTION, deleteInfractionAsync);
+}
+
 export default function* infractionSagas() {
 	yield all([
 		call(watchCreateWarning),
 		call(watchCreateMute),
 		call(watchCreateKick),
 		call(watchCreateBan),
+		call(watchUpdateInfraction),
+		call(watchDeleteInfraction),
 	]);
 }

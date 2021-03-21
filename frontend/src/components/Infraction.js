@@ -11,7 +11,7 @@ const InfractionBox = styled.div`
 		border-radius: ${props.theme.borderRadiusNormal};
 
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr 1fr 1fr 0.2fr;
 		grid-template-rows: 2rem auto;
 		grid-row-gap: 0.5rem;
 	`}
@@ -27,10 +27,29 @@ const MetaDisplay = styled.div`
 	`}
 `;
 
+const UtilBox = styled.div`
+	${(props) => css`
+      display: flex;
+      justify-content: right;
+	  
+	  grid-column: 5;
+
+      > * {
+        font-size: 1rem;
+        color: ${props.theme.colorTextPrimary};
+        margin-left: 1rem;
+        user-select: none;
+
+        :hover {
+          cursor: pointer;
+        }
+	`}
+`;
+
 const InfractionInfo = styled.div`
 	${(props) => css`
 		grid-row: 2;
-		grid-column: span 4;
+		grid-column: span 5;
 
 		font-size: 1.4rem;
 	`}
@@ -56,6 +75,10 @@ const Infraction = (props) => {
 					{buildTimeRemainingString(props.remaining)}
 				</MetaDisplay>
 			)}
+			<UtilBox>
+				<div onClick={props.onEditClick}>Edit</div>
+				<div onClick={props.onDeleteClick}>Delete</div>
+			</UtilBox>
 			<InfractionInfo>{props.reason}</InfractionInfo>
 		</InfractionBox>
 	);
@@ -67,6 +90,8 @@ Infraction.propTypes = {
 	duration: PropTypes.number,
 	remaining: PropTypes.any,
 	reason: PropTypes.string.isRequired,
+	onEditClick: PropTypes.func,
+	onDeleteClick: PropTypes.func,
 };
 
 export default Infraction;

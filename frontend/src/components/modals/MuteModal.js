@@ -13,23 +13,7 @@ import { setSuccess } from '../../redux/success/successActions';
 import { connect } from 'react-redux';
 import { getModalStateFromProps } from './modalHelpers';
 import ServerSelector from '../ServerSelector';
-
-const Shortcuts = styled.div`
-	${(props) => css`
-		font-size: 1.2rem;
-		color: ${props.theme.colorPrimary};
-
-		span {
-			margin-right: 1rem;
-			user-select: none;
-
-			:hover {
-				cursor: pointer;
-				color: ${props.theme.colorTextSecondary};
-			}
-		}
-	`}
-`;
+import DurationShortcuts from '../DurationShortcuts';
 
 class MuteModal extends Component {
 	constructor(props) {
@@ -180,38 +164,16 @@ class MuteModal extends Component {
 						error={errors.reason}
 						ref={inputRef}
 					/>
-					<Shortcuts>
-						<span
-							minutes={30}
-							onClick={this.onDurationShortcutClick}
-						>
-							30 minutes
-						</span>
-						<span
-							minutes={60}
-							onClick={this.onDurationShortcutClick}
-						>
-							1 hour
-						</span>
-						<span
-							minutes={1440}
-							onClick={this.onDurationShortcutClick}
-						>
-							1 day
-						</span>
-						<span
-							minutes={10080}
-							onClick={this.onDurationShortcutClick}
-						>
-							1 week
-						</span>
-						<span
-							minutes={0}
-							onClick={this.onDurationShortcutClick}
-						>
-							Permanent
-						</span>
-					</Shortcuts>
+					<DurationShortcuts
+						durations={[
+							{ minutes: 30, display: '30 minutes' },
+							{ minutes: 60, display: '1 hour' },
+							{ minutes: 1440, display: '1 day' },
+							{ minutes: 10080, display: '1 week' },
+							{ minutes: 0, display: 'permanent' },
+						]}
+						onClick={this.onDurationShortcutClick}
+					/>
 					<TextInput
 						type={'text'}
 						placeholder={'Mute duration (minutes)'}

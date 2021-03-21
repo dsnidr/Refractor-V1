@@ -13,23 +13,7 @@ import { setSuccess } from '../../redux/success/successActions';
 import { connect } from 'react-redux';
 import { getModalStateFromProps } from './modalHelpers';
 import ServerSelector from '../ServerSelector';
-
-const Shortcuts = styled.div`
-	${(props) => css`
-		font-size: 1.2rem;
-		color: ${props.theme.colorPrimary};
-
-		span {
-			margin-right: 1rem;
-			user-select: none;
-
-			:hover {
-				cursor: pointer;
-				color: ${props.theme.colorTextSecondary};
-			}
-		}
-	`}
-`;
+import DurationShortcuts from '../DurationShortcuts';
 
 class BanModal extends Component {
 	constructor(props) {
@@ -182,32 +166,16 @@ class BanModal extends Component {
 						error={errors.reason}
 						ref={inputRef}
 					/>
-					<Shortcuts>
-						<span
-							minutes={1440}
-							onClick={this.onDurationShortcutClick}
-						>
-							1 day
-						</span>
-						<span
-							minutes={10080}
-							onClick={this.onDurationShortcutClick}
-						>
-							1 week
-						</span>
-						<span
-							minutes={40320}
-							onClick={this.onDurationShortcutClick}
-						>
-							1 month
-						</span>
-						<span
-							minutes={0}
-							onClick={this.onDurationShortcutClick}
-						>
-							Permanent
-						</span>
-					</Shortcuts>
+					<DurationShortcuts
+						durations={[
+							{ minutes: 60, display: '1 hour' },
+							{ minutes: 1440, display: '1 day' },
+							{ minutes: 10080, display: '1 week' },
+							{ minutes: 40320, display: '1 month' },
+							{ minutes: 0, display: 'permanent' },
+						]}
+						onClick={this.onDurationShortcutClick}
+					/>
 					<TextInput
 						type={'text'}
 						placeholder={'Ban duration (minutes)'}
