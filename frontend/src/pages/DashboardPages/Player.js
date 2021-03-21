@@ -66,6 +66,12 @@ const InfractionSection = styled.div`
 	`}
 `;
 
+const PreviousNames = styled.div`
+	${(props) => css`
+		font-size: 1.6rem;
+	`}
+`;
+
 class Player extends Component {
 	constructor(props) {
 		super(props);
@@ -292,6 +298,17 @@ class Player extends Component {
 						</Heading>
 					)}
 				</InfractionSection>
+
+				{player.previousNames ? (
+					<div>
+						<Heading headingStyle="subtitle">
+							Previous Names
+						</Heading>
+						<PreviousNames>
+							{previousNames.join(', ')}
+						</PreviousNames>
+					</div>
+				) : null}
 			</>
 		);
 	}
