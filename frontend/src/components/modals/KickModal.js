@@ -10,6 +10,7 @@ import { setErrors } from '../../redux/error/errorActions';
 import { setSuccess } from '../../redux/success/successActions';
 import { connect } from 'react-redux';
 import { getModalStateFromProps } from './modalHelpers';
+import ServerSelector from '../ServerSelector';
 
 class KickModal extends Component {
 	constructor(props) {
@@ -62,11 +63,27 @@ class KickModal extends Component {
 		const { player, serverId } = this.state;
 
 		// Basic validation
+		let errorsExist = false;
+		const errors = {};
+
+		// Basic validation
 		if (!reasonIsValid(reason)) {
-			return this.setState((prevState) => ({
-				...prevState,
-				error: 'Please enter a reason for the kick',
-			}));
+			errorsExist = true;
+			errors.reason = 'Please enter a reason for the ban';
+		}
+
+		if (!serverId) {
+			errorsExist = true;
+			errors.server = 'Please select a server';
+		}
+
+		this.setState((prevState) => ({
+			...prevState,
+			errors: errors,
+		}));
+
+		if (errorsExist) {
+			return;
 		}
 
 		// Clear error
@@ -80,8 +97,15 @@ class KickModal extends Component {
 		this.props.createKick(serverId, player.id, { reason });
 	};
 
+	onServerSelectionChange = (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			serverId: parseInt(e.target.value),
+		}));
+	};
+
 	render() {
-		const { player, success, error } = this.state;
+		const { player, success, errors } = this.state;
 		const { show, inputRef } = this.props;
 
 		if (success) {
@@ -93,10 +117,16 @@ class KickModal extends Component {
 				<h1>Log a kick for {player.currentName}</h1>
 				<ModalContent>
 					<Alert type="success" message={success} />
+					{!this.props.serverId && (
+						<ServerSelector
+							onChange={this.onServerSelectionChange}
+							error={errors.server}
+						/>
+					)}
 					<TextArea
 						placeholder={'Reason for kick'}
 						onChange={this.onReasonChange}
-						error={error}
+						error={errors.reason}
 						ref={inputRef}
 					/>
 				</ModalContent>

@@ -11,7 +11,7 @@ export function getModalStateFromProps(nextProps, prevState) {
 		prevState = {
 			...prevState,
 			errors: nextProps.errors,
-			success: {},
+			success: null,
 		};
 	}
 
