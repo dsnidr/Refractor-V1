@@ -29,4 +29,7 @@ var (
 	SearchOffsetMax  = 2147483647 // max int32 value
 	SearchLimitMin   = 1
 	SearchLimitMax   = 100
+
+	// Players
+	RecentPlayersMaxSize = 20
 )

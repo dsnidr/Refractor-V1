@@ -77,7 +77,7 @@ func main() {
 
 	playerRepo := mysql.NewPlayerRepository(db)
 	playerService := player.NewPlayerService(playerRepo, loggerInst)
-	playerHandler := player.NewPlayerHandler(playerService)
+	playerHandler := api.NewPlayerHandler(playerService)
 
 	serverRepo := mysql.NewServerRepository(db)
 	serverService := server.NewServerService(serverRepo, gameService, loggerInst)
@@ -133,6 +133,7 @@ func main() {
 		AuthHandler:       authHandler,
 		UserHandler:       userHandler,
 		ServerHandler:     serverHandler,
+		PlayerHandler:     playerHandler,
 		GameServerHandler: gameServerHandler,
 		InfractionHandler: infractionHandler,
 		SummaryHandler:    summaryHandler,

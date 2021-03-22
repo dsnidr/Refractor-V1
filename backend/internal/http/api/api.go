@@ -25,6 +25,7 @@ type Handlers struct {
 	AuthHandler       refractor.AuthHandler
 	UserHandler       refractor.UserHandler
 	ServerHandler     refractor.ServerHandler
+	PlayerHandler     refractor.PlayerHandler
 	GameServerHandler refractor.GameServerHandler
 	InfractionHandler refractor.InfractionHandler
 	SummaryHandler    refractor.SummaryHandler
@@ -115,6 +116,7 @@ func (api *API) setupRoutes() {
 
 	// Player endpoints
 	playerGroup := apiGroup.Group("/players", jwtMiddleware, AttachClaims())
+	playerGroup.GET("/recent", api.PlayerHandler.GetRecentPlayers)
 	playerGroup.GET("/summary/:id", api.SummaryHandler.GetPlayerSummary)
 
 	// Search endpoints

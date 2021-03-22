@@ -2,6 +2,7 @@ package refractor
 
 import (
 	"database/sql"
+	"github.com/labstack/echo/v4"
 	"github.com/sniddunc/refractor/pkg/broadcast"
 )
 
@@ -50,11 +51,13 @@ type PlayerService interface {
 	CreatePlayer(newPlayer *DBPlayer) (*Player, *ServiceResponse)
 	GetPlayerByID(id int64) (*Player, *ServiceResponse)
 	GetPlayer(args FindArgs) (*Player, *ServiceResponse)
+	GetRecentPlayers() ([]*Player, *ServiceResponse)
 	OnPlayerJoin(serverID int64, playerGameID string, currentName string, gameConfig *GameConfig) (*Player, *ServiceResponse)
 	OnPlayerQuit(serverID int64, playerGameID string, gameConfig *GameConfig) (*Player, *ServiceResponse)
 }
 
 type PlayerHandler interface {
+	GetRecentPlayers(c echo.Context) error
 	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 }
