@@ -1,11 +1,17 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import {
 	GET_PLAYER_SUMMARY,
+	GET_RECENT_PLAYERS,
 	SEARCH_PLAYERS,
 	setCurrentPlayer,
+	setRecentPlayers,
 	setSearchResults,
 } from './playerActions';
-import { getPlayerSummary, searchPlayers } from '../../api/playerApi';
+import {
+	getPlayerSummary,
+	getRecentPlayers,
+	searchPlayers,
+} from '../../api/playerApi';
 import { setErrors } from '../error/errorActions';
 import { SET_SUCCESS, setSuccess } from '../success/successActions';
 
@@ -69,6 +75,23 @@ function* searchPlayersAsync(action) {
 	}
 }
 
+function* getRecentPlayersAsync(action) {
+	try {
+		const { data } = yield call(getRecentPlayers);
+
+		yield put(setRecentPlayers(data.payload));
+
+		yield put(setSuccess('recentplayers', 'Recent players fetched'));
+		yield put(setErrors('recentplayers', undefined));
+	} catch (err) {
+		console.log('Could not get recent players', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('recentplayers', undefined));
+		yield put(setErrors('recentplayers', err.response.data.message));
+	}
+}
+
 function* watchGetPlayerSummary() {
 	yield takeLatest(GET_PLAYER_SUMMARY, getPlayerSummaryAsync);
 }
@@ -77,6 +100,14 @@ function* watchSearchPlayers() {
 	yield takeLatest(SEARCH_PLAYERS, searchPlayersAsync);
 }
 
+function* watchGetRecentPlayers() {
+	yield takeLatest(GET_RECENT_PLAYERS, getRecentPlayersAsync);
+}
+
 export default function* playerSagas() {
-	yield all([call(watchGetPlayerSummary), call(watchSearchPlayers)]);
+	yield all([
+		call(watchGetPlayerSummary),
+		call(watchSearchPlayers),
+		call(watchGetRecentPlayers),
+	]);
 }

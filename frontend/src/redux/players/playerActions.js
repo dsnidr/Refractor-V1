@@ -21,3 +21,14 @@ export const setSearchResults = (results) => ({
 	type: SET_SEARCH_RESULTS,
 	payload: results,
 });
+
+export const GET_RECENT_PLAYERS = 'GET_RECENT_PLAYERS';
+export const getRecentPlayers = () => ({
+	type: GET_RECENT_PLAYERS,
+});
+
+export const SET_RECENT_PLAYERS = 'SET_RECENT_PLAYERS';
+export const setRecentPlayers = (recentPlayers) => ({
+	type: SET_RECENT_PLAYERS,
+	payload: recentPlayers,
+});

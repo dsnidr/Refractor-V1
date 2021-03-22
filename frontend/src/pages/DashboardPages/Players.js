@@ -9,7 +9,10 @@ import { Link } from 'react-router-dom';
 import respondTo from '../../mixins/respondTo';
 import { timestampToDateTime } from '../../utils/timeUtils';
 import { setLoading } from '../../redux/loading/loadingActions';
-import { searchPlayers } from '../../redux/players/playerActions';
+import {
+	getRecentPlayers,
+	searchPlayers,
+} from '../../redux/players/playerActions';
 
 const SearchBox = styled.form`
 	${(props) => css`
@@ -193,6 +196,41 @@ const PageSwitcherLabel = styled.div`
 	`}
 `;
 
+const RecentPlayers = styled.div`
+	${(props) => css`
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-row-gap: 0.5rem;
+		grid-column-gap: 0.5rem;
+		margin-top: 1rem;
+
+		${respondTo.medium`
+		  	grid-template-columns: 1fr 1fr;
+	  	`}
+
+		${respondTo.large`
+		  	grid-template-columns: 1fr 1fr 1fr;
+	  	`}
+
+		// Override react-router link styling
+        a {
+			text-decoration: none !important;
+			color: ${props.theme.colorTextSecondary} !important;
+		}
+	`}
+`;
+
+const RecentPlayer = styled.div`
+	${(props) => css`
+		display: flex;
+		align-items: center;
+		padding: 0.5rem;
+		font-size: 1.4rem;
+		background-color: ${props.theme.colorBackgroundDark};
+		border-radius: ${props.theme.borderRadiusNormal};
+	`}
+`;
+
 const limitInterval = 10;
 
 class Players extends Component {
@@ -211,6 +249,10 @@ class Players extends Component {
 			},
 			searchWasRun: false,
 		};
+	}
+
+	componentDidMount() {
+		this.props.getRecentPlayers();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -326,7 +368,6 @@ class Players extends Component {
 	};
 
 	getPlatform = (player) => {
-		console.log(player);
 		if (player.playFabId.length > 0) return <span>PlayFab</span>;
 		else if (player.mcuuid.length > 0) return <span>Minecraft</span>;
 
@@ -336,6 +377,7 @@ class Players extends Component {
 	render() {
 		const { errors, page } = this.state;
 		const { results, count } = this.props.results;
+		const { recentPlayers } = this.props;
 
 		const amountOfPages = Math.ceil(count / limitInterval);
 
@@ -343,6 +385,22 @@ class Players extends Component {
 			<>
 				<div>
 					<Heading headingStyle="title">Players</Heading>
+				</div>
+
+				<div>
+					<Heading headingStyle={'subtitle'}>Recent Players</Heading>
+					{recentPlayers.length === 0 && (
+						<Heading headingStyle={'secondary'}>
+							There were no recent players
+						</Heading>
+					)}
+					<RecentPlayers>
+						{recentPlayers.map((rp) => (
+							<Link to={`/player/${rp.id}`}>
+								<RecentPlayer>{rp.currentName}</RecentPlayer>
+							</Link>
+						))}
+					</RecentPlayers>
 				</div>
 
 				<SearchBox onSubmit={this.onSearchClick}>
@@ -449,6 +507,7 @@ class Players extends Component {
 
 const mapStateToProps = (state) => ({
 	results: state.players.searchResults,
+	recentPlayers: state.players.recentPlayers,
 	errors: state.error.searchplayers,
 	success: state.success.searchplayers,
 });
@@ -456,6 +515,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
 	setLoading: (isLoading) => dispatch(setLoading('main', isLoading)),
 	searchPlayers: (searchData) => dispatch(searchPlayers(searchData)),
+	getRecentPlayers: () => dispatch(getRecentPlayers()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Players);
