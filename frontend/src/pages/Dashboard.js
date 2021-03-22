@@ -46,6 +46,7 @@ import Users from './AdminPages/Users';
 import AddUser from './AdminPages/AddUser';
 import User from './AdminPages/User';
 import Player from './DashboardPages/Player';
+import Players from './DashboardPages/Players';
 import RequirePerms from '../components/RequirePerms';
 import { flags } from '../permissions/permissions';
 
@@ -328,6 +329,11 @@ class Dashboard extends Component {
 								exact
 								path={'/player/:id'}
 								component={Player}
+							/>
+							<Route
+								exact
+								path={'/players'}
+								component={Players}
 							/>
 						</Switch>
 					</Content>

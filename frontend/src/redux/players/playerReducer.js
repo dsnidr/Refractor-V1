@@ -1,7 +1,8 @@
-import { SET_CURRENT_PLAYER } from './playerActions';
+import { SET_CURRENT_PLAYER, SET_SEARCH_RESULTS } from './playerActions';
 
 const initialState = {
 	currentPlayer: null,
+	searchResults: [],
 };
 
 const playerReducer = (state = initialState, action) => {
@@ -10,6 +11,11 @@ const playerReducer = (state = initialState, action) => {
 			return {
 				...state,
 				currentPlayer: action.payload,
+			};
+		case SET_SEARCH_RESULTS:
+			return {
+				...state,
+				searchResults: action.payload,
 			};
 		default:
 			return state;

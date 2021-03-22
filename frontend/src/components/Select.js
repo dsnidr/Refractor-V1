@@ -36,7 +36,6 @@ class Select extends Component {
 		return (
 			<div>
 				<StyledSelect name={props.name} onChange={props.onChange}>
-					<option value={''}>Select server</option>
 					{this.props.children}
 				</StyledSelect>
 				<Error>{props.error ? props.error : null}</Error>

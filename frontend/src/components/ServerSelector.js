@@ -15,6 +15,7 @@ const ServerSelector = (props) => {
 			onChange={props.onChange}
 			error={props.error}
 		>
+			<option value={''}>Select server</option>
 			{games.map((game) =>
 				game.servers.map((server) => (
 					<option key={server.id} value={server.id}>

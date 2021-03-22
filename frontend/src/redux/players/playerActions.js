@@ -9,3 +9,15 @@ export const setCurrentPlayer = (playerData) => ({
 	type: SET_CURRENT_PLAYER,
 	payload: playerData,
 });
+
+export const SEARCH_PLAYERS = 'SEARCH_PLAYERS';
+export const searchPlayers = (data) => ({
+	type: SEARCH_PLAYERS,
+	payload: data,
+});
+
+export const SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS';
+export const setSearchResults = (results) => ({
+	type: SET_SEARCH_RESULTS,
+	payload: results,
+});
