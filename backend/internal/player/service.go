@@ -11,14 +11,16 @@ import (
 )
 
 type playerService struct {
-	repo refractor.PlayerRepository
-	log  log.Logger
+	repo          refractor.PlayerRepository
+	log           log.Logger
+	recentPlayers *recentPlayers
 }
 
 func NewPlayerService(repo refractor.PlayerRepository, log log.Logger) refractor.PlayerService {
 	return &playerService{
-		repo: repo,
-		log:  log,
+		repo:          repo,
+		log:           log,
+		recentPlayers: newRecentPlayers(config.RecentPlayersMaxSize),
 	}
 }
 
@@ -54,6 +56,14 @@ func (s *playerService) GetPlayerByID(id int64) (*refractor.Player, *refractor.S
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Player fetched",
+	}
+}
+
+func (s *playerService) GetRecentPlayers() ([]*refractor.Player, *refractor.ServiceResponse) {
+	return s.recentPlayers.getAll(), &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Recent players fetched",
 	}
 }
 
@@ -115,9 +125,6 @@ func (s *playerService) OnPlayerJoin(serverID int64, playerGameID string, curren
 }
 
 func (s *playerService) OnPlayerQuit(serverID int64, playerGameID string, gameConfig *refractor.GameConfig) (*refractor.Player, *refractor.ServiceResponse) {
-	// TODO: Differentiate between playerGameID per game. An additional method on the Game interface will likely be required.
-	// For now, we just assume that this is Mordhau and work via PlayFabIDs.
-	// Check if the player is recorded in storage
 	foundPlayer, err := s.repo.FindOne(refractor.FindArgs{
 		gameConfig.PlayerGameIDField: playerGameID,
 	})
@@ -140,6 +147,9 @@ func (s *playerService) OnPlayerQuit(serverID int64, playerGameID string, gameCo
 		s.log.Error("Could not update LastSeen field for player with PlayFabID: %s. Error: %v", playerGameID, err)
 		return nil, refractor.InternalErrorResponse
 	}
+
+	// Add player to recent players
+	s.recentPlayers.push(foundPlayer)
 
 	return foundPlayer, &refractor.ServiceResponse{
 		Success:    true,
