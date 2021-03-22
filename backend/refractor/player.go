@@ -38,10 +38,12 @@ type PlayerRepository interface {
 	Create(player *DBPlayer) error
 	FindByID(id int64) (*Player, error)
 	FindByPlayFabID(playFabID string) (*Player, error)
+	FindByMCUUID(MCUUID string) (*Player, error)
 	FindOne(args FindArgs) (*Player, error)
 	Exists(args FindArgs) (bool, error)
 	UpdateName(player *Player, currentName string) error
 	Update(id int64, args UpdateArgs) (*Player, error)
+	SearchByName(name string, limit int, offset int) (int, []*Player, error)
 }
 
 type PlayerService interface {

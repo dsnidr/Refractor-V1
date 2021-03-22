@@ -79,6 +79,9 @@ func (s *serverService) CreateServer(body params.CreateServerParams) (*refractor
 		return nil, refractor.InternalErrorResponse
 	}
 
+	// Create server data
+	s.CreateServerData(newServer.ServerID, newServer.Game)
+
 	return newServer, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
@@ -115,15 +118,6 @@ func (s *serverService) GetAllServers() ([]*refractor.Server, *refractor.Service
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("Fetched %d servers", len(servers)),
-	}
-}
-
-func (s *serverService) createServerData(id int64, game string) {
-	s.serverData[id] = &refractor.ServerData{
-		NeedsUpdate: true,
-		ServerID:    id,
-		Game:        game,
-		Online:      false,
 	}
 }
 
