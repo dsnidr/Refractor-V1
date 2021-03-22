@@ -11,3 +11,7 @@ export function getPlayerSummary(playerId) {
 export function searchPlayers(data) {
 	return axios.post('/api/v1/search/players', data, postHeaders);
 }
+
+export function getRecentPlayers() {
+	return axios.get('/api/v1/players/recent');
+}

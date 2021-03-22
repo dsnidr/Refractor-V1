@@ -31,5 +31,5 @@ var (
 	SearchLimitMax   = 100
 
 	// Players
-	RecentPlayersMaxSize = 20
+	RecentPlayersMaxSize = 22
 )
