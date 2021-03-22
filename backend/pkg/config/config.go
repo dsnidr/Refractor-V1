@@ -21,4 +21,12 @@ var (
 	InfractionReasonMinLen = 1
 	InfractionReasonMaxLen = 4096
 	InfractionDurationMax  = math.MaxInt32
+
+	// Search
+	SearchTermMinLen = 1
+	SearchTermMaxLen = 64
+	SearchOffsetMin  = 0
+	SearchOffsetMax  = 2147483647 // max int32 value
+	SearchLimitMin   = 1
+	SearchLimitMax   = 100
 )

@@ -3,6 +3,7 @@ package mock
 import (
 	"database/sql"
 	"github.com/sniddunc/refractor/refractor"
+	"strings"
 )
 
 type mockPlayerRepo struct {
@@ -37,6 +38,16 @@ func (r *mockPlayerRepo) FindByID(id int64) (*refractor.Player, error) {
 func (r *mockPlayerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error) {
 	for _, player := range r.players {
 		if player.PlayFabID.String == playFabID {
+			return player.Player(), nil
+		}
+	}
+
+	return nil, refractor.ErrNotFound
+}
+
+func (r *mockPlayerRepo) FindByMCUUID(MCUUID string) (*refractor.Player, error) {
+	for _, player := range r.players {
+		if player.MCUUID.String == MCUUID {
 			return player.Player(), nil
 		}
 	}
@@ -118,4 +129,16 @@ func (r *mockPlayerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor
 	}
 
 	return r.players[id].Player(), nil
+}
+
+func (r *mockPlayerRepo) SearchByName(name string, offset int, limit int) (int, []*refractor.Player, error) {
+	var foundPlayers []*refractor.Player
+
+	for _, player := range r.players {
+		if strings.Contains(player.CurrentName, name) {
+			foundPlayers = append(foundPlayers, player.Player())
+		}
+	}
+
+	return len(foundPlayers), foundPlayers, nil
 }

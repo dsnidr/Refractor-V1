@@ -15,6 +15,7 @@ import (
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/player"
 	"github.com/sniddunc/refractor/internal/rcon"
+	"github.com/sniddunc/refractor/internal/search"
 	"github.com/sniddunc/refractor/internal/server"
 	"github.com/sniddunc/refractor/internal/storage/mysql"
 	"github.com/sniddunc/refractor/internal/summary"
@@ -107,6 +108,9 @@ func main() {
 	summaryService := summary.NewSummaryService(playerService, infractionService, loggerInst)
 	summaryHandler := api.NewSummaryHandler(summaryService)
 
+	searchService := search.NewSearchService(playerRepo, loggerInst)
+	searchHandler := api.NewSearchHandler(searchService)
+
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
 		if err := setupInitialUser(userService); err != nil {
@@ -132,6 +136,7 @@ func main() {
 		GameServerHandler: gameServerHandler,
 		InfractionHandler: infractionHandler,
 		SummaryHandler:    summaryHandler,
+		SearchHandler:     searchHandler,
 	}
 
 	// Done. Begin serving.

@@ -113,6 +113,28 @@ func (r *playerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error
 	return foundPlayer.Player(), nil
 }
 
+func (r *playerRepo) FindByMCUUID(MCUUID string) (*refractor.Player, error) {
+	query := "SELECT * FROM Players WHERE MCUUID = ?;"
+
+	row := r.db.QueryRow(query, MCUUID)
+
+	foundPlayer := &refractor.DBPlayer{}
+	if err := r.scanRow(row, foundPlayer); err != nil {
+		return nil, wrapError(err)
+	}
+
+	// Get player names
+	currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	foundPlayer.CurrentName = currentName
+	foundPlayer.PreviousNames = previousNames
+
+	return foundPlayer.Player(), nil
+}
+
 func (r *playerRepo) Exists(args refractor.FindArgs) (bool, error) {
 	query, values := buildExistsQuery("Players", args)
 
@@ -190,6 +212,72 @@ func (r *playerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.Pla
 	}
 
 	return updatedPlayer.Player(), nil
+}
+
+func (r *playerRepo) SearchByName(name string, limit int, offset int) (int, []*refractor.Player, error) {
+	query := `
+		SELECT
+			res.PlayerID,
+			res.PlayFabID,
+			res.MCUUID,
+			res.LastSeen
+		FROM (
+			SELECT p.*, pn.Name FROM PlayerNames pn
+			INNER JOIN Players p ON p.PlayerID = pn.PlayerID
+			WHERE pn.Name LIKE CONCAT('%', ?, '%')
+			LIMIT ? OFFSET ?
+		) res
+		GROUP BY PlayerID
+		ORDER BY LastSeen DESC
+	`
+
+	rows, err := r.db.Query(query, name, limit, offset)
+	if err != nil {
+		return 0, nil, wrapError(err)
+	}
+
+	var foundPlayers []*refractor.Player
+
+	for rows.Next() {
+		foundPlayer := &refractor.DBPlayer{}
+
+		if err := r.scanRows(rows, foundPlayer); err != nil {
+			return 0, nil, wrapError(err)
+		}
+
+		// Get names list
+		currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+		if err != nil {
+			return 0, nil, wrapError(err)
+		}
+
+		// Set names
+		foundPlayer.CurrentName = currentName
+		foundPlayer.PreviousNames = previousNames
+
+		foundPlayers = append(foundPlayers, foundPlayer.Player())
+	}
+
+	// Get number of possible matches
+	query = `
+		SELECT
+			COUNT(1) AS MatchCount
+		FROM (
+			SELECT 1 FROM PlayerNames pn
+			WHERE pn.Name LIKE CONCAT('%', ?, '%')
+		    GROUP BY PlayerID
+		) AS matches;
+	`
+
+	row := r.db.QueryRow(query, name)
+
+	var count int
+
+	if err := row.Scan(&count); err != nil {
+		return 0, nil, wrapError(err)
+	}
+
+	return count, foundPlayers, nil
 }
 
 func (r *playerRepo) getPlayerNames(playerID int64) (string, []string, error) {

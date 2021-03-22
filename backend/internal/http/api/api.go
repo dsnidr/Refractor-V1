@@ -28,6 +28,7 @@ type Handlers struct {
 	GameServerHandler refractor.GameServerHandler
 	InfractionHandler refractor.InfractionHandler
 	SummaryHandler    refractor.SummaryHandler
+	SearchHandler     refractor.SearchHandler
 }
 
 type Response struct {
@@ -115,6 +116,10 @@ func (api *API) setupRoutes() {
 	// Player endpoints
 	playerGroup := apiGroup.Group("/players", jwtMiddleware, AttachClaims())
 	playerGroup.GET("/summary/:id", api.SummaryHandler.GetPlayerSummary)
+
+	// Search endpoints
+	searchGroup := apiGroup.Group("/search", jwtMiddleware, AttachClaims())
+	searchGroup.POST("/players", api.SearchHandler.SearchPlayers)
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)
