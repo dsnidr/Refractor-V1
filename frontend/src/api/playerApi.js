@@ -15,3 +15,11 @@ export function searchPlayers(data) {
 export function getRecentPlayers() {
 	return axios.get('/api/v1/players/recent');
 }
+
+export function watchPlayer(playerID) {
+	return axios.post(`/api/v1/players/${playerID}/watch`);
+}
+
+export function unwatchPlayer(playerID) {
+	return axios.post(`/api/v1/players/${playerID}/unwatch`);
+}

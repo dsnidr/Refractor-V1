@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import Heading from '../../components/Heading';
 import { connect } from 'react-redux';
-import { getPlayerSummary } from '../../redux/players/playerActions';
+import {
+	getPlayerSummary,
+	unwatchPlayer,
+	watchPlayer,
+} from '../../redux/players/playerActions';
 import styled, { css } from 'styled-components';
 import respondTo from '../../mixins/respondTo';
 import { timestampToDateTime, getTimeRemaining } from '../../utils/timeUtils';
@@ -84,6 +88,12 @@ const PreviousNames = styled.div`
 	`}
 `;
 
+const HeaderBox = styled.div`
+	> button:first-of-type {
+		margin-left: auto;
+	}
+`;
+
 class Player extends Component {
 	constructor(props) {
 		super(props);
@@ -134,11 +144,7 @@ class Player extends Component {
 			nextProps.getPlayerSummary(id);
 		}
 
-		if (
-			!prevState.player &&
-			nextProps.player &&
-			nextProps.player.id === id
-		) {
+		if (nextProps.player && nextProps.player.id === id) {
 			prevState.player = nextProps.player;
 		}
 
@@ -179,6 +185,16 @@ class Player extends Component {
 				},
 			},
 		}));
+	};
+
+	toggleWatchClicked = () => {
+		const { player } = this.state;
+
+		if (!!player.watched) {
+			this.props.unwatchPlayer(player.id);
+		} else {
+			this.props.watchPlayer(player.id);
+		}
 	};
 
 	render() {
@@ -267,7 +283,15 @@ class Player extends Component {
 					onClose={this.closeModal('del')}
 				/>
 
-				<div>
+				<HeaderBox>
+					<Button
+						size={'small'}
+						color={!!player.watched ? 'danger' : 'alert'}
+						onClick={this.toggleWatchClicked}
+					>
+						{!!player.watched ? 'Unwatch' : 'Watch'}
+					</Button>
+
 					<Heading headingStyle={'title'}>
 						Viewing: {player.currentName}
 					</Heading>
@@ -301,7 +325,7 @@ class Player extends Component {
 							Log Ban
 						</Button>
 					</LogButtons>
-				</div>
+				</HeaderBox>
 
 				<div>
 					<Heading headingStyle={'subtitle'}>Player Info</Heading>
@@ -495,6 +519,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
 	getPlayerSummary: (playerId) => dispatch(getPlayerSummary(playerId)),
 	setLoading: (isLoading) => dispatch(setLoading('main', isLoading)),
+	unwatchPlayer: (playerId) => dispatch(unwatchPlayer(playerId)),
+	watchPlayer: (playerId) => dispatch(watchPlayer(playerId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Player);

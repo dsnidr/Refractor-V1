@@ -17,7 +17,7 @@ import {
 const SearchBox = styled.form`
 	${(props) => css`
 		display: grid;
-		grid-template-rows: 5rem 5rem 5rem 5rem;
+		grid-template-rows: 4rem 5rem 5rem 5rem 5rem;
 		grid-template-columns: auto;
 		grid-row-gap: 1rem;
 
@@ -29,11 +29,19 @@ const SearchBox = styled.form`
 			grid-column: 2;
 		}
 
+		h1 {
+			grid-row: 1;
+		}
+
 		${respondTo.medium`
-			grid-template-rows: 5rem;
+			grid-template-rows: 4rem 5rem;
 			grid-template-columns: 7fr 2fr 1fr;
 			grid-column-gap: 1rem;
 			grid-row-gap: 0;
+		  
+		  	h1 {
+            	grid-column: span 4;
+		  	}
 		`}
 
 		select {
@@ -404,6 +412,8 @@ class Players extends Component {
 				</div>
 
 				<SearchBox onSubmit={this.onSearchClick}>
+					<Heading headingStyle={'subtitle'}>Search Players</Heading>
+
 					<TextInput
 						type="text"
 						name="term"

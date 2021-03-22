@@ -118,6 +118,8 @@ func (api *API) setupRoutes() {
 	playerGroup := apiGroup.Group("/players", jwtMiddleware, AttachClaims())
 	playerGroup.GET("/recent", api.PlayerHandler.GetRecentPlayers)
 	playerGroup.GET("/summary/:id", api.SummaryHandler.GetPlayerSummary)
+	playerGroup.POST("/:id/watch", api.PlayerHandler.SwitchPlayerWatch(true))
+	playerGroup.POST("/:id/unwatch", api.PlayerHandler.SwitchPlayerWatch(false))
 
 	// Search endpoints
 	searchGroup := apiGroup.Group("/search", jwtMiddleware, AttachClaims())

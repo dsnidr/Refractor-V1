@@ -32,3 +32,22 @@ export const setRecentPlayers = (recentPlayers) => ({
 	type: SET_RECENT_PLAYERS,
 	payload: recentPlayers,
 });
+
+export const WATCH_PLAYER = 'WATCH_PLAYER';
+export const watchPlayer = (playerId) => ({
+	type: WATCH_PLAYER,
+	playerId: playerId,
+});
+
+export const UNWATCH_PLAYER = 'UNWATCH_PLAYER';
+export const unwatchPlayer = (playerId) => ({
+	type: UNWATCH_PLAYER,
+	playerId: playerId,
+});
+
+export const SET_PLAYER_WATCHED = 'SET_PLAYER_WATCHED';
+export const setPlayerWatched = (playerId, watched) => ({
+	type: SET_PLAYER_WATCHED,
+	playerId: playerId,
+	payload: watched,
+});

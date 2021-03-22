@@ -80,6 +80,8 @@ const Player = styled.div`
 			${respondTo.medium`
         		padding: 1.5rem;
       		`}
+
+			${props.watched ? `color: ${props.theme.colorDanger}` : ''}
 		}
 	`}
 `;
@@ -281,7 +283,7 @@ class Server extends Component {
 
 					<PlayerList>
 						{players.map((player) => (
-							<Player>
+							<Player watched={player.watched}>
 								<Link to={`/player/${player.id}`}>
 									<h1>{player.currentName}</h1>
 								</Link>
