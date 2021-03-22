@@ -67,6 +67,35 @@ func (s *playerService) GetRecentPlayers() ([]*refractor.Player, *refractor.Serv
 	}
 }
 
+func (s *playerService) SetPlayerWatch(id int64, watch bool) *refractor.ServiceResponse {
+	if _, err := s.repo.Update(id, refractor.UpdateArgs{
+		"Watched": watch,
+	}); err != nil {
+		if err == refractor.ErrNotFound {
+			return &refractor.ServiceResponse{
+				Success:    false,
+				StatusCode: http.StatusBadRequest,
+				Message:    config.MessageInvalidIDProvided,
+			}
+		}
+
+		s.log.Error("Could not updated player. Error: %v", err)
+		return refractor.InternalErrorResponse
+	}
+
+	res := &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Player added to the watchlist",
+	}
+
+	if !watch {
+		res.Message = "Player removed from the watchlist"
+	}
+
+	return res
+}
+
 func (s *playerService) OnPlayerJoin(serverID int64, playerGameID string, currentName string, gameConfig *refractor.GameConfig) (*refractor.Player, *refractor.ServiceResponse) {
 	// Check if the player is recorded in storage
 	foundPlayer, err := s.repo.FindOne(refractor.FindArgs{

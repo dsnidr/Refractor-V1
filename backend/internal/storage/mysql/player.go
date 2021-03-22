@@ -217,12 +217,9 @@ func (r *playerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.Pla
 func (r *playerRepo) SearchByName(name string, limit int, offset int) (int, []*refractor.Player, error) {
 	query := `
 		SELECT
-			res.PlayerID,
-			res.PlayFabID,
-			res.MCUUID,
-			res.LastSeen
+			res.*
 		FROM (
-			SELECT p.*, pn.Name FROM PlayerNames pn
+			SELECT p.* FROM PlayerNames pn
 			INNER JOIN Players p ON p.PlayerID = pn.PlayerID
 			WHERE pn.Name LIKE CONCAT('%', ?, '%')
 			LIMIT ? OFFSET ?
@@ -311,9 +308,9 @@ func (r *playerRepo) getPlayerNames(playerID int64) (string, []string, error) {
 
 // Scan helpers
 func (r *playerRepo) scanRow(row *sql.Row, player *refractor.DBPlayer) error {
-	return row.Scan(&player.PlayerID, &player.PlayFabID, &player.MCUUID, &player.LastSeen)
+	return row.Scan(&player.PlayerID, &player.PlayFabID, &player.MCUUID, &player.LastSeen, &player.Watched)
 }
 
 func (r *playerRepo) scanRows(rows *sql.Rows, player *refractor.DBPlayer) error {
-	return rows.Scan(&player.PlayerID, &player.PlayFabID, &player.MCUUID, &player.LastSeen)
+	return rows.Scan(&player.PlayerID, &player.PlayFabID, &player.MCUUID, &player.LastSeen, &player.Watched)
 }

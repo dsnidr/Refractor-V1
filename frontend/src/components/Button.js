@@ -27,6 +27,8 @@ const StyledButton = styled.button`
 			border: 1px solid ${darken(0.1, props.theme.colorDisabled)};
 			opacity: 0.8;
 		}
+
+		transition: all 0.2s;
 	`}
 `;
 

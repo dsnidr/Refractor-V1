@@ -1,5 +1,6 @@
 import {
 	SET_CURRENT_PLAYER,
+	SET_PLAYER_WATCHED,
 	SET_RECENT_PLAYERS,
 	SET_SEARCH_RESULTS,
 } from './playerActions';
@@ -27,9 +28,29 @@ const playerReducer = (state = initialState, action) => {
 				...state,
 				recentPlayers: action.payload,
 			};
+		case SET_PLAYER_WATCHED:
+			return setPlayerWatched(state, action.playerId, action.payload);
 		default:
 			return state;
 	}
 };
+
+function setPlayerWatched(state, playerId, watched) {
+	console.log(state, playerId, watched);
+
+	console.log(state.currentPlayer.id === playerId);
+
+	if (state.currentPlayer && state.currentPlayer.id === playerId) {
+		return {
+			...state,
+			currentPlayer: {
+				...state.currentPlayer,
+				watched: watched,
+			},
+		};
+	}
+
+	return state;
+}
 
 export default playerReducer;

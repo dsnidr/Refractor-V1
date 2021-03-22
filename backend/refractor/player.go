@@ -13,6 +13,7 @@ type Player struct {
 	LastSeen      int64    `json:"lastSeen"`
 	CurrentName   string   `json:"currentName"`
 	PreviousNames []string `json:"previousNames,omitempty"`
+	Watched       bool     `json:"watched"`
 }
 
 type DBPlayer struct {
@@ -22,6 +23,7 @@ type DBPlayer struct {
 	LastSeen      int64
 	CurrentName   string
 	PreviousNames []string
+	Watched       bool `json:"watched"`
 }
 
 func (dbp DBPlayer) Player() *Player {
@@ -32,6 +34,7 @@ func (dbp DBPlayer) Player() *Player {
 		LastSeen:      dbp.LastSeen,
 		CurrentName:   dbp.CurrentName,
 		PreviousNames: dbp.PreviousNames,
+		Watched:       dbp.Watched,
 	}
 }
 
@@ -52,12 +55,14 @@ type PlayerService interface {
 	GetPlayerByID(id int64) (*Player, *ServiceResponse)
 	GetPlayer(args FindArgs) (*Player, *ServiceResponse)
 	GetRecentPlayers() ([]*Player, *ServiceResponse)
+	SetPlayerWatch(id int64, watch bool) *ServiceResponse
 	OnPlayerJoin(serverID int64, playerGameID string, currentName string, gameConfig *GameConfig) (*Player, *ServiceResponse)
 	OnPlayerQuit(serverID int64, playerGameID string, gameConfig *GameConfig) (*Player, *ServiceResponse)
 }
 
 type PlayerHandler interface {
 	GetRecentPlayers(c echo.Context) error
+	SwitchPlayerWatch(watch bool) echo.HandlerFunc
 	OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 }

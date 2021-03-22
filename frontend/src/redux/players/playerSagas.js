@@ -4,13 +4,18 @@ import {
 	GET_RECENT_PLAYERS,
 	SEARCH_PLAYERS,
 	setCurrentPlayer,
+	setPlayerWatched,
 	setRecentPlayers,
 	setSearchResults,
+	UNWATCH_PLAYER,
+	WATCH_PLAYER,
 } from './playerActions';
 import {
 	getPlayerSummary,
 	getRecentPlayers,
 	searchPlayers,
+	unwatchPlayer,
+	watchPlayer,
 } from '../../api/playerApi';
 import { setErrors } from '../error/errorActions';
 import { SET_SUCCESS, setSuccess } from '../success/successActions';
@@ -92,6 +97,26 @@ function* getRecentPlayersAsync(action) {
 	}
 }
 
+function* watchPlayerAsync(action) {
+	try {
+		yield call(watchPlayer, action.playerId);
+
+		yield put(setPlayerWatched(action.playerId, true));
+	} catch (err) {
+		console.log('Could not watch player', err);
+	}
+}
+
+function* unwatchPlayerAsync(action) {
+	try {
+		yield call(unwatchPlayer, action.playerId);
+
+		yield put(setPlayerWatched(action.playerId, false));
+	} catch (err) {
+		console.log('Could not unwatch player', err);
+	}
+}
+
 function* watchGetPlayerSummary() {
 	yield takeLatest(GET_PLAYER_SUMMARY, getPlayerSummaryAsync);
 }
@@ -104,10 +129,20 @@ function* watchGetRecentPlayers() {
 	yield takeLatest(GET_RECENT_PLAYERS, getRecentPlayersAsync);
 }
 
+function* watchWatchPlayer() {
+	yield takeLatest(WATCH_PLAYER, watchPlayerAsync);
+}
+
+function* watchUnwatchPlayer() {
+	yield takeLatest(UNWATCH_PLAYER, unwatchPlayerAsync);
+}
+
 export default function* playerSagas() {
 	yield all([
 		call(watchGetPlayerSummary),
 		call(watchSearchPlayers),
 		call(watchGetRecentPlayers),
+		call(watchWatchPlayer),
+		call(watchUnwatchPlayer),
 	]);
 }
