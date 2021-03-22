@@ -1,7 +1,13 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
-import { GET_PLAYER_SUMMARY, setCurrentPlayer } from './playerActions';
-import { getPlayerSummary } from '../../api/playerApi';
+import {
+	GET_PLAYER_SUMMARY,
+	SEARCH_PLAYERS,
+	setCurrentPlayer,
+	setSearchResults,
+} from './playerActions';
+import { getPlayerSummary, searchPlayers } from '../../api/playerApi';
 import { setErrors } from '../error/errorActions';
+import { SET_SUCCESS, setSuccess } from '../success/successActions';
 
 function* getPlayerSummaryAsync(action) {
 	try {
@@ -39,10 +45,38 @@ function* getPlayerSummaryAsync(action) {
 	}
 }
 
+function* searchPlayersAsync(action) {
+	try {
+		const { data } = yield call(searchPlayers, action.payload);
+
+		yield put(setSearchResults(data.payload));
+
+		yield put(setSuccess('searchplayers', 'Showing results'));
+		yield put(setErrors('searchplayers', undefined));
+	} catch (err) {
+		console.log('Could not search players', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('searchplayers', undefined));
+		yield put(
+			setErrors(
+				'searchplayers',
+				!data.errors
+					? `Could not create server: ${err.response.data.message}`
+					: data.errors
+			)
+		);
+	}
+}
+
 function* watchGetPlayerSummary() {
 	yield takeLatest(GET_PLAYER_SUMMARY, getPlayerSummaryAsync);
 }
 
+function* watchSearchPlayers() {
+	yield takeLatest(SEARCH_PLAYERS, searchPlayersAsync);
+}
+
 export default function* playerSagas() {
-	yield all([call(watchGetPlayerSummary)]);
+	yield all([call(watchGetPlayerSummary), call(watchSearchPlayers)]);
 }

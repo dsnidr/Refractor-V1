@@ -109,7 +109,7 @@ class KickModal extends Component {
 		const { show, inputRef } = this.props;
 
 		if (success) {
-			setTimeout(() => this.onClose(), 1500);
+			setTimeout(() => window.location.reload(), 1500);
 		}
 
 		return (
