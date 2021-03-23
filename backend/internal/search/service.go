@@ -99,3 +99,7 @@ func (s *searchService) searchByPlayerName(name string, limit int, offset int) (
 		Message:    fmt.Sprintf("Found %d matching players", len(players)),
 	}
 }
+
+func (s *searchService) SearchInfractions(body params.SearchInfractionsParams) (int, []*refractor.Infraction, *refractor.ServiceResponse) {
+	return 0, nil, nil
+}

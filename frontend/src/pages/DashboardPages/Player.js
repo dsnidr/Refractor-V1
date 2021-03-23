@@ -176,6 +176,7 @@ class Player extends Component {
 			) {
 				this.infractionRef.current.scrollIntoView({
 					behavior: 'smooth',
+					block: 'center',
 				});
 			}
 		}, 500);
@@ -399,7 +400,7 @@ class Player extends Component {
 											highlight={
 												warning.id === highlightId
 											}
-											ref={
+											highlightRef={
 												warning.id === highlightId
 													? this.infractionRef
 													: null
@@ -437,7 +438,7 @@ class Player extends Component {
 									mute !== undefined && (
 										<Infraction
 											highlight={mute.id === highlightId}
-											ref={
+											highlightRef={
 												mute.id === highlightId
 													? this.infractionRef
 													: null
@@ -480,7 +481,7 @@ class Player extends Component {
 									kick !== undefined && (
 										<Infraction
 											highlight={kick.id === highlightId}
-											ref={
+											highlightRef={
 												kick.id === highlightId
 													? this.infractionRef
 													: null
