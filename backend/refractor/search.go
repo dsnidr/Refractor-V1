@@ -7,6 +7,7 @@ import (
 
 type SearchService interface {
 	SearchPlayers(body params.SearchPlayersParams) (int, []*Player, *ServiceResponse)
+	SearchInfractions(body params.SearchInfractionsParams) (int, []*Infraction, *ServiceResponse)
 }
 
 type SearchHandler interface {
