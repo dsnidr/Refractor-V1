@@ -34,7 +34,6 @@ import { refreshToken } from '../api/userApi';
 import { newWebsocket } from '../websocket/websocket';
 import {
 	addPlayerToServer,
-	getServerData,
 	getServers,
 	removePlayerFromServer,
 	setServerStatus,
@@ -47,6 +46,7 @@ import AddUser from './AdminPages/AddUser';
 import User from './AdminPages/User';
 import Player from './DashboardPages/Player';
 import Players from './DashboardPages/Players';
+import Infractions from './DashboardPages/Infractions';
 import RequirePerms from '../components/RequirePerms';
 import { flags } from '../permissions/permissions';
 
@@ -334,6 +334,11 @@ class Dashboard extends Component {
 								exact
 								path={'/players'}
 								component={Players}
+							/>
+							<Route
+								exact
+								path={'/infractions'}
+								component={Infractions}
 							/>
 						</Switch>
 					</Content>
