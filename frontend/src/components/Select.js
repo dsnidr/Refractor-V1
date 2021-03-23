@@ -11,6 +11,16 @@ const Error = styled.div`
 	`}
 `;
 
+const Title = styled.span`
+	${(props) => css`
+		font-size: 1rem;
+		color: ${props.theme.colorTextPrimary};
+		position: absolute;
+		top: -1.6rem;
+		left: 0.5rem;
+	`}
+`;
+
 const StyledSelect = styled.select`
 	${(props) => css`
 		width: 100%;
@@ -29,17 +39,22 @@ const StyledSelect = styled.select`
 	`}
 `;
 
+const SelectBox = styled.div`
+	position: relative;
+`;
+
 class Select extends Component {
 	render() {
 		const { props } = this;
 
 		return (
-			<div>
+			<SelectBox>
+				<Title>{props.title}</Title>
 				<StyledSelect name={props.name} onChange={props.onChange}>
 					{this.props.children}
 				</StyledSelect>
 				<Error>{props.error ? props.error : null}</Error>
-			</div>
+			</SelectBox>
 		);
 	}
 }
@@ -48,6 +63,7 @@ Select.propTypes = {
 	name: PropTypes.string,
 	onChange: PropTypes.func,
 	error: PropTypes.any,
+	title: PropTypes.string,
 };
 
 export default Select;

@@ -78,6 +78,15 @@ const InfractionInfo = styled.div`
 `;
 
 const Infraction = (props) => {
+	let duration = props.duration;
+	if (!isNaN(duration)) {
+		if (duration === 0) {
+			duration = 'permanent';
+		} else {
+			duration = `${duration} minutes`;
+		}
+	}
+
 	return (
 		<InfractionBox highlight={!!props.highlight} ref={props.highlightRef}>
 			<MetaDisplay>
@@ -86,9 +95,9 @@ const Infraction = (props) => {
 			<MetaDisplay>
 				<span>Issued by:</span> {props.issuer}
 			</MetaDisplay>
-			{props.duration && (
+			{duration && (
 				<MetaDisplay>
-					<span>Duration:</span> {props.duration} minutes
+					<span>Duration:</span> {duration}
 				</MetaDisplay>
 			)}
 			{props.remaining && (
