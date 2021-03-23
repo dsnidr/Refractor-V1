@@ -186,6 +186,96 @@ func (r *infractionRepo) Delete(id int64) error {
 	return nil
 }
 
+func (r *infractionRepo) Search(args refractor.FindArgs, limit int, offset int) (int, []*refractor.Infraction, error) {
+	query := `
+		SELECT
+			res.*,
+			u.Username AS StaffName
+		FROM (
+			SELECT
+				i.*
+			FROM Infractions i
+			INNER JOIN Servers s ON i.ServerID = s.ServerID
+			WHERE
+				(? IS NULL OR i.Type = ?) AND
+				(? IS NULL OR i.PlayerID = ?) AND
+				(? IS NULL OR i.UserID = ?) AND
+				(? IS NULL OR i.ServerID = ?) AND
+				(? IS NULL OR s.Game = ?)
+			) res
+		JOIN Users u ON res.UserID = u.UserID
+		GROUP BY InfractionID
+		LIMIT ? OFFSET ?;
+	`
+
+	var (
+		iType    = args["Type"]
+		playerID = args["PlayerID"]
+		userID   = args["UserID"]
+		serverID = args["ServerID"]
+		game     = args["Game"]
+	)
+
+	rows, err := r.db.Query(query, iType, iType, playerID, playerID, userID, userID, serverID, serverID, game, game, limit, offset)
+	if err != nil {
+		return 0, nil, wrapError(err)
+	}
+
+	var foundInfractions []*refractor.Infraction
+
+	for rows.Next() {
+		dbinfr := &refractor.DBInfraction{}
+
+		var staffName string
+		if err := rows.Scan(&dbinfr.InfractionID, &dbinfr.PlayerID, &dbinfr.UserID, &dbinfr.ServerID,
+			&dbinfr.Type, &dbinfr.Reason, &dbinfr.Duration, &dbinfr.Timestamp, &dbinfr.SystemAction, &staffName); err != nil {
+			return 0, nil, wrapError(err)
+		}
+
+		infraction := dbinfr.Infraction()
+
+		// Get player's name here since I can't figure out how to do it in the query in a reasonable amount of time.
+		nameQuery := `SELECT Name FROM PlayerNames WHERE PlayerID = ? ORDER BY DateRecorded DESC LIMIT 1`
+
+		row := r.db.QueryRow(nameQuery, infraction.PlayerID)
+
+		var playerName string
+		if err := row.Scan(&playerName); err != nil {
+			return 0, nil, wrapError(err)
+		}
+
+		// Set staff and player name
+		infraction.StaffName = staffName
+		infraction.PlayerName = playerName
+
+		// Append to list of results
+		foundInfractions = append(foundInfractions, infraction)
+	}
+
+	// Get total number of matches
+	query = `
+		SELECT
+			COUNT(1) AS Count
+		FROM Infractions i
+		INNER JOIN Servers s ON i.ServerID = s.ServerID
+		WHERE
+			(? IS NULL OR i.Type = ?) AND
+			(? IS NULL OR i.PlayerID = ?) AND
+			(? IS NULL OR i.UserID = ?) AND
+			(? IS NULL OR i.ServerID = ?) AND
+			(? IS NULL OR s.Game = ?)
+	`
+
+	row := r.db.QueryRow(query, iType, iType, playerID, playerID, userID, userID, serverID, serverID, game, game)
+
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, nil, wrapError(err)
+	}
+
+	return count, foundInfractions, nil
+}
+
 // Scan helpers
 func (r *infractionRepo) scanRow(row *sql.Row, infr *refractor.DBInfraction) error {
 	return row.Scan(&infr.InfractionID, &infr.PlayerID, &infr.UserID, &infr.ServerID, &infr.Type, &infr.Reason,

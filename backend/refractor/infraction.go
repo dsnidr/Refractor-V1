@@ -25,7 +25,8 @@ type Infraction struct {
 	Duration     int    `json:"duration"`
 	Timestamp    int64  `json:"timestamp"`
 	SystemAction bool   `json:"systemAction"`
-	StaffName    string `json:"staffName"` // not a database field
+	StaffName    string `json:"staffName"`  // not a database field
+	PlayerName   string `json:"playerName"` // not a database field
 }
 
 type DBInfraction struct {
@@ -65,6 +66,7 @@ type InfractionRepository interface {
 	FindAll() ([]*Infraction, error)
 	Update(id int64, args UpdateArgs) (*Infraction, error)
 	Delete(id int64) error
+	Search(args FindArgs, limit int, offset int) (int, []*Infraction, error)
 }
 
 type InfractionService interface {
