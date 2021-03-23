@@ -1,8 +1,22 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { respondTo } from '../mixins/respondTo';
 import PropTypes from 'prop-types';
 import { buildTimeRemainingString } from '../utils/timeUtils';
+
+const borderFlashKeyframes = (color) => keyframes`
+	0% {
+	  border: 0;
+	}
+  
+  	50% {
+	  border: 5px solid ${color};
+	}
+  
+  	100% {
+	  border: 0;
+	}
+`;
 
 const InfractionBox = styled.div`
 	${(props) => css`
@@ -14,6 +28,14 @@ const InfractionBox = styled.div`
 		grid-template-columns: 1fr 1fr 1fr 1fr 0.2fr;
 		grid-template-rows: 2rem auto;
 		grid-row-gap: 0.5rem;
+
+		animation: ${props.highlight
+			? css`
+					${borderFlashKeyframes(
+						props.theme.colorBorderPrimary
+					)} 2s ease-in-out
+			  `
+			: ''};
 	`}
 `;
 
@@ -57,7 +79,7 @@ const InfractionInfo = styled.div`
 
 const Infraction = (props) => {
 	return (
-		<InfractionBox>
+		<InfractionBox highlight={!!props.highlight} ref={props.highlightRef}>
 			<MetaDisplay>
 				<span>Date:</span> {props.date}
 			</MetaDisplay>

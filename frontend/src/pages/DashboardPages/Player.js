@@ -19,6 +19,7 @@ import { setLoading } from '../../redux/loading/loadingActions';
 import EditInfractionModal from '../../components/modals/EditInfractionModal';
 import BasicModal from '../../components/modals/BasicModal';
 import DeleteInfractionModal from '../../components/modals/DeleteInfractionModal';
+import queryString from 'querystring';
 
 const PlayerInfo = styled.div`
 	${(props) => css`
@@ -132,12 +133,22 @@ class Player extends Component {
 		this.muteModalRef = React.createRef();
 		this.kickModalRef = React.createRef();
 		this.banModalRef = React.createRef();
+
+		this.infractionRef = React.createRef();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		const id = parseInt(nextProps.match.params.id);
 		if (!id) {
 			prevState.error = 'Player not found';
+		}
+
+		const highlightString = queryString.parse(nextProps.location.search);
+		if (highlightString['?highlight']) {
+			const highlightId = parseInt(highlightString['?highlight']);
+			if (highlightId) {
+				prevState.highlightId = highlightId;
+			}
 		}
 
 		if (!prevState.player || prevState.player.id !== id) {
@@ -149,6 +160,25 @@ class Player extends Component {
 		}
 
 		return prevState;
+	}
+
+	componentDidMount() {
+		const { highlightId } = this.state;
+
+		// This timeout is a bit hacky, but we need it since the ref gets passed down to a child
+		// component and this function is called before the ref is typically assigned.
+		// The delay also seems to make the UX a bit better rather than instantly scrolling.
+		setTimeout(() => {
+			if (
+				highlightId &&
+				this.infractionRef &&
+				this.infractionRef.current
+			) {
+				this.infractionRef.current.scrollIntoView({
+					behavior: 'smooth',
+				});
+			}
+		}, 500);
 	}
 
 	showModal = (modal, ctx) => () => {
@@ -198,7 +228,7 @@ class Player extends Component {
 	};
 
 	render() {
-		const { player, error, modals } = this.state;
+		const { player, error, modals, highlightId } = this.state;
 		const { warn, mute, kick, ban, edit, del } = modals;
 
 		if (error) {
@@ -366,6 +396,14 @@ class Player extends Component {
 								(warning) =>
 									warning !== undefined && (
 										<Infraction
+											highlight={
+												warning.id === highlightId
+											}
+											ref={
+												warning.id === highlightId
+													? this.infractionRef
+													: null
+											}
 											date={timestampToDateTime(
 												warning.timestamp
 											)}
@@ -398,6 +436,12 @@ class Player extends Component {
 								(mute) =>
 									mute !== undefined && (
 										<Infraction
+											highlight={mute.id === highlightId}
+											ref={
+												mute.id === highlightId
+													? this.infractionRef
+													: null
+											}
 											date={timestampToDateTime(
 												mute.timestamp
 											)}
@@ -435,6 +479,12 @@ class Player extends Component {
 								(kick) =>
 									kick !== undefined && (
 										<Infraction
+											highlight={kick.id === highlightId}
+											ref={
+												kick.id === highlightId
+													? this.infractionRef
+													: null
+											}
 											date={timestampToDateTime(
 												kick.timestamp
 											)}
@@ -467,6 +517,12 @@ class Player extends Component {
 								(ban) =>
 									ban !== undefined && (
 										<Infraction
+											highlight={ban.id === highlightId}
+											highlightRef={
+												ban.id === highlightId
+													? this.infractionRef
+													: null
+											}
 											date={timestampToDateTime(
 												ban.timestamp
 											)}

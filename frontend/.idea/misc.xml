@@ -5,6 +5,7 @@
       <array>
         <option value="respondTo.medium" />
         <option value="respondTo.small" />
+        <option value="respondTo.large" />
       </array>
     </option>
   </component>
