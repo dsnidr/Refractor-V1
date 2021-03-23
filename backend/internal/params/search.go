@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/sniddunc/refractor/pkg/config"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -69,6 +70,88 @@ func (body *SearchPlayersParams) Validate() (bool, url.Values) {
 
 		if !typeIsValid {
 			errors.Set("type", "Invalid search type. Valid types are: "+strings.Join(validPlayerSearchTypes, ", "))
+		}
+	}
+
+	return len(errors) == 0, errors
+}
+
+type SearchInfractionsParams struct {
+	Type     string `json:"type" form:"type"`
+	PlayerID string `json:"playerId" form:"playerId"`
+	UserID   string `json:"userId" form:"userId"`
+	Game     string `json:"game" form:"game"`
+	ServerID string `json:"serverId" form:"serverId"`
+	*ParsedIDs
+	SearchParams
+}
+
+type ParsedIDs struct {
+	PlayerID int64
+	UserID   int64
+	ServerID int64
+}
+
+var validInfractionTypes = []string{"WARNING", "MUTE", "KICK", "BAN"}
+
+func (body *SearchInfractionsParams) Validate() (bool, url.Values) {
+	if ok, errors := body.SearchParams.Validate(); !ok {
+		return ok, errors
+	}
+	body.ParsedIDs = &ParsedIDs{}
+
+	errors := url.Values{}
+
+	// Validate infraction type filter
+	if body.Type != "" {
+		valid := false
+		for _, validType := range validInfractionTypes {
+			if body.Type == validType {
+				valid = true
+				break
+			}
+		}
+
+		if !valid {
+			errors.Set("type", "Invalid type")
+		}
+	}
+
+	// Validate and parse PlayerID
+	if body.PlayerID != "" {
+		playerID, err := strconv.ParseInt(body.PlayerID, 10, 64)
+		if err != nil {
+			errors.Set("playerId", config.MessageInvalidIDProvided)
+		} else {
+			body.ParsedIDs.PlayerID = playerID
+		}
+	}
+
+	// Validate and parse UserID
+	if body.UserID != "" {
+		playerID, err := strconv.ParseInt(body.UserID, 10, 64)
+		if err != nil {
+			errors.Set("userId", config.MessageInvalidIDProvided)
+		} else {
+			body.ParsedIDs.UserID = playerID
+		}
+	}
+
+	// Validate and parse ServerID
+	if body.ServerID != "" {
+		playerID, err := strconv.ParseInt(body.ServerID, 10, 64)
+		if err != nil {
+			errors.Set("serverId", config.MessageInvalidIDProvided)
+		} else {
+			body.ParsedIDs.ServerID = playerID
+		}
+	}
+
+	// Validate game length (we don't check if the game exists since this is done at the service layer)
+	if body.Game != "" {
+		if len(body.Game) < config.ServerGameMinLen || len(body.Game) > config.ServerGameMaxLen {
+			errors.Set("game", fmt.Sprintf("Game name must be between %d and %d characters in length",
+				config.ServerGameMinLen, config.ServerGameMaxLen))
 		}
 	}
 
