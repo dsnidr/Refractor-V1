@@ -16,7 +16,7 @@ func NewSearchHandler(service refractor.SearchService) refractor.SearchHandler {
 	}
 }
 
-type resultPayload struct {
+type playerResultPayload struct {
 	Results []*refractor.Player `json:"results"`
 	Count   int                 `json:"count"`
 }
@@ -31,8 +31,30 @@ func (h *searchHandler) SearchPlayers(c echo.Context) error {
 	return c.JSON(res.StatusCode, Response{
 		Success: res.Success,
 		Message: res.Message,
-		Payload: resultPayload{
+		Payload: playerResultPayload{
 			Results: players,
+			Count:   count,
+		},
+	})
+}
+
+type infractionResultPayload struct {
+	Results []*refractor.Infraction `json:"results"`
+	Count   int                     `json:"count"`
+}
+
+func (h *searchHandler) SearchInfractions(c echo.Context) error {
+	body := params.SearchInfractionsParams{}
+	if ok := ValidateRequest(&body, c); !ok {
+		return nil
+	}
+
+	count, infractions, res := h.service.SearchInfractions(body)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Payload: infractionResultPayload{
+			Results: infractions,
 			Count:   count,
 		},
 	})

@@ -9,14 +9,17 @@ import (
 )
 
 type searchService struct {
-	playerRepo refractor.PlayerRepository
-	log        logger.Logger
+	playerRepo     refractor.PlayerRepository
+	infractionRepo refractor.InfractionRepository
+	log            logger.Logger
 }
 
-func NewSearchService(playerRepo refractor.PlayerRepository, log logger.Logger) refractor.SearchService {
+func NewSearchService(playerRepo refractor.PlayerRepository, infractionRepo refractor.InfractionRepository,
+	log logger.Logger) refractor.SearchService {
 	return &searchService{
-		playerRepo: playerRepo,
-		log:        log,
+		playerRepo:     playerRepo,
+		infractionRepo: infractionRepo,
+		log:            log,
 	}
 }
 
@@ -101,5 +104,55 @@ func (s *searchService) searchByPlayerName(name string, limit int, offset int) (
 }
 
 func (s *searchService) SearchInfractions(body params.SearchInfractionsParams) (int, []*refractor.Infraction, *refractor.ServiceResponse) {
-	return 0, nil, nil
+	searchArgs := refractor.FindArgs{}
+
+	// add defined arguments from body into searchArgs
+	if body.Type != "" {
+		searchArgs["Type"] = body.Type
+	}
+
+	if body.Game != "" {
+		searchArgs["Game"] = body.Game
+	}
+
+	if body.ParsedIDs.PlayerID != 0 {
+		searchArgs["PlayerID"] = body.ParsedIDs.PlayerID
+	}
+
+	if body.ParsedIDs.ServerID != 0 {
+		searchArgs["ServerID"] = body.ParsedIDs.ServerID
+	}
+
+	if body.ParsedIDs.UserID != 0 {
+		searchArgs["UserID"] = body.ParsedIDs.UserID
+	}
+
+	if len(searchArgs) == 0 {
+		return 0, []*refractor.Infraction{}, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			Message:    "You must provide at least one search filter",
+		}
+	}
+
+	// Execute search
+	count, infractions, err := s.infractionRepo.Search(searchArgs, body.SearchParams.Limit, body.SearchParams.Offset)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return 0, []*refractor.Infraction{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Found 0 total results",
+			}
+		}
+
+		s.log.Error("Could not search infractions. Error: %v", err)
+		return 0, []*refractor.Infraction{}, refractor.InternalErrorResponse
+	}
+
+	return count, infractions, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Found %d total results", count),
+	}
 }

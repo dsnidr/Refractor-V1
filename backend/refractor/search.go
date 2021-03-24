@@ -12,4 +12,5 @@ type SearchService interface {
 
 type SearchHandler interface {
 	SearchPlayers(c echo.Context) error
+	SearchInfractions(c echo.Context) error
 }
