@@ -32,9 +32,10 @@ const ModalTopContent = styled.div`
 		border-radius: ${props.theme.borderRadiusNormal};
 		display: flex;
 		flex-direction: column;
+		height: ${props.tall ? '75vh' : 'auto'};
 
 		${respondTo.medium`
-      		width: 50rem;
+      		width: ${props.wide ? '100rem;' : '50rem;'};
     	`}
 
 		h1 {
@@ -99,6 +100,8 @@ class Modal extends Component {
 			<ModalContainer onClick={props.onContainerClick}>
 				<ModalTopContent
 					onClick={props.onModalClick || this.onModalClick}
+					wide={!!props.wide}
+					tall={!!props.tall}
 				>
 					{props.children}
 				</ModalTopContent>
