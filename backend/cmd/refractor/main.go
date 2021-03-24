@@ -108,7 +108,7 @@ func main() {
 	summaryService := summary.NewSummaryService(playerService, infractionService, loggerInst)
 	summaryHandler := api.NewSummaryHandler(summaryService)
 
-	searchService := search.NewSearchService(playerRepo, loggerInst)
+	searchService := search.NewSearchService(playerRepo, infractionRepo, loggerInst)
 	searchHandler := api.NewSearchHandler(searchService)
 
 	// Set up initial user if no users currently exist
