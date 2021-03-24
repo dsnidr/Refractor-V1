@@ -6,6 +6,7 @@ import InfractionPreview from '../../components/InfractionPreview';
 import Select from '../../components/Select';
 import ServerSelector from '../../components/ServerSelector';
 import Button from '../../components/Button';
+import PlayerSelector from '../../components/PlayerSelector';
 
 const RecentInfractionsBox = styled.div`
 	> :first-child {
@@ -163,13 +164,7 @@ class Infractions extends Component {
 							<option value={'KICK'}>Kick</option>
 							<option value={'BAN'}>Ban</option>
 						</Select>
-						<Select title={'player'}>
-							<option value={null}>Select...</option>
-							<option value={1}>Player1</option>
-							<option value={2}>Player2</option>
-							<option value={3}>Player3</option>
-							<option value={4}>Player4</option>
-						</Select>
+						<PlayerSelector title={'player'} />
 						<Select title={'user'}>
 							<option value={null}>Select...</option>
 							<option value={1}>User1</option>
