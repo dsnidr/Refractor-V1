@@ -1,15 +1,38 @@
 import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import { connect } from 'react-redux';
-import { searchPlayers } from '../redux/players/playerActions';
+import {
+	searchPlayers,
+	setSearchResults,
+} from '../redux/players/playerActions';
 import Modal, { ModalButtonBox, ModalContent } from './Modal';
 import Button from './Button';
 import Heading from './Heading';
 import TextInput from './TextInput';
 import Select from './Select';
 import respondTo from '../mixins/respondTo';
+import {
+	DisabledPageSwitcherButton,
+	MobileLabel,
+	PageSwitcher,
+	PageSwitcherButton,
+	PageSwitcherLabel,
+	ResultHeading,
+	ResultID,
+	ResultLastSeen,
+	ResultName,
+	ResultPlatform,
+	SearchResults,
+} from '../pages/DashboardPages/Players';
+import { Link } from 'react-router-dom';
+import { timestampToDateTime } from '../utils/timeUtils';
+import { setSuccess } from '../redux/success/successActions';
+import { setErrors } from '../redux/error/errorActions';
+import PropTypes from 'prop-types';
 
 const Wrapper = styled.div``;
+
+const limitInterval = 5;
 
 const StyledPlayerSelector = styled.div`
 	${(props) => css`
@@ -43,6 +66,7 @@ const SearchBox = styled.form`
 		grid-template-rows: 4rem 5rem 5rem 5rem 5rem;
 		grid-row-gap: 1rem;
 		grid-template-columns: auto;
+		height: 18rem;
 
 		:nth-child(1) {
 			grid-column: 1;
@@ -61,6 +85,7 @@ const SearchBox = styled.form`
 			grid-template-columns: 7fr 2fr 1fr;
 			grid-column-gap: 1rem;
 			grid-row-gap: 0;
+          	height: auto;
 		  
 		  	h1 {
             	grid-column: span 4;
@@ -68,10 +93,6 @@ const SearchBox = styled.form`
 		`}
 
 		select {
-			height: 5rem;
-		}
-
-		button {
 			height: 5rem;
 		}
 	`}
@@ -87,6 +108,66 @@ const Title = styled.span`
 	`}
 `;
 
+const Result = styled.div`
+	${(props) => css`
+		display: flex;
+		justify-content: space-between;
+
+		background-color: ${props.theme.colorAccent};
+		padding: 1rem 1rem;
+		font-size: 1.4rem;
+		border-radius: ${props.theme.borderRadiusNormal};
+
+		:nth-child(even) {
+			background-color: ${props.theme.colorBackground};
+		}
+
+		:hover {
+			background-color: ${props.theme.colorAccent};
+		}
+
+		${respondTo.medium`
+			grid-template-columns: 6rem 4fr 1fr 2fr;
+			grid-template-rows: 1fr;
+		`};
+
+		${props.highlight
+			? `background: ${props.theme.colorPrimaryDark} !important;`
+			: ''}
+
+		${MobileLabel} {
+			display: none;
+		}
+	`}
+`;
+
+const CustomResultHeading = styled(ResultHeading)`
+	font-size: 1.6rem;
+	padding: 1rem;
+`;
+
+const CustomPageSwitcher = styled(PageSwitcher)`
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+`;
+
+const CustomResultPlatform = styled(ResultPlatform)`
+	display: none;
+
+	${respondTo.medium`
+	  display: block;
+	`}
+`;
+
+const CustomResultLastSeen = styled(ResultLastSeen)`
+	display: none;
+
+	${respondTo.medium`
+	  display: block;
+	`}
+`;
+
 class PlayerSelector extends Component {
 	constructor(props) {
 		super(props);
@@ -95,14 +176,145 @@ class PlayerSelector extends Component {
 			showModal: false,
 			selectedPlayer: null,
 			errors: {},
+			page: 0,
+			type: 'name',
+			term: '',
+			currentSearchType: '',
+			currentSearchTerm: '',
+			searchWasRun: false,
 		};
 	}
 
-	onClose = () => {
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.success) {
+			prevState.searchWasRun = true;
+			prevState.errors = {};
+		} else if (nextProps.errors) {
+			prevState.errors = {
+				...prevState.errors,
+				...nextProps.errors,
+			};
+		}
+
+		return prevState;
+	}
+
+	onSearchClick = (e) => {
+		e.preventDefault();
+
+		const data = {
+			limit: limitInterval,
+			offset: 0,
+			type: this.state.type,
+			term: this.state.term,
+		};
+
+		// Basic validation
+		let errors = {};
+
+		if (!data.type) {
+			errors.type = 'Please select a search type';
+		}
+
+		if (!data.term) {
+			errors.term = 'Please enter a search term';
+		}
+
 		this.setState((prevState) => ({
 			...prevState,
+			errors: errors,
+		}));
+
+		if (Object.keys(errors).length > 0) {
+			return;
+		}
+
+		data.term = data.term.toUpperCase();
+
+		this.props.searchPlayers(data);
+
+		// Set current search fields
+		this.setState((prevState) => ({
+			...prevState,
+			page: 0,
+			currentSearchType: data.type,
+			currentSearchTerm: data.term,
+		}));
+	};
+
+	onChange = (e) => {
+		e.persist();
+		e.stopPropagation();
+
+		this.setState((prevState) => ({
+			...prevState,
+			[e.target.name]: e.target.value,
+		}));
+	};
+
+	onNextPage = () => {
+		const nextPage = this.state.page + 1;
+
+		const data = {
+			limit: limitInterval,
+			offset: nextPage * limitInterval,
+			type: this.state.currentSearchType,
+			term: this.state.currentSearchTerm,
+		};
+
+		// Update page in state
+		this.setState((prevState) => ({
+			...prevState,
+			page: nextPage,
+		}));
+
+		this.props.searchPlayers(data);
+	};
+
+	onPrevPage = () => {
+		const prevPage = this.state.page - 1;
+
+		const data = {
+			limit: limitInterval,
+			offset: prevPage * limitInterval,
+			type: this.state.currentSearchType,
+			term: this.state.currentSearchTerm,
+		};
+
+		// Update page in state
+		this.setState((prevState) => ({
+			...prevState,
+			page: prevPage,
+		}));
+
+		this.props.searchPlayers(data);
+	};
+
+	onClose = () => {
+		// Clear search results
+		this.props.clearResults();
+
+		this.setState({
 			showModal: false,
+			selectedPlayer: null,
 			errors: {},
+			page: 0,
+			type: 'name',
+			term: '',
+			currentSearchType: '',
+			currentSearchTerm: '',
+			searchWasRun: false,
+		});
+
+		// Clear success and errors
+		this.props.clearSuccess();
+		this.props.clearErrors();
+	};
+
+	onSelectPlayer = (player) => () => {
+		this.setState((prevState) => ({
+			...prevState,
+			selectedPlayer: player,
 		}));
 	};
 
@@ -113,9 +325,33 @@ class PlayerSelector extends Component {
 		}));
 	};
 
+	onSubmit = () => {
+		if (this.props.onSelect) {
+			this.props.onSelect(this.state.selectedPlayer);
+		}
+
+		this.onClose();
+	};
+
+	getPlatform = (player) => {
+		if (player.playFabId.length > 0) return <span>PlayFab</span>;
+		else if (player.mcuuid.length > 0) return <span>Minecraft</span>;
+
+		return <span>Unknown</span>;
+	};
+
 	render() {
-		const { showModal, errors } = this.state;
-		const { title } = this.props;
+		const {
+			showModal,
+			errors,
+			page,
+			searchWasRun,
+			selectedPlayer,
+		} = this.state;
+		const { title, results: stateRes } = this.props;
+		const { results, count } = stateRes;
+
+		const amountOfPages = Math.ceil(count / limitInterval);
 
 		return (
 			<Wrapper>
@@ -142,14 +378,112 @@ class PlayerSelector extends Component {
 								error={errors.type}
 							>
 								<option value="name">Name</option>
+								<option value="id">ID</option>
 								<option value="playfabid">PlayFabID</option>
 								<option value="mcuuid">Minecraft UUID</option>
 							</Select>
 
-							<Button size={'small'} onClick={this.onSearchClick}>
+							<Button
+								size={'inline'}
+								onClick={this.onSearchClick}
+							>
 								Search
 							</Button>
 						</SearchBox>
+
+						{results && results.length > 0 ? (
+							<SearchResults>
+								<>
+									<CustomResultHeading>
+										<ResultID>ID</ResultID>
+										<ResultName>Current Name</ResultName>
+										<ResultPlatform>
+											Platform
+										</ResultPlatform>
+										<ResultLastSeen>
+											Last Seen
+										</ResultLastSeen>
+									</CustomResultHeading>
+									{results.map((result, index) => (
+										<Result
+											id={index}
+											onClick={this.onSelectPlayer(
+												result
+											)}
+											highlight={
+												selectedPlayer &&
+												selectedPlayer.id === result.id
+											}
+										>
+											<ResultID>
+												<MobileLabel>ID: </MobileLabel>
+												{result.id}
+											</ResultID>
+											<ResultName>
+												<MobileLabel>
+													Name:{' '}
+												</MobileLabel>
+												{result.currentName}
+											</ResultName>
+											<CustomResultPlatform>
+												<MobileLabel>
+													Platform:{' '}
+												</MobileLabel>
+												{this.getPlatform(result)}
+											</CustomResultPlatform>
+											<CustomResultLastSeen>
+												<MobileLabel>
+													Last Seen:{' '}
+												</MobileLabel>
+												{timestampToDateTime(
+													result.lastSeen
+												)}
+											</CustomResultLastSeen>
+										</Result>
+									))}
+								</>
+							</SearchResults>
+						) : (
+							!!searchWasRun && (
+								<Heading headingStyle={'subtitle'}>
+									No results found
+								</Heading>
+							)
+						)}
+
+						{this.state.searchWasRun ? (
+							<CustomPageSwitcher>
+								<div>
+									{page > 0 ? (
+										<PageSwitcherButton
+											onClick={this.onPrevPage}
+										>
+											Prev
+										</PageSwitcherButton>
+									) : (
+										<DisabledPageSwitcherButton>
+											Prev
+										</DisabledPageSwitcherButton>
+									)}
+									<PageSwitcherLabel>
+										{page + 1}
+									</PageSwitcherLabel>
+									{results &&
+									results.length > 0 &&
+									page !== amountOfPages - 1 ? (
+										<PageSwitcherButton
+											onClick={this.onNextPage}
+										>
+											Next
+										</PageSwitcherButton>
+									) : (
+										<DisabledPageSwitcherButton>
+											Next
+										</DisabledPageSwitcherButton>
+									)}
+								</div>
+							</CustomPageSwitcher>
+						) : null}
 					</ModalContent>
 					<ModalButtonBox>
 						<Button
@@ -159,7 +493,12 @@ class PlayerSelector extends Component {
 						>
 							Cancel
 						</Button>
-						<Button size="normal" color="primary">
+						<Button
+							size="normal"
+							color="primary"
+							disabled={!!!selectedPlayer}
+							onClick={this.onSubmit}
+						>
 							Select
 						</Button>
 					</ModalButtonBox>
@@ -174,12 +513,21 @@ class PlayerSelector extends Component {
 	}
 }
 
+PlayerSelector.propTypes = {
+	onSelect: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state) => ({
 	results: state.players.searchResults,
+	errors: state.error.searchplayers,
+	success: state.success.searchplayers,
 });
 
 const mapDispatchToProps = (dispatch) => ({
 	searchPlayers: (searchData) => dispatch(searchPlayers(searchData)),
+	clearResults: () => dispatch(setSearchResults([])),
+	clearSuccess: () => dispatch(setSuccess('searchplayers', undefined)),
+	clearErrors: () => dispatch(setErrors('searchplayers', undefined)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlayerSelector);

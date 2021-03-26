@@ -50,7 +50,7 @@ const SearchBox = styled.form`
 	`}
 `;
 
-const SearchResults = styled.div`
+export const SearchResults = styled.div`
 	${(props) => css`
 		display: flex;
 		flex-direction: column;
@@ -63,7 +63,7 @@ const SearchResults = styled.div`
 	`}
 `;
 
-const ResultID = styled.div`
+export const ResultID = styled.div`
 	grid-column: 1;
 	grid-row: 1;
 
@@ -73,7 +73,7 @@ const ResultID = styled.div`
 	`};
 `;
 
-const ResultName = styled.div`
+export const ResultName = styled.div`
 	grid-column: 1;
 	grid-row: 2;
 
@@ -83,7 +83,7 @@ const ResultName = styled.div`
 	`};
 `;
 
-const ResultPlatform = styled.div`
+export const ResultPlatform = styled.div`
 	grid-column: 1;
 	grid-row: 3;
 
@@ -93,7 +93,7 @@ const ResultPlatform = styled.div`
 	`};
 `;
 
-const ResultLastSeen = styled.div`
+export const ResultLastSeen = styled.div`
 	grid-column: 1;
 	grid-row: 4;
 
@@ -103,7 +103,7 @@ const ResultLastSeen = styled.div`
 	`};
 `;
 
-const MobileLabel = styled.div`
+export const MobileLabel = styled.div`
 	${(props) => css`
 		display: inline;
 		color: ${props.theme.colorPrimary};
@@ -140,7 +140,7 @@ const Result = styled.div`
 	`}
 `;
 
-const ResultHeading = styled(Result)`
+export const ResultHeading = styled(Result)`
 	${(props) => css`
 		display: none;
 
@@ -153,7 +153,7 @@ const ResultHeading = styled(Result)`
 	`}
 `;
 
-const PageSwitcher = styled.div`
+export const PageSwitcher = styled.div`
 	${(props) => css`
 		font-size: 1.6rem;
 		color: ${props.theme.colorTextPrimary};
@@ -165,7 +165,7 @@ const PageSwitcher = styled.div`
 	`}
 `;
 
-const PageSwitcherButton = styled.div`
+export const PageSwitcherButton = styled.div`
 	${(props) => css`
 		height: 3rem;
 		display: flex;
@@ -180,7 +180,7 @@ const PageSwitcherButton = styled.div`
 	`}
 `;
 
-const DisabledPageSwitcherButton = styled.div`
+export const DisabledPageSwitcherButton = styled.div`
 	${(props) => css`
 		height: 3rem;
 		display: flex;
@@ -191,7 +191,7 @@ const DisabledPageSwitcherButton = styled.div`
 	`}
 `;
 
-const PageSwitcherLabel = styled.div`
+export const PageSwitcherLabel = styled.div`
 	${(props) => css`
 		color: ${props.theme.colorTextSecondary};
 

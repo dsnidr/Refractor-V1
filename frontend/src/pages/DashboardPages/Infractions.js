@@ -67,6 +67,10 @@ class Infractions extends Component {
 		this.state = {};
 	}
 
+	onPlayerSelectionChanged = (player) => {
+		console.log('PLAYER SELECTED:', player);
+	};
+
 	render() {
 		return (
 			<>
@@ -164,7 +168,10 @@ class Infractions extends Component {
 							<option value={'KICK'}>Kick</option>
 							<option value={'BAN'}>Ban</option>
 						</Select>
-						<PlayerSelector title={'player'} />
+						<PlayerSelector
+							title={'player'}
+							onSelect={this.onPlayerSelectionChanged}
+						/>
 						<Select title={'user'}>
 							<option value={null}>Select...</option>
 							<option value={1}>User1</option>
