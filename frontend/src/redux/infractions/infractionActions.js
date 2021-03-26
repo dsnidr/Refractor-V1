@@ -42,3 +42,15 @@ export const deleteInfraction = (infractionId, data) => ({
 	type: DELETE_INFRACTION,
 	infractionId: infractionId,
 });
+
+export const SEARCH_INFRACTIONS = 'SEARCH_INFRACTIONS';
+export const searchInfractions = (searchData) => ({
+	type: SEARCH_INFRACTIONS,
+	payload: searchData,
+});
+
+export const SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS';
+export const setSearchResults = (results) => ({
+	type: SET_SEARCH_RESULTS,
+	payload: results,
+});

@@ -5,6 +5,8 @@ import {
 	CREATE_MUTE,
 	CREATE_WARNING,
 	DELETE_INFRACTION,
+	SEARCH_INFRACTIONS,
+	setSearchResults,
 	UPDATE_INFRACTION,
 } from './infractionActions';
 import { setErrors } from '../error/errorActions';
@@ -15,6 +17,7 @@ import {
 	createMute,
 	createWarning,
 	deleteInfraction,
+	searchInfractions,
 	updateInfraction,
 } from '../../api/infractionApi';
 
@@ -142,6 +145,30 @@ function* deleteInfractionAsync(action) {
 	}
 }
 
+function* searchInfractionsAsync(action) {
+	try {
+		const { data } = yield call(searchInfractions, action.payload);
+
+		yield put(setSearchResults(data.payload));
+
+		yield put(setSuccess('searchinfractions', 'Results fetched'));
+		yield put(setErrors('searchinfractions', undefined));
+	} catch (err) {
+		console.log('Could not search infractions', err);
+		const { data } = err.response;
+
+		yield put(setSuccess('searchinfractions', undefined));
+		yield put(
+			setErrors(
+				'searchinfractions',
+				!data.errors
+					? `Could not search infractions: ${err.response.data.message}`
+					: data.errors
+			)
+		);
+	}
+}
+
 function* watchCreateWarning() {
 	yield takeLatest(CREATE_WARNING, createWarningAsync);
 }
@@ -166,6 +193,10 @@ function* watchDeleteInfraction() {
 	yield takeLatest(DELETE_INFRACTION, deleteInfractionAsync);
 }
 
+function* watchSearchInfractions() {
+	yield takeLatest(SEARCH_INFRACTIONS, searchInfractionsAsync);
+}
+
 export default function* infractionSagas() {
 	yield all([
 		call(watchCreateWarning),
@@ -174,5 +205,6 @@ export default function* infractionSagas() {
 		call(watchCreateBan),
 		call(watchUpdateInfraction),
 		call(watchDeleteInfraction),
+		call(watchSearchInfractions),
 	]);
 }

@@ -9,6 +9,7 @@ import gameReducer from './games/gameReducer';
 import serverReducer from './servers/serverReducer';
 import loadingReducer from './loading/loadingReducer';
 import playerReducer from './players/playerReducer';
+import infractionReducer from './infractions/infractionReducer';
 
 const createRootReducer = (history) =>
 	combineReducers({
@@ -21,6 +22,7 @@ const createRootReducer = (history) =>
 		games: gameReducer,
 		servers: serverReducer,
 		players: playerReducer,
+		infractions: infractionReducer,
 	});
 
 export default createRootReducer;

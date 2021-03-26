@@ -73,7 +73,7 @@ function* searchPlayersAsync(action) {
 			setErrors(
 				'searchplayers',
 				!data.errors
-					? `Could not create server: ${err.response.data.message}`
+					? `Could not search infractions: ${err.response.data.message}`
 					: data.errors
 			)
 		);
