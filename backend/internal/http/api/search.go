@@ -31,6 +31,7 @@ func (h *searchHandler) SearchPlayers(c echo.Context) error {
 	return c.JSON(res.StatusCode, Response{
 		Success: res.Success,
 		Message: res.Message,
+		Errors:  res.ValidationErrors,
 		Payload: playerResultPayload{
 			Results: players,
 			Count:   count,
@@ -53,6 +54,7 @@ func (h *searchHandler) SearchInfractions(c echo.Context) error {
 	return c.JSON(res.StatusCode, Response{
 		Success: res.Success,
 		Message: res.Message,
+		Errors:  res.ValidationErrors,
 		Payload: infractionResultPayload{
 			Results: infractions,
 			Count:   count,
