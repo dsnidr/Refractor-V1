@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 const ModalContainer = styled.div`
 	${(props) => css`
 		position: fixed;
+		overflow-y: scroll;
 		z-index: 100000;
 		top: 0;
 		left: 0;
@@ -24,7 +25,6 @@ const ModalTopContent = styled.div`
 		position: fixed;
 		z-index: 100001;
 		width: 100%;
-		min-height: 20rem;
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
@@ -32,7 +32,7 @@ const ModalTopContent = styled.div`
 		border-radius: ${props.theme.borderRadiusNormal};
 		display: flex;
 		flex-direction: column;
-		height: ${props.tall ? '75vh' : 'auto'};
+		min-height: ${props.tall ? '60rem' : '20rem'};
 
 		${respondTo.medium`
       		width: ${props.wide ? '100rem;' : '50rem;'};
@@ -77,6 +77,7 @@ export const ModalContent = styled.div`
 		flex: 1;
 		font-size: 1.6rem;
 		margin-bottom: 1rem;
+		position: relative;
 
 		> * {
 			margin-top: 1rem;
