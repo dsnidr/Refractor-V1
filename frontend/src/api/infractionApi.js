@@ -31,3 +31,7 @@ export function updateInfraction(infractionId, data) {
 export function deleteInfraction(infractionId, data) {
 	return axios.delete(`/api/v1/infractions/${infractionId}`);
 }
+
+export function searchInfractions(data) {
+	return axios.post('/api/v1/search/infractions', data, postHeaders);
+}
