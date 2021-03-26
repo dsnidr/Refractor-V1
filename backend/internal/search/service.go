@@ -6,6 +6,7 @@ import (
 	logger "github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
 	"net/http"
+	"strconv"
 )
 
 type searchService struct {
@@ -31,6 +32,8 @@ func (s *searchService) SearchPlayers(body params.SearchPlayersParams) (int, []*
 		return s.searchByPlayerMCUUID(body.SearchTerm)
 	case "name":
 		return s.searchByPlayerName(body.SearchTerm, body.SearchParams.Limit, body.SearchParams.Offset)
+	case "id":
+		return s.searchByID(body.SearchTerm)
 	default:
 		s.log.Warn("Attempted to search an invalid search type: %s", body.SearchType)
 		return 0, []*refractor.Player{}, refractor.InternalErrorResponse
@@ -100,6 +103,40 @@ func (s *searchService) searchByPlayerName(name string, limit int, offset int) (
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("Found %d matching players", len(players)),
+	}
+}
+
+func (s *searchService) searchByID(idString string) (int, []*refractor.Player, *refractor.ServiceResponse) {
+	// Parse ID
+	id, err := strconv.ParseInt(idString, 10, 64)
+	if err != nil {
+		return 0, []*refractor.Player{}, &refractor.ServiceResponse{
+			Success:    false,
+			StatusCode: http.StatusBadRequest,
+			ValidationErrors: map[string][]string{
+				"term": {"Invalid player ID"},
+			},
+		}
+	}
+
+	player, err := s.playerRepo.FindByID(id)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return 0, []*refractor.Player{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Found 0 matching players",
+			}
+		}
+
+		s.log.Error("Could not get player by id. Error: %v", err)
+		return 0, nil, refractor.InternalErrorResponse
+	}
+
+	return 1, []*refractor.Player{player}, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Found 1 matching players",
 	}
 }
 

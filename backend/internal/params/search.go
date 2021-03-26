@@ -37,7 +37,7 @@ type SearchPlayersParams struct {
 	SearchParams
 }
 
-var validPlayerSearchTypes = []string{"name", "playfabid", "mcuuid"}
+var validPlayerSearchTypes = []string{"name", "id", "playfabid", "mcuuid"}
 
 func (body *SearchPlayersParams) Validate() (bool, url.Values) {
 	if ok, errors := body.SearchParams.Validate(); !ok {
