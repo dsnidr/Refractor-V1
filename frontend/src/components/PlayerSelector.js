@@ -50,6 +50,10 @@ const StyledPlayerSelector = styled.div`
 		border-radius: ${props.theme.borderRadiusNormal};
 		user-select: none;
 
+		background-color: ${props.theme.inputs.fillInBackground
+			? props.theme.colorBorderPrimary
+			: null};
+
 		:hover {
 			cursor: pointer;
 		}
@@ -155,22 +159,6 @@ const CustomPageSwitcher = styled(PageSwitcher)`
 	position: absolute;
 	bottom: 0;
 	width: 100%;
-`;
-
-const CustomResultPlatform = styled(ResultPlatform)`
-	display: none;
-
-	${respondTo.medium`
-	  display: block;
-	`}
-`;
-
-const CustomResultLastSeen = styled(ResultLastSeen)`
-	display: none;
-
-	${respondTo.medium`
-	  display: block;
-	`}
 `;
 
 class PlayerSelector extends Component {

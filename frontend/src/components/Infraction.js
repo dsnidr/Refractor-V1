@@ -32,7 +32,7 @@ const InfractionBox = styled.div`
 		animation: ${props.highlight
 			? css`
 					${borderFlashKeyframes(
-						props.theme.colorBorderPrimary
+						props.theme.colorPrimaryLight
 					)} 2s ease-in-out
 			  `
 			: ''};

@@ -234,7 +234,7 @@ const RecentPlayer = styled.div`
 		align-items: center;
 		padding: 0.5rem;
 		font-size: 1.4rem;
-		background-color: ${props.theme.colorBackgroundDark};
+		background-color: ${props.theme.colorAccent};
 		border-radius: ${props.theme.borderRadiusNormal};
 	`}
 `;

@@ -55,7 +55,7 @@ const InfractionSearchBox = styled.div`
 
 	> :nth-child(2) {
 		margin-bottom: 3rem;
-		font-size: 1.2rem;
+		font-size: 1.4rem;
 	}
 `;
 
@@ -302,7 +302,7 @@ class Infractions extends Component {
 
 					<p>
 						Apply the filters you want and click Search. To leave a
-						filter out, set it to it's default value of Select...
+						filter out, set it to "Select...".
 					</p>
 
 					<Alert type="error" message={errors.general} />
