@@ -1,7 +1,11 @@
-import { SET_INFRACTION_SEARCH_RESULTS } from './infractionActions';
+import {
+	SET_INFRACTION_SEARCH_RESULTS,
+	SET_RECENT_INFRACTIONS,
+} from './infractionActions';
 
 const initialState = {
 	searchResults: [],
+	recentInfractions: [],
 };
 
 const infractionReducer = (state = initialState, action) => {
@@ -10,6 +14,11 @@ const infractionReducer = (state = initialState, action) => {
 			return {
 				...state,
 				searchResults: action.payload,
+			};
+		case SET_RECENT_INFRACTIONS:
+			return {
+				...state,
+				recentInfractions: action.payload,
 			};
 		default:
 			return state;

@@ -5,7 +5,9 @@ import {
 	CREATE_MUTE,
 	CREATE_WARNING,
 	DELETE_INFRACTION,
+	GET_RECENT_INFRACTIONS,
 	SEARCH_INFRACTIONS,
+	setRecentInfractions,
 	setSearchResults,
 	UPDATE_INFRACTION,
 } from './infractionActions';
@@ -17,6 +19,7 @@ import {
 	createMute,
 	createWarning,
 	deleteInfraction,
+	getRecentInfractions,
 	searchInfractions,
 	updateInfraction,
 } from '../../api/infractionApi';
@@ -171,6 +174,16 @@ function* searchInfractionsAsync(action) {
 	}
 }
 
+function* getRecentInfractionsAsync(action) {
+	try {
+		const { data } = yield call(getRecentInfractions);
+
+		yield put(setRecentInfractions(data.payload));
+	} catch (err) {
+		console.log('Could not get recent infractions. Error: %v', err);
+	}
+}
+
 function* watchCreateWarning() {
 	yield takeLatest(CREATE_WARNING, createWarningAsync);
 }
@@ -199,6 +212,10 @@ function* watchSearchInfractions() {
 	yield takeLatest(SEARCH_INFRACTIONS, searchInfractionsAsync);
 }
 
+function* watchGetRecentInfractions() {
+	yield takeLatest(GET_RECENT_INFRACTIONS, getRecentInfractionsAsync);
+}
+
 export default function* infractionSagas() {
 	yield all([
 		call(watchCreateWarning),
@@ -208,5 +225,6 @@ export default function* infractionSagas() {
 		call(watchUpdateInfraction),
 		call(watchDeleteInfraction),
 		call(watchSearchInfractions),
+		call(watchGetRecentInfractions),
 	]);
 }

@@ -95,6 +95,10 @@ const SearchBox = styled.form`
 		select {
 			height: 5rem;
 		}
+
+		button {
+			height: 5rem !important;
+		}
 	`}
 `;
 

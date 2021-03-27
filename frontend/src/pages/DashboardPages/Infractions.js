@@ -14,6 +14,7 @@ import {
 	hasPermission,
 } from '../../permissions/permissions';
 import {
+	getRecentInfractions,
 	searchInfractions,
 	setSearchResults,
 } from '../../redux/infractions/infractionActions';
@@ -121,6 +122,7 @@ class Infractions extends Component {
 
 	componentDidMount() {
 		this.props.clearResults();
+		this.props.getRecentInfractions();
 	}
 
 	onPlayerSelectionChanged = (player) => {
@@ -249,6 +251,7 @@ class Infractions extends Component {
 			self,
 			otherUsers,
 			games: allGames,
+			recentInfractions,
 		} = this.props;
 		const { results, count } = searchResults;
 		const { searchWasRun, fields, errors, page } = this.state;
@@ -277,15 +280,18 @@ class Infractions extends Component {
 					</Heading>
 
 					<RecentInfractions>
-						<InfractionPreview
-							to={`/player/1?highlight=6`}
-							type={'Ban'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'Void'}
-							duration={'permanent'}
-							reason={'test infraction reason'}
-						/>
+						{recentInfractions.map((infraction, index) => (
+							<InfractionPreview
+								key={`ri${index}`}
+								to={`/player/${infraction.playerId}?highlight=${infraction.id}`}
+								type={infraction.type}
+								player={infraction.playerName}
+								date={timestampToDateTime(infraction.timestamp)}
+								issuer={infraction.staffName}
+								duration={infraction.duration}
+								reason={infraction.reason}
+							/>
+						))}
 					</RecentInfractions>
 				</RecentInfractionsBox>
 
@@ -358,33 +364,31 @@ class Infractions extends Component {
 					</Button>
 				</InfractionSearchBox>
 
-				<ResultsBox>
-					{results && results.length > 0 ? (
-						<>
-							<Heading headingStyle={'subtitle'}>Results</Heading>
+				{results && results.length > 0 ? (
+					<ResultsBox>
+						<Heading headingStyle={'subtitle'}>Results</Heading>
 
-							{results.map((result, index) => (
-								<InfractionPreview
-									to={`/player/${result.playerId}?highlight=${result.id}`}
-									type={result.type}
-									player={result.playerName}
-									date={timestampToDateTime(result.timestamp)}
-									issuer={result.staffName}
-									duration={result.duration}
-									reason={result.reason}
-								/>
-							))}
-						</>
-					) : (
-						searchWasRun && (
-							<Heading headingStyle={'subtitle'}>
-								No results found
-							</Heading>
-						)
-					)}
-				</ResultsBox>
+						{results.map((result, index) => (
+							<InfractionPreview
+								to={`/player/${result.playerId}?highlight=${result.id}`}
+								type={result.type}
+								player={result.playerName}
+								date={timestampToDateTime(result.timestamp)}
+								issuer={result.staffName}
+								duration={result.duration}
+								reason={result.reason}
+							/>
+						))}
+					</ResultsBox>
+				) : (
+					searchWasRun && (
+						<Heading headingStyle={'subtitle'}>
+							No results found
+						</Heading>
+					)
+				)}
 
-				{this.state.searchWasRun ? (
+				{this.state.searchWasRun && results && results.length > 0 ? (
 					<PageSwitcher>
 						<div>
 							{page > 0 ? (
@@ -423,6 +427,7 @@ const mapStateToProps = (state) => ({
 	success: state.success.searchinfractions,
 	errors: state.error.searchinfractions,
 	results: state.infractions.searchResults,
+	recentInfractions: state.infractions.recentInfractions,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -431,6 +436,7 @@ const mapDispatchToProps = (dispatch) => ({
 	clearResults: () => dispatch(setSearchResults([])),
 	clearSuccess: () => dispatch(setSuccess('searchinfractions', undefined)),
 	clearErrors: () => dispatch(setErrors('searchinfractions', undefined)),
+	getRecentInfractions: () => dispatch(getRecentInfractions()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Infractions);

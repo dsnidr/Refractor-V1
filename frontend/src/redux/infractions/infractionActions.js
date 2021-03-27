@@ -54,3 +54,14 @@ export const setSearchResults = (results) => ({
 	type: SET_INFRACTION_SEARCH_RESULTS,
 	payload: results,
 });
+
+export const GET_RECENT_INFRACTIONS = 'GET_RECENT_INFRACTIONS';
+export const getRecentInfractions = () => ({
+	type: GET_RECENT_INFRACTIONS,
+});
+
+export const SET_RECENT_INFRACTIONS = 'SET_RECENT_INFRACTIONS';
+export const setRecentInfractions = (recentInfractions) => ({
+	type: SET_RECENT_INFRACTIONS,
+	payload: recentInfractions,
+});
