@@ -1,4 +1,4 @@
-import { SET_SEARCH_RESULTS } from './infractionActions';
+import { SET_INFRACTION_SEARCH_RESULTS } from './infractionActions';
 
 const initialState = {
 	searchResults: [],
@@ -6,7 +6,7 @@ const initialState = {
 
 const infractionReducer = (state = initialState, action) => {
 	switch (action.type) {
-		case SET_SEARCH_RESULTS:
+		case SET_INFRACTION_SEARCH_RESULTS:
 			return {
 				...state,
 				searchResults: action.payload,

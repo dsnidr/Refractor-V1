@@ -41,6 +41,13 @@ export function isRestricted(flagName) {
 	return false;
 }
 
+export function hasFullAccess(userPerms) {
+	return (
+		hasPermission(userPerms, flags.SUPER_ADMIN) ||
+		hasPermission(userPerms, flags.FULL_ACCESS)
+	);
+}
+
 export function getGrantedPerms(perms) {
 	const granted = [];
 

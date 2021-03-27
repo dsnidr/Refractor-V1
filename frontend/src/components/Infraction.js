@@ -118,7 +118,7 @@ const Infraction = (props) => {
 Infraction.propTypes = {
 	date: PropTypes.any.isRequired,
 	issuer: PropTypes.string.isRequired,
-	duration: PropTypes.number,
+	duration: PropTypes.any,
 	remaining: PropTypes.any,
 	reason: PropTypes.string.isRequired,
 	onEditClick: PropTypes.func,

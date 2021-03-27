@@ -127,7 +127,8 @@ const Result = styled.div`
 		}
 
 		${respondTo.medium`
-			grid-template-columns: 6rem 4fr 1fr 2fr;
+		  	display: grid;
+			grid-template-columns: 6rem 4fr 2fr 2fr;
 			grid-template-rows: 1fr;
 		`};
 
@@ -348,7 +349,7 @@ class PlayerSelector extends Component {
 			searchWasRun,
 			selectedPlayer,
 		} = this.state;
-		const { title, results: stateRes } = this.props;
+		const { title, value, results: stateRes } = this.props;
 		const { results, count } = stateRes;
 
 		const amountOfPages = Math.ceil(count / limitInterval);
@@ -425,20 +426,20 @@ class PlayerSelector extends Component {
 												</MobileLabel>
 												{result.currentName}
 											</ResultName>
-											<CustomResultPlatform>
+											<ResultPlatform>
 												<MobileLabel>
 													Platform:{' '}
 												</MobileLabel>
 												{this.getPlatform(result)}
-											</CustomResultPlatform>
-											<CustomResultLastSeen>
+											</ResultPlatform>
+											<ResultLastSeen>
 												<MobileLabel>
 													Last Seen:{' '}
 												</MobileLabel>
 												{timestampToDateTime(
 													result.lastSeen
 												)}
-											</CustomResultLastSeen>
+											</ResultLastSeen>
 										</Result>
 									))}
 								</>
@@ -506,7 +507,7 @@ class PlayerSelector extends Component {
 
 				<StyledPlayerSelector onClick={this.onSelectClicked}>
 					<Title>{title}</Title>
-					<PlayerName>Select...</PlayerName>
+					<PlayerName>{value}</PlayerName>
 				</StyledPlayerSelector>
 			</Wrapper>
 		);
@@ -515,6 +516,8 @@ class PlayerSelector extends Component {
 
 PlayerSelector.propTypes = {
 	onSelect: PropTypes.func.isRequired,
+	title: PropTypes.string,
+	value: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = (state) => ({
