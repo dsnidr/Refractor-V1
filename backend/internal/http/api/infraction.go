@@ -165,3 +165,12 @@ func (h *infractionHandler) GetPlayerInfractions(infractionType string) echo.Han
 		})
 	}
 }
+
+func (h *infractionHandler) GetRecentInfractions(c echo.Context) error {
+	infractions, res := h.service.GetRecentInfractions(config.RecentInfractionsReturnCount)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Payload: infractions,
+	})
+}

@@ -113,6 +113,7 @@ func (api *API) setupRoutes() {
 	infractionGroup.GET("/:id/mutes", api.InfractionHandler.GetPlayerInfractions(refractor.INFRACTION_TYPE_MUTE))
 	infractionGroup.GET("/:id/kicks", api.InfractionHandler.GetPlayerInfractions(refractor.INFRACTION_TYPE_KICK))
 	infractionGroup.GET("/:id/bans", api.InfractionHandler.GetPlayerInfractions(refractor.INFRACTION_TYPE_BAN))
+	infractionGroup.GET("/recent", api.InfractionHandler.GetRecentInfractions)
 
 	// Player endpoints
 	playerGroup := apiGroup.Group("/players", jwtMiddleware, AttachClaims())

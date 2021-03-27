@@ -331,3 +331,25 @@ func (s *infractionService) GetPlayerInfractions(playerID int64) ([]*refractor.I
 		Message:    fmt.Sprintf("Fetched %d infractions", len(infractions)),
 	}
 }
+
+func (s *infractionService) GetRecentInfractions(count int) ([]*refractor.Infraction, *refractor.ServiceResponse) {
+	infractions, err := s.repo.GetRecent(count)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return []*refractor.Infraction{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Fetched 0 recent infractions",
+			}
+		}
+
+		s.log.Error("Could not get recent infractions. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	return infractions, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Fetched %d recent infractions", len(infractions)),
+	}
+}

@@ -276,6 +276,55 @@ func (r *infractionRepo) Search(args refractor.FindArgs, limit int, offset int) 
 	return count, foundInfractions, nil
 }
 
+func (r *infractionRepo) GetRecent(count int) ([]*refractor.Infraction, error) {
+	query := `
+		SELECT
+			i.*,
+			u.Username AS StaffName
+		FROM Infractions i
+		INNER JOIN Users u ON u.UserID = i.UserID
+		ORDER BY Timestamp DESC LIMIT ?;
+	`
+
+	rows, err := r.db.Query(query, count)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	var foundInfractions []*refractor.Infraction
+
+	for rows.Next() {
+		dbinfr := &refractor.DBInfraction{}
+
+		var staffName string
+		if err := rows.Scan(&dbinfr.InfractionID, &dbinfr.PlayerID, &dbinfr.UserID, &dbinfr.ServerID,
+			&dbinfr.Type, &dbinfr.Reason, &dbinfr.Duration, &dbinfr.Timestamp, &dbinfr.SystemAction, &staffName); err != nil {
+			return nil, wrapError(err)
+		}
+
+		infraction := dbinfr.Infraction()
+
+		// Get player's name here since I can't figure out how to do it in the query in a reasonable amount of time.
+		nameQuery := `SELECT Name FROM PlayerNames WHERE PlayerID = ? ORDER BY DateRecorded DESC LIMIT 1`
+
+		row := r.db.QueryRow(nameQuery, infraction.PlayerID)
+
+		var playerName string
+		if err := row.Scan(&playerName); err != nil {
+			return nil, wrapError(err)
+		}
+
+		// Set staff and player name
+		infraction.StaffName = staffName
+		infraction.PlayerName = playerName
+
+		// Append to list of results
+		foundInfractions = append(foundInfractions, infraction)
+	}
+
+	return foundInfractions, nil
+}
+
 // Scan helpers
 func (r *infractionRepo) scanRow(row *sql.Row, infr *refractor.DBInfraction) error {
 	return row.Scan(&infr.InfractionID, &infr.PlayerID, &infr.UserID, &infr.ServerID, &infr.Type, &infr.Reason,
