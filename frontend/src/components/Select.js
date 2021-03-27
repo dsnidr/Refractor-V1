@@ -28,9 +28,6 @@ const StyledSelect = styled.select`
 	${(props) => css`
 		width: 100%;
 		height: 4rem;
-		background: ${props.theme.inputs.fillInBackground
-			? props.theme.colorBorderPrimary
-			: 'none'};
 		border: 1px solid ${props.theme.colorBorderPrimary};
 		border-radius: ${props.theme.borderRadiusNormal};
 		font-size: 1.6rem;
@@ -56,6 +53,15 @@ const SelectBox = styled.div`
 	position: relative;
 `;
 
+const SelectWrapper = styled.div`
+	${(props) => css`
+		position: relative;
+		background-color: ${props.theme.inputs.fillInBackground
+			? props.theme.colorBorderPrimary
+			: null};
+	`}
+`;
+
 class Select extends Component {
 	render() {
 		const { props } = this;
@@ -63,9 +69,11 @@ class Select extends Component {
 		return (
 			<SelectBox>
 				<Title>{props.title}</Title>
-				<StyledSelect name={props.name} onChange={props.onChange}>
-					{this.props.children}
-				</StyledSelect>
+				<SelectWrapper>
+					<StyledSelect name={props.name} onChange={props.onChange}>
+						{this.props.children}
+					</StyledSelect>
+				</SelectWrapper>
 				<Error>{props.error ? props.error : null}</Error>
 			</SelectBox>
 		);
