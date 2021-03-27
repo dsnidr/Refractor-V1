@@ -67,6 +67,7 @@ type InfractionRepository interface {
 	Update(id int64, args UpdateArgs) (*Infraction, error)
 	Delete(id int64) error
 	Search(args FindArgs, limit int, offset int) (int, []*Infraction, error)
+	GetRecent(count int) ([]*Infraction, error)
 }
 
 type InfractionService interface {
@@ -78,6 +79,7 @@ type InfractionService interface {
 	UpdateInfraction(id int64, body params.UpdateInfractionParams) (*Infraction, *ServiceResponse)
 	GetPlayerInfractionsType(infractionType string, playerID int64) ([]*Infraction, *ServiceResponse)
 	GetPlayerInfractions(playerID int64) ([]*Infraction, *ServiceResponse)
+	GetRecentInfractions(count int) ([]*Infraction, *ServiceResponse)
 }
 
 type InfractionHandler interface {
@@ -88,4 +90,5 @@ type InfractionHandler interface {
 	DeleteInfraction(c echo.Context) error
 	UpdateInfraction(c echo.Context) error
 	GetPlayerInfractions(infractionType string) echo.HandlerFunc
+	GetRecentInfractions(c echo.Context) error
 }

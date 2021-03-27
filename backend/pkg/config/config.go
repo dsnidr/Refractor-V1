@@ -17,10 +17,11 @@ var (
 	ServerPasswordMinLen = 1
 	ServerPasswordMaxLen = 64
 
-	// Infraction
-	InfractionReasonMinLen = 1
-	InfractionReasonMaxLen = 4096
-	InfractionDurationMax  = math.MaxInt32
+	// Infractions
+	InfractionReasonMinLen       = 1
+	InfractionReasonMaxLen       = 4096
+	InfractionDurationMax        = math.MaxInt32
+	RecentInfractionsReturnCount = 20
 
 	// Search
 	SearchTermMinLen = 1
