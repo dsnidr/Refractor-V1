@@ -35,3 +35,7 @@ export function deleteInfraction(infractionId, data) {
 export function searchInfractions(data) {
 	return axios.post('/api/v1/search/infractions', data, postHeaders);
 }
+
+export function getRecentInfractions() {
+	return axios.get('/api/v1/infractions/recent');
+}
