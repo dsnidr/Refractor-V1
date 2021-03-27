@@ -2,7 +2,7 @@ import {
 	SET_CURRENT_PLAYER,
 	SET_PLAYER_WATCHED,
 	SET_RECENT_PLAYERS,
-	SET_SEARCH_RESULTS,
+	SET_PLAYER_SEARCH_RESULTS,
 } from './playerActions';
 
 const initialState = {
@@ -18,7 +18,7 @@ const playerReducer = (state = initialState, action) => {
 				...state,
 				currentPlayer: action.payload,
 			};
-		case SET_SEARCH_RESULTS:
+		case SET_PLAYER_SEARCH_RESULTS:
 			return {
 				...state,
 				searchResults: action.payload,

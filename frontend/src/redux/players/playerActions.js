@@ -16,9 +16,9 @@ export const searchPlayers = (data) => ({
 	payload: data,
 });
 
-export const SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS';
+export const SET_PLAYER_SEARCH_RESULTS = 'SET_PLAYER_SEARCH_RESULTS';
 export const setSearchResults = (results) => ({
-	type: SET_SEARCH_RESULTS,
+	type: SET_PLAYER_SEARCH_RESULTS,
 	payload: results,
 });
 

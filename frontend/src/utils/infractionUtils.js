@@ -5,3 +5,7 @@ export function reasonIsValid(reason) {
 		reason.trim().length === 0
 	);
 }
+
+export function typeHasDuration(type) {
+	return type === 'MUTE' || type === 'BAN';
+}

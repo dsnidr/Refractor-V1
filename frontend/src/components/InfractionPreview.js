@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { buildTimeRemainingString } from '../utils/timeUtils';
 import { Link } from 'react-router-dom';
 import { lighten } from 'polished';
+import { typeHasDuration } from '../utils/infractionUtils';
 
 const InfractionBox = styled(Link)`
 	${(props) => css`
@@ -44,6 +45,21 @@ const InfractionReason = styled.div`
 `;
 
 const InfractionPreview = (props) => {
+	let duration = props.duration;
+	if (typeof duration === 'number') {
+		if (duration === 0) {
+			duration = 'permanent';
+		} else {
+			duration = `${duration} minutes`;
+		}
+	} else {
+		duration = null;
+	}
+
+	if (!typeHasDuration(props.type)) {
+		duration = null;
+	}
+
 	return (
 		<InfractionBox
 			to={props.to}
@@ -66,10 +82,10 @@ const InfractionPreview = (props) => {
 				<span>Date: </span>
 				{props.date}
 			</MetaDisplay>
-			{props.duration && (
+			{duration && (
 				<MetaDisplay>
 					<span>Duration: </span>
-					{props.duration}
+					{duration}
 				</MetaDisplay>
 			)}
 			<InfractionReason>{props.reason}</InfractionReason>
@@ -81,7 +97,7 @@ InfractionPreview.propTypes = {
 	type: PropTypes.string.isRequired,
 	date: PropTypes.any.isRequired,
 	issuer: PropTypes.string.isRequired,
-	duration: PropTypes.number,
+	duration: PropTypes.any,
 	reason: PropTypes.string.isRequired,
 	to: PropTypes.string,
 };

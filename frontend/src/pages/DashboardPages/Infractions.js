@@ -7,6 +7,26 @@ import Select from '../../components/Select';
 import ServerSelector from '../../components/ServerSelector';
 import Button from '../../components/Button';
 import PlayerSelector from '../../components/PlayerSelector';
+import { getAllUsers } from '../../redux/user/userActions';
+import {
+	flags,
+	hasFullAccess,
+	hasPermission,
+} from '../../permissions/permissions';
+import {
+	searchInfractions,
+	setSearchResults,
+} from '../../redux/infractions/infractionActions';
+import Alert from '../../components/Alert';
+import { setSuccess } from '../../redux/success/successActions';
+import { setErrors } from '../../redux/error/errorActions';
+import { timestampToDateTime } from '../../utils/timeUtils';
+import {
+	DisabledPageSwitcherButton,
+	PageSwitcher,
+	PageSwitcherButton,
+	PageSwitcherLabel,
+} from './Players';
 
 const RecentInfractionsBox = styled.div`
 	> :first-child {
@@ -60,18 +80,191 @@ const ResultsBox = styled.div`
 	`}
 `;
 
+const limitInterval = 10;
+
 class Infractions extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {};
+		this.state = {
+			page: 0,
+			currentSearchData: null,
+			errors: {},
+			searchWasRun: false,
+			fields: {},
+			currentSearchFields: {},
+		};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		/* global BigInt */
+		if (
+			nextProps.self &&
+			!nextProps.otherUsers &&
+			hasFullAccess(BigInt(nextProps.self.permissions))
+		) {
+			nextProps.getAllUsers();
+		}
+
+		if (nextProps.success) {
+			prevState.searchWasRun = true;
+			prevState.errors = {};
+		}
+
+		if (nextProps.errors) {
+			prevState.errors = {
+				...prevState.errors,
+				...nextProps.errors,
+			};
+		}
+	}
+
+	componentDidMount() {
+		this.props.clearResults();
 	}
 
 	onPlayerSelectionChanged = (player) => {
-		console.log('PLAYER SELECTED:', player);
+		this.setState((prevState) => ({
+			...prevState,
+			fields: {
+				...prevState.fields,
+				player: player,
+			},
+		}));
+	};
+
+	onSelectChange = (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			fields: {
+				...prevState.fields,
+				[e.target.name]: e.target.value,
+			},
+		}));
+	};
+
+	onSearchClick = (e) => {
+		e.preventDefault();
+
+		// Clear previous results, successes and errors
+		this.props.clearResults();
+		this.props.clearSuccess();
+		this.props.clearErrors();
+
+		const { type, player, user, game, server } = this.state.fields;
+		const searchData = {};
+		const errors = {};
+
+		// A bit messy, but I'm running out of time and this works.
+		// Could refactor later to be less if spam.
+		if (type) {
+			searchData.type = type.toString();
+		}
+
+		if (player) {
+			searchData.playerId = player.id.toString();
+		}
+
+		if (user) {
+			searchData.userId = user.toString();
+		}
+
+		if (game) {
+			searchData.game = game.toString();
+		}
+
+		if (server) {
+			searchData.serverId = server.id.toString();
+		}
+
+		if (Object.keys(searchData).length === 0) {
+			errors.general = 'You must set at least one search filter';
+		}
+
+		this.setState((prevState) => ({
+			...prevState,
+			errors: errors,
+		}));
+
+		if (Object.keys(errors).length > 0) {
+			return;
+		}
+
+		// Set limit and offset
+		searchData.limit = limitInterval;
+		searchData.offset = 0;
+
+		// Record current search data
+		this.setState((prevState) => ({
+			...prevState,
+			currentSearchFields: searchData,
+		}));
+
+		this.props.searchInfractions(searchData);
+	};
+
+	onNextPage = () => {
+		const { page, currentSearchFields } = this.state;
+
+		const nextPage = page + 1;
+
+		const searchData = {
+			...currentSearchFields,
+			limit: limitInterval,
+			offset: nextPage * limitInterval,
+		};
+
+		// Update page in state
+		this.setState((prevState) => ({
+			...prevState,
+			page: nextPage,
+		}));
+
+		this.props.searchInfractions(searchData);
+	};
+
+	onPrevPage = () => {
+		const { page, currentSearchFields } = this.state;
+
+		const prevPage = page - 1;
+
+		const searchData = {
+			...currentSearchFields,
+			limit: limitInterval,
+			offset: prevPage * limitInterval,
+		};
+
+		// Update page in state
+		this.setState((prevState) => ({
+			...prevState,
+			page: prevPage,
+		}));
+
+		this.props.searchInfractions(searchData);
 	};
 
 	render() {
+		const {
+			results: searchResults,
+			self,
+			otherUsers,
+			games: allGames,
+		} = this.props;
+		const { results, count } = searchResults;
+		const { searchWasRun, fields, errors, page } = this.state;
+		const { player } = fields;
+
+		const users = [];
+		if (!!otherUsers) {
+			users.push(...Object.values(otherUsers));
+		} else {
+			users.push(self);
+		}
+
+		const games = Object.keys(allGames);
+
+		const amountOfPages = Math.ceil(count / limitInterval);
+
 		return (
 			<>
 				<div>
@@ -93,60 +286,6 @@ class Infractions extends Component {
 							duration={'permanent'}
 							reason={'test infraction reason'}
 						/>
-						<InfractionPreview
-							type={'Warning'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'machetemike'}
-							reason={'test infraction reason'}
-						/>
-						<InfractionPreview
-							type={'Kick'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'Gladman'}
-							reason={'test infraction reason'}
-						/>
-						<InfractionPreview
-							type={'Ban'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'Void'}
-							duration={'permanent'}
-							reason={'test infraction reason'}
-						/>
-						<InfractionPreview
-							type={'Ban'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'Void'}
-							duration={'permanent'}
-							reason={'test infraction reason'}
-						/>
-						<InfractionPreview
-							type={'Ban'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'Void'}
-							duration={'permanent'}
-							reason={'test infraction reason'}
-						/>
-						<InfractionPreview
-							type={'Ban'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'Void'}
-							duration={'permanent'}
-							reason={'test infraction reason'}
-						/>
-						<InfractionPreview
-							type={'Ban'}
-							player={'LMG'}
-							date={'2021-03-23'}
-							issuer={'Void'}
-							duration={'permanent'}
-							reason={'test infraction reason'}
-						/>
 					</RecentInfractions>
 				</RecentInfractionsBox>
 
@@ -160,9 +299,15 @@ class Infractions extends Component {
 						filter out, set it to it's default value of Select...
 					</p>
 
+					<Alert type="error" message={errors.general} />
+
 					<SearchBox>
-						<Select title={'infraction type'}>
-							<option value={null}>Select...</option>
+						<Select
+							title={'infraction type'}
+							name={'type'}
+							onChange={this.onSelectChange}
+						>
+							<option value={''}>Select...</option>
 							<option value={'WARNING'}>Warning</option>
 							<option value={'MUTE'}>Mute</option>
 							<option value={'KICK'}>Kick</option>
@@ -171,73 +316,121 @@ class Infractions extends Component {
 						<PlayerSelector
 							title={'player'}
 							onSelect={this.onPlayerSelectionChanged}
+							value={player ? player.currentName : 'Select...'}
 						/>
-						<Select title={'user'}>
-							<option value={null}>Select...</option>
-							<option value={1}>User1</option>
-							<option value={2}>User2</option>
-							<option value={3}>User3</option>
-							<option value={4}>User4</option>
+						<Select
+							title={'user'}
+							onChange={this.onSelectChange}
+							name={'user'}
+						>
+							<option value={''}>Select...</option>
+							{users.map((user, index) => (
+								<option key={`user${index}`} value={user.id}>
+									{user.username}
+								</option>
+							))}
 						</Select>
-						<Select title={'game'}>
+						<Select
+							title={'game'}
+							onChange={this.onSelectChange}
+							name={'game'}
+						>
 							<option value={null}>Select...</option>
-							<option value={'Mordhau'}>Mordhau</option>
-							<option value={'Minecraft'}>Minecraft</option>
+							{games.map((game, index) => (
+								<option key={`game${index}`} value={game}>
+									{game}
+								</option>
+							))}
 						</Select>
-						<ServerSelector default={'Select...'} />
+						<ServerSelector
+							default={'Select...'}
+							onChange={this.onSelectChange}
+							name={'server'}
+						/>
 					</SearchBox>
 
-					<Button size={'normal'} color={'primary'}>
+					<Button
+						size={'normal'}
+						color={'primary'}
+						onClick={this.onSearchClick}
+					>
 						Search
 					</Button>
 				</InfractionSearchBox>
 
 				<ResultsBox>
-					<Heading headingStyle={'subtitle'}>Results</Heading>
+					{results && results.length > 0 ? (
+						<>
+							<Heading headingStyle={'subtitle'}>Results</Heading>
 
-					<InfractionPreview
-						type={'Ban'}
-						player={'LMG'}
-						date={'2021-03-23'}
-						issuer={'Void'}
-						duration={'permanent'}
-						reason={'test infraction reason'}
-					/>
-
-					<InfractionPreview
-						type={'Ban'}
-						player={'LMG'}
-						date={'2021-03-23'}
-						issuer={'Void'}
-						duration={'permanent'}
-						reason={'test infraction reason'}
-					/>
-
-					<InfractionPreview
-						type={'Ban'}
-						player={'LMG'}
-						date={'2021-03-23'}
-						issuer={'Void'}
-						duration={'permanent'}
-						reason={'test infraction reason'}
-					/>
-
-					<InfractionPreview
-						type={'Ban'}
-						player={'LMG'}
-						date={'2021-03-23'}
-						issuer={'Void'}
-						duration={'permanent'}
-						reason={'test infraction reason'}
-					/>
+							{results.map((result, index) => (
+								<InfractionPreview
+									to={`/player/${result.playerId}?highlight=${result.id}`}
+									type={result.type}
+									player={result.playerName}
+									date={timestampToDateTime(result.timestamp)}
+									issuer={result.staffName}
+									duration={result.duration}
+									reason={result.reason}
+								/>
+							))}
+						</>
+					) : (
+						searchWasRun && (
+							<Heading headingStyle={'subtitle'}>
+								No results found
+							</Heading>
+						)
+					)}
 				</ResultsBox>
+
+				{this.state.searchWasRun ? (
+					<PageSwitcher>
+						<div>
+							{page > 0 ? (
+								<PageSwitcherButton onClick={this.onPrevPage}>
+									Prev
+								</PageSwitcherButton>
+							) : (
+								<DisabledPageSwitcherButton>
+									Prev
+								</DisabledPageSwitcherButton>
+							)}
+							<PageSwitcherLabel>{page + 1}</PageSwitcherLabel>
+							{results &&
+							results.length > 0 &&
+							page !== amountOfPages - 1 ? (
+								<PageSwitcherButton onClick={this.onNextPage}>
+									Next
+								</PageSwitcherButton>
+							) : (
+								<DisabledPageSwitcherButton>
+									Next
+								</DisabledPageSwitcherButton>
+							)}
+						</div>
+					</PageSwitcher>
+				) : null}
 			</>
 		);
 	}
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+	self: state.user.self,
+	otherUsers: state.user.others,
+	games: state.games,
+	success: state.success.searchinfractions,
+	errors: state.error.searchinfractions,
+	results: state.infractions.searchResults,
+});
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	getAllUsers: () => dispatch(getAllUsers()),
+	searchInfractions: (searchData) => dispatch(searchInfractions(searchData)),
+	clearResults: () => dispatch(setSearchResults([])),
+	clearSuccess: () => dispatch(setSuccess('searchinfractions', undefined)),
+	clearErrors: () => dispatch(setErrors('searchinfractions', undefined)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Infractions);

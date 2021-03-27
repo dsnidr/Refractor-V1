@@ -11,7 +11,7 @@ const ServerSelector = (props) => {
 
 	return (
 		<Select
-			name={'selectedServer'}
+			name={props.name || 'selectedServer'}
 			onChange={props.onChange}
 			error={props.error}
 			title={'server'}

@@ -157,6 +157,8 @@ function* searchInfractionsAsync(action) {
 		console.log('Could not search infractions', err);
 		const { data } = err.response;
 
+		yield put(setSearchResults([]));
+
 		yield put(setSuccess('searchinfractions', undefined));
 		yield put(
 			setErrors(

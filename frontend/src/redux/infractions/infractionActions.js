@@ -49,8 +49,8 @@ export const searchInfractions = (searchData) => ({
 	payload: searchData,
 });
 
-export const SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS';
+export const SET_INFRACTION_SEARCH_RESULTS = 'SET_INFRACTION_SEARCH_RESULTS';
 export const setSearchResults = (results) => ({
-	type: SET_SEARCH_RESULTS,
+	type: SET_INFRACTION_SEARCH_RESULTS,
 	payload: results,
 });
