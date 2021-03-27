@@ -36,6 +36,7 @@ export default {
 	// Component Options
 	inputs: {
 		fillInBackground: false,
+		selectArrowColor: 'rgba(0, 168, 232, 1)',
 	},
 
 	///////////////////////////
