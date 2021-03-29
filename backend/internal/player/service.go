@@ -11,9 +11,10 @@ import (
 )
 
 type playerService struct {
-	repo          refractor.PlayerRepository
-	log           log.Logger
-	recentPlayers *recentPlayers
+	repo              refractor.PlayerRepository
+	log               log.Logger
+	recentPlayers     *recentPlayers
+	updateSubscribers []refractor.PlayerUpdateSubscriber
 }
 
 func NewPlayerService(repo refractor.PlayerRepository, log log.Logger) refractor.PlayerService {
@@ -68,9 +69,10 @@ func (s *playerService) GetRecentPlayers() ([]*refractor.Player, *refractor.Serv
 }
 
 func (s *playerService) SetPlayerWatch(id int64, watch bool) *refractor.ServiceResponse {
-	if _, err := s.repo.Update(id, refractor.UpdateArgs{
+	updated, err := s.repo.Update(id, refractor.UpdateArgs{
 		"Watched": watch,
-	}); err != nil {
+	})
+	if err != nil {
 		if err == refractor.ErrNotFound {
 			return &refractor.ServiceResponse{
 				Success:    false,
@@ -92,6 +94,8 @@ func (s *playerService) SetPlayerWatch(id int64, watch bool) *refractor.ServiceR
 	if !watch {
 		res.Message = "Player removed from the watchlist"
 	}
+
+	s.notifyPlayerUpdate(updated)
 
 	return res
 }
@@ -206,5 +210,15 @@ func (s *playerService) GetPlayer(args refractor.FindArgs) (*refractor.Player, *
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    "Player found",
+	}
+}
+
+func (s *playerService) SubscribeUpdate(sub refractor.PlayerUpdateSubscriber) {
+	s.updateSubscribers = append(s.updateSubscribers, sub)
+}
+
+func (s *playerService) notifyPlayerUpdate(updated *refractor.Player) {
+	for _, sub := range s.updateSubscribers {
+		sub(updated)
 	}
 }

@@ -276,3 +276,25 @@ func (s *serverService) OnServerOffline(serverID int64) {
 
 	s.log.Warn("Server with ID %d has gone offline", serverID)
 }
+
+func (s *serverService) OnPlayerUpdate(updated *refractor.Player) {
+	// Check if player is online in any servers
+	for _, data := range s.serverData {
+		for _, player := range data.OnlinePlayers {
+			if player.PlayerID == updated.PlayerID {
+				game, _ := s.gameService.GetGame(data.Game)
+				if game == nil {
+					s.log.Warn("OnPlayerUpdate could not get game. Game was nil")
+					continue
+				}
+
+				// Use reflection to get the player's game id
+				r := reflect.ValueOf(player)
+				field := reflect.Indirect(r).FieldByName(game.GetConfig().PlayerGameIDField).String()
+
+				// Replace their entry with the updated player struct
+				data.OnlinePlayers[field] = updated
+			}
+		}
+	}
+}

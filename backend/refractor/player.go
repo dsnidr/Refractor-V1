@@ -38,6 +38,8 @@ func (dbp DBPlayer) Player() *Player {
 	}
 }
 
+type PlayerUpdateSubscriber func(updated *Player)
+
 type PlayerRepository interface {
 	Create(player *DBPlayer) error
 	FindByID(id int64) (*Player, error)
@@ -58,6 +60,7 @@ type PlayerService interface {
 	SetPlayerWatch(id int64, watch bool) *ServiceResponse
 	OnPlayerJoin(serverID int64, playerGameID string, currentName string, gameConfig *GameConfig) (*Player, *ServiceResponse)
 	OnPlayerQuit(serverID int64, playerGameID string, gameConfig *GameConfig) (*Player, *ServiceResponse)
+	SubscribeUpdate(subscriber PlayerUpdateSubscriber)
 }
 
 type PlayerHandler interface {
