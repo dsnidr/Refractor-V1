@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"github.com/sniddunc/refractor/internal/auth"
+	"github.com/sniddunc/refractor/internal/chat"
 	"github.com/sniddunc/refractor/internal/game"
 	"github.com/sniddunc/refractor/internal/game/minecraft"
 	"github.com/sniddunc/refractor/internal/game/mordhau"
@@ -111,6 +112,9 @@ func main() {
 
 	searchService := search.NewSearchService(playerRepo, infractionRepo, loggerInst)
 	searchHandler := api.NewSearchHandler(searchService)
+
+	chatService := chat.NewChatService(websocketService, loggerInst)
+	rconService.SubscribeChat(chatService.OnChatReceive)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {
