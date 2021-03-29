@@ -16,3 +16,9 @@ func (s *rconService) HandleQuitBroadcast(bcast *broadcast.Broadcast, serverID i
 		sub(bcast.Fields, serverID, gameConfig)
 	}
 }
+
+func (s *rconService) HandleChatBroadcast(bcast *broadcast.Broadcast, serverID int64, gameConfig *refractor.GameConfig) {
+	for _, sub := range s.chatSubscribers {
+		sub(bcast.Fields, serverID, gameConfig)
+	}
+}

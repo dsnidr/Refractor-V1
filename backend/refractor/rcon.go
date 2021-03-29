@@ -22,4 +22,5 @@ type RCONService interface {
 	SubscribeQuit(subscriber BroadcastSubscriber)
 	SubscribeOnline(subscriber StatusSubscriber)
 	SubscribeOffline(subscriber StatusSubscriber)
+	SubscribeChat(subscriber BroadcastSubscriber)
 }

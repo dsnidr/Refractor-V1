@@ -18,6 +18,7 @@ type rconService struct {
 	log                log.Logger
 	joinSubscribers    []refractor.BroadcastSubscriber
 	quitSubscribers    []refractor.BroadcastSubscriber
+	chatSubscribers    []refractor.BroadcastSubscriber
 	onlineSubscribers  []refractor.StatusSubscriber
 	offlineSubscribers []refractor.StatusSubscriber
 
@@ -34,6 +35,7 @@ func NewRCONService(gameService refractor.GameService, playerService refractor.P
 		log:                log,
 		joinSubscribers:    []refractor.BroadcastSubscriber{},
 		quitSubscribers:    []refractor.BroadcastSubscriber{},
+		chatSubscribers:    []refractor.BroadcastSubscriber{},
 		onlineSubscribers:  []refractor.StatusSubscriber{},
 		offlineSubscribers: []refractor.StatusSubscriber{},
 		prevPlayers:        map[int64]map[string]*onlinePlayer{},
@@ -75,7 +77,7 @@ func (s *rconService) CreateClient(server *refractor.Server) error {
 	// Connect broadcast socket
 	if gameConfig.EnableBroadcasts {
 		errorChan := make(chan error)
-		go client.ListenForBroadcasts([]string{"login"}, errorChan)
+		go client.ListenForBroadcasts([]string{"login", "chat"}, errorChan)
 
 		go func() {
 			select {
@@ -205,6 +207,10 @@ func (s *rconService) SubscribeOffline(subscriber refractor.StatusSubscriber) {
 	s.offlineSubscribers = append(s.offlineSubscribers, subscriber)
 }
 
+func (s *rconService) SubscribeChat(subscriber refractor.BroadcastSubscriber) {
+	s.chatSubscribers = append(s.chatSubscribers, subscriber)
+}
+
 func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor.GameConfig) func(string) {
 	// We wrap this in a parent function so that we can pass in the server IDs which each client belongs to.
 	// This allows us to uniquely identify which server a broadcast came from.
@@ -219,6 +225,10 @@ func (s *rconService) getBroadcastListener(serverID int64, gameConfig *refractor
 			break
 		case broadcast.TYPE_QUIT:
 			s.HandleQuitBroadcast(bcast, serverID, gameConfig)
+			break
+		case broadcast.TYPE_CHAT:
+			s.HandleChatBroadcast(bcast, serverID, gameConfig)
+			break
 		}
 	}
 }
