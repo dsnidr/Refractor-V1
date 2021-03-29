@@ -47,6 +47,7 @@ import User from './AdminPages/User';
 import Player from './DashboardPages/Player';
 import Players from './DashboardPages/Players';
 import Infractions from './DashboardPages/Infractions';
+import Chat from './DashboardPages/Chat';
 import RequirePerms from '../components/RequirePerms';
 import { flags } from '../permissions/permissions';
 
@@ -302,6 +303,11 @@ class Dashboard extends Component {
 								exact
 								path={'/server/:id'}
 								component={Server}
+							/>
+							<Route
+								exact
+								path={'/server/:id/chat'}
+								component={Chat}
 							/>
 							<Route
 								exact
