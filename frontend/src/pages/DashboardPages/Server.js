@@ -10,6 +10,13 @@ import { flags } from '../../permissions/permissions';
 import WarnModal from '../../components/modals/WarnModal';
 import KickModal from '../../components/modals/KickModal';
 import BanModal from '../../components/modals/BanModal';
+import Button from '../../components/Button';
+
+const Header = styled.div`
+	button {
+		margin-top: 1rem;
+	}
+`;
 
 const ServerSummary = styled.div`
 	${(props) => css`
@@ -218,6 +225,12 @@ class Server extends Component {
 		}));
 	};
 
+	onOpenChatClick = () => {
+		const { server } = this.state;
+
+		this.props.history.push(`/server/${server.id}/chat`);
+	};
+
 	render() {
 		const { server, modals } = this.state;
 		const { warn, kick, ban } = modals;
@@ -254,7 +267,7 @@ class Server extends Component {
 					inputRef={this.banModalRef}
 				/>
 
-				<div>
+				<Header>
 					<Heading headingStyle={'title'}>{server.name}</Heading>
 					<ServerSummary>
 						<p>
@@ -268,7 +281,12 @@ class Server extends Component {
 							<InfoSpan>{`Address: `}</InfoSpan> {server.address}
 						</p>
 					</ServerSummary>
-				</div>
+					{!!server.online && (
+						<Button size={'small'} onClick={this.onOpenChatClick}>
+							Open Chat
+						</Button>
+					)}
+				</Header>
 
 				<div>
 					{players.length > 0 ? (
