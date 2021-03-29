@@ -82,6 +82,7 @@ func main() {
 	serverRepo := mysql.NewServerRepository(db)
 	serverService := server.NewServerService(serverRepo, gameService, loggerInst)
 	serverHandler := api.NewServerHandler(serverService, playerService, loggerInst)
+	playerService.SubscribeUpdate(serverService.OnPlayerUpdate)
 
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)

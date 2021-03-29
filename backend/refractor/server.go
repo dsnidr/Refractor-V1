@@ -55,6 +55,7 @@ type ServerService interface {
 	OnPlayerQuit(id int64, player *Player)
 	OnServerOnline(serverID int64)
 	OnServerOffline(serverID int64)
+	OnPlayerUpdate(updated *Player)
 }
 
 type ServerHandler interface {

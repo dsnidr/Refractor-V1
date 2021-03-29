@@ -211,6 +211,16 @@ func (r *playerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.Pla
 		return nil, wrapError(err)
 	}
 
+	// Get names
+	currentName, previousNames, err := r.getPlayerNames(updatedPlayer.PlayerID)
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	// Set names
+	updatedPlayer.CurrentName = currentName
+	updatedPlayer.PreviousNames = previousNames
+
 	return updatedPlayer.Player(), nil
 }
 
