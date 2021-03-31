@@ -9,16 +9,20 @@ import (
 )
 
 type websocketService struct {
-	pool          *websocket.Pool
-	playerService refractor.PlayerService
-	log           log.Logger
+	pool                *websocket.Pool
+	userService         refractor.UserService
+	playerService       refractor.PlayerService
+	log                 log.Logger
+	chatSendSubscribers []refractor.ChatSendSubscriber
 }
 
-func NewWebsocketService(playerService refractor.PlayerService, log log.Logger) refractor.WebsocketService {
+func NewWebsocketService(playerService refractor.PlayerService, userService refractor.UserService, log log.Logger) refractor.WebsocketService {
 	return &websocketService{
-		pool:          websocket.NewPool(log),
-		playerService: playerService,
-		log:           log,
+		pool:                websocket.NewPool(log),
+		playerService:       playerService,
+		userService:         userService,
+		log:                 log,
+		chatSendSubscribers: []refractor.ChatSendSubscriber{},
 	}
 }
 
@@ -27,10 +31,29 @@ func (s *websocketService) Broadcast(message *refractor.WebsocketMessage) {
 }
 
 func (s *websocketService) CreateClient(userID int64, conn net.Conn) {
-	client := websocket.NewClient(userID, conn, s.pool, s.log)
+	client := websocket.NewClient(userID, conn, s.pool, s.log, s.sendChatHandler)
 
 	s.pool.Register <- client
 	client.Read()
+}
+
+func (s *websocketService) sendChatHandler(msgBody *websocket.SendChatBody) {
+	// Get user's name
+	user, res := s.userService.GetUserByID(msgBody.UserID)
+	if user == nil {
+		s.log.Error("Could get get user ID. Res message: %s", res.Message)
+		return
+	}
+
+	transformed := &refractor.ChatSendBody{
+		ServerID: msgBody.ServerID,
+		Message:  msgBody.Message,
+		Sender:   user.Username,
+	}
+
+	for _, sub := range s.chatSendSubscribers {
+		sub(transformed)
+	}
 }
 
 func (s *websocketService) StartPool() {
@@ -107,4 +130,8 @@ func (s *websocketService) OnServerOffline(serverID int64) {
 		Type: "server-offline",
 		Body: serverID,
 	})
+}
+
+func (s *websocketService) SubscribeChatSend(subscriber refractor.ChatSendSubscriber) {
+	s.chatSendSubscribers = append(s.chatSendSubscribers, subscriber)
 }

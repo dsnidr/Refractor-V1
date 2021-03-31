@@ -88,7 +88,7 @@ func main() {
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
 
-	websocketService := websocket.NewWebsocketService(playerService, loggerInst)
+	websocketService := websocket.NewWebsocketService(playerService, userService, loggerInst)
 	go websocketService.StartPool()
 
 	rconService := rcon.NewRCONService(gameService, playerService, loggerInst)
@@ -103,6 +103,10 @@ func main() {
 	rconService.SubscribeOnline(websocketService.OnServerOnline)
 	rconService.SubscribeOffline(websocketService.OnServerOffline)
 
+	chatService := chat.NewChatService(websocketService, rconService, loggerInst)
+	rconService.SubscribeChat(chatService.OnChatReceive)
+	websocketService.SubscribeChatSend(rconService.SendChatMessage)
+
 	infractionRepo := mysql.NewInfractionRepository(db)
 	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, userService, loggerInst)
 	infractionHandler := api.NewInfractionHandler(infractionService)
@@ -112,9 +116,6 @@ func main() {
 
 	searchService := search.NewSearchService(playerRepo, infractionRepo, loggerInst)
 	searchHandler := api.NewSearchHandler(searchService)
-
-	chatService := chat.NewChatService(websocketService, loggerInst)
-	rconService.SubscribeChat(chatService.OnChatReceive)
 
 	// Set up initial user if no users currently exist
 	if count := userRepo.GetCount(); count == 0 {

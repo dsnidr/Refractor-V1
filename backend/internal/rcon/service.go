@@ -278,3 +278,11 @@ func (s *rconService) getOnlinePlayers(serverID int64, game refractor.Game) []*o
 
 	return onlinePlayers
 }
+
+func (s *rconService) SendChatMessage(msgBody *refractor.ChatSendBody) {
+	client := s.clients[msgBody.ServerID]
+
+	if _, err := client.ExecCommand(fmt.Sprintf("Say [%s]: %s", msgBody.Sender, msgBody.Message)); err != nil {
+		s.log.Error("Could not send chat message to server %d. Error: %v", msgBody.ServerID, err)
+	}
+}
