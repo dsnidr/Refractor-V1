@@ -14,9 +14,10 @@ export function initWebsocket(websocketURI, handleOpen, handleClose) {
 	const wsClient = new W3CWebSocket(websocketURI);
 	wsClient.onopen = onOpen(wsClient, handleOpen);
 	wsClient.onclose = onClose(wsClient, handleClose);
-	wsClient.onmessage = onMessage(wsClient);
+	wsClient.onmessage = onMessage();
 
 	currentWebsocket = wsClient;
+	return wsClient;
 }
 
 export function getWebsocket() {
@@ -52,7 +53,7 @@ const onClose = (client, handleClose) => (data) => {
 	handleClose(data);
 };
 
-const onMessage = (client) => (msg) => {
+const onMessage = () => (msg) => {
 	const wsMsg = JSON.parse(msg.data);
 	const { type, body } = wsMsg;
 

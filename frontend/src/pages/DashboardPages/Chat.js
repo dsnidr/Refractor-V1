@@ -4,6 +4,10 @@ import styled, { css } from 'styled-components';
 import Heading from '../../components/Heading';
 import respondTo from '../../mixins/respondTo';
 import TextInput from '../../components/TextInput';
+import Button from '../../components/Button';
+import { getCurrentWebsocket } from '../../websocket/websocket';
+import Alert from '../../components/Alert';
+import { position } from 'polished';
 
 const ChatWindow = styled.form`
 	${(props) => css`
@@ -45,6 +49,11 @@ const ChatBox = styled.input`
 	`}
 `;
 
+const CustomAlert = styled(Alert)`
+	position: absolute;
+	top: 0;
+`;
+
 class Chat extends Component {
 	constructor(props) {
 		super(props);
@@ -52,6 +61,9 @@ class Chat extends Component {
 		this.state = {
 			server: null,
 			messages: [],
+			lastSend: 0,
+			error: false,
+			alertShown: false,
 		};
 	}
 
@@ -77,14 +89,63 @@ class Chat extends Component {
 		return prevState;
 	}
 
-	onMessageSend = (e) => {
+	onMessageChange = (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			message: e.target.value,
+		}));
+	};
+
+	sendMessage = (e) => {
 		e.preventDefault();
 
-		console.log('Sending message');
+		const SEND_INTERVAL_MS = 500;
+		const { server, message, lastSend, error, alertShown } = this.state;
+
+		if (!message || message.trim().length === 0) {
+			return;
+		}
+
+		if (
+			error !== null &&
+			Date.now() - lastSend <= SEND_INTERVAL_MS &&
+			!alertShown
+		) {
+			this.setState((prevState) => ({
+				...prevState,
+				error: 'You are sending messages too fast',
+				alertShown: true,
+			}));
+
+			setTimeout(() => {
+				this.setState((prevState) => ({
+					...prevState,
+					error: false,
+					alertShown: false,
+				}));
+			}, 1000);
+		}
+
+		const wsClient = getCurrentWebsocket();
+
+		wsClient.send(
+			JSON.stringify({
+				type: 'chat',
+				body: {
+					serverId: server.id,
+					message: message,
+				},
+			})
+		);
+
+		this.setState((prevState) => ({
+			...prevState,
+			lastSend: Date.now(),
+		}));
 	};
 
 	render() {
-		const { server, messages } = this.state;
+		const { server, messages, error } = this.state;
 
 		if (!server) {
 			return <Heading headingStyle={'title'}>Server not found</Heading>;
@@ -99,13 +160,18 @@ class Chat extends Component {
 				</div>
 
 				<div>
-					<ChatWindow onSubmit={this.onMessageSend}>
+					<CustomAlert type={'error'} message={error} />
+					<ChatWindow onSubmit={this.sendMessage}>
 						<ChatContent>
 							{messages.map((msg, i) => (
 								<p key={`msg${i}`}>{JSON.stringify(msg)}</p>
 							))}
 						</ChatContent>
-						<ChatBox placeholder={'Type a message and hit enter'} />
+						<ChatBox
+							placeholder={'Type a message and hit enter'}
+							name={'message'}
+							onChange={this.onMessageChange}
+						/>
 					</ChatWindow>
 				</div>
 			</>

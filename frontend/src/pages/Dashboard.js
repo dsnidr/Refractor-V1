@@ -51,6 +51,7 @@ import Chat from './DashboardPages/Chat';
 import RequirePerms from '../components/RequirePerms';
 import { flags } from '../permissions/permissions';
 import { addChatMessage } from '../redux/chat/chatActions';
+import { initWebsocket } from '../websocket/websocketV2';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
