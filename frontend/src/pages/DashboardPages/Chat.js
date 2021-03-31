@@ -141,11 +141,12 @@ class Chat extends Component {
 		this.setState((prevState) => ({
 			...prevState,
 			lastSend: Date.now(),
+			message: '',
 		}));
 	};
 
 	render() {
-		const { server, messages, error } = this.state;
+		const { server, messages, error, message } = this.state;
 
 		if (!server) {
 			return <Heading headingStyle={'title'}>Server not found</Heading>;
@@ -171,6 +172,7 @@ class Chat extends Component {
 							placeholder={'Type a message and hit enter'}
 							name={'message'}
 							onChange={this.onMessageChange}
+							value={message}
 						/>
 					</ChatWindow>
 				</div>
