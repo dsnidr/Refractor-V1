@@ -1,5 +1,13 @@
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import { store } from '../redux/store';
+import {
+	addPlayerToServer,
+	removePlayerFromServer,
+	setServerStatus,
+} from '../redux/servers/serverActions';
+import { addChatMessage } from '../redux/chat/chatActions';
 
+let currentWebsocket = null;
 let pingInterval = null;
 
 // Actions is an object of expected redux dispatch attached actions
@@ -9,7 +17,12 @@ export function newWebsocket(websocketURI, actions, handleOpen, handleClose) {
 	wsClient.onclose = onClose(wsClient, handleClose);
 	wsClient.onmessage = onMessage(wsClient, actions);
 
-	return wsClient;
+	currentWebsocket = wsClient;
+	return currentWebsocket;
+}
+
+export function getCurrentWebsocket() {
+	return currentWebsocket;
 }
 
 const onOpen = (client, handleOpen) => () => {
@@ -41,7 +54,7 @@ const onClose = (client, handleClose) => (data) => {
 	handleClose(data);
 };
 
-const onMessage = (client, actions) => (msg) => {
+const onMessage = () => (msg) => {
 	const wsMsg = JSON.parse(msg.data);
 	const { type, body } = wsMsg;
 
@@ -49,27 +62,31 @@ const onMessage = (client, actions) => (msg) => {
 
 	switch (type) {
 		case 'player-join':
-			actions.addPlayer(body.serverId, {
-				id: body.id,
-				playerGameId: body.playerGameId,
-				currentName: body.name,
-			});
+			store.dispatch(
+				addPlayerToServer(body.serverId, {
+					id: body.id,
+					playerGameId: body.playerGameId,
+					currentName: body.name,
+				})
+			);
 			break;
 		case 'player-quit':
-			actions.removePlayer(body.serverId, {
-				id: body.id,
-				playerGameId: body.playerGameId,
-				currentName: body.name,
-			});
+			store.dispatch(
+				removePlayerFromServer(body.serverId, {
+					id: body.id,
+					playerGameId: body.playerGameId,
+					currentName: body.name,
+				})
+			);
 			break;
 		case 'server-online':
-			actions.setServerStatus(body, true);
+			store.dispatch(setServerStatus(body, true));
 			break;
 		case 'server-offline':
-			actions.setServerStatus(body, false);
+			store.dispatch(setServerStatus(body, false));
 			break;
 		case 'chat':
-			actions.addChatMessage(body);
+			store.dispatch(addChatMessage(body));
 			break;
 		default:
 			console.log('Unknown message type received:', type);
