@@ -68,6 +68,9 @@ const onMessage = (client, actions) => (msg) => {
 		case 'server-offline':
 			actions.setServerStatus(body, false);
 			break;
+		case 'chat':
+			actions.addChatMessage(body);
+			break;
 		default:
 			console.log('Unknown message type received:', type);
 	}

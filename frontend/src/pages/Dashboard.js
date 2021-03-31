@@ -50,6 +50,7 @@ import Infractions from './DashboardPages/Infractions';
 import Chat from './DashboardPages/Chat';
 import RequirePerms from '../components/RequirePerms';
 import { flags } from '../permissions/permissions';
+import { addChatMessage } from '../redux/chat/chatActions';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -116,6 +117,7 @@ class Dashboard extends Component {
 						addPlayer: nextProps.addPlayer,
 						removePlayer: nextProps.removePlayer,
 						setServerStatus: nextProps.setServerStatus,
+						addChatMessage: nextProps.addChatMessage,
 					},
 					() => {
 						reconnectTaskStarted = false;
@@ -135,6 +137,7 @@ class Dashboard extends Component {
 				addPlayer: nextProps.addPlayer,
 				removePlayer: nextProps.removePlayer,
 				setServerStatus: nextProps.setServerStatus,
+				addChatMessage: nextProps.addChatMessage,
 			},
 			() => {
 				clearInterval(reconnectInterval);
@@ -369,6 +372,7 @@ const mapDispatchToProps = (dispatch) => ({
 		dispatch(removePlayerFromServer(serverId, player)),
 	setServerStatus: (serverId, isOnline) =>
 		dispatch(setServerStatus(serverId, isOnline)),
+	addChatMessage: (message) => dispatch(addChatMessage(message)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
