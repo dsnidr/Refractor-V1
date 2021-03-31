@@ -51,6 +51,7 @@ class Chat extends Component {
 
 		this.state = {
 			server: null,
+			messages: [],
 		};
 	}
 
@@ -68,6 +69,11 @@ class Chat extends Component {
 		}
 
 		prevState.server = servers[id];
+
+		if (nextProps.chat && nextProps.chat[id]) {
+			prevState.messages = nextProps.chat[id];
+		}
+
 		return prevState;
 	}
 
@@ -78,7 +84,7 @@ class Chat extends Component {
 	};
 
 	render() {
-		const { server } = this.state;
+		const { server, messages } = this.state;
 
 		if (!server) {
 			return <Heading headingStyle={'title'}>Server not found</Heading>;
@@ -95,37 +101,11 @@ class Chat extends Component {
 				<div>
 					<ChatWindow onSubmit={this.onMessageSend}>
 						<ChatContent>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
-							<p>Test</p>
+							{messages.map((msg, i) => (
+								<p key={`msg${i}`}>{JSON.stringify(msg)}</p>
+							))}
 						</ChatContent>
-						<ChatBox
-							placeholder={'Type a message and hit enter'}
-						></ChatBox>
+						<ChatBox placeholder={'Type a message and hit enter'} />
 					</ChatWindow>
 				</div>
 			</>
@@ -135,6 +115,7 @@ class Chat extends Component {
 
 const mapStateToProps = (state) => ({
 	servers: state.servers,
+	chat: state.chat,
 });
 
 const mapDispatchToProps = (dispatch) => ({});

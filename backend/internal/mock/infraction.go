@@ -215,3 +215,11 @@ func (r *mockInfractionsRepo) Delete(id int64) error {
 
 	return nil
 }
+
+func (r *mockInfractionsRepo) Search(args refractor.FindArgs, limit int, offset int) (int, []*refractor.Infraction, error) {
+	panic("implement me")
+}
+
+func (r *mockInfractionsRepo) GetRecent(count int) ([]*refractor.Infraction, error) {
+	panic("implement me")
+}
