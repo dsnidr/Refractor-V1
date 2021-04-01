@@ -9,6 +9,7 @@ import { getCurrentWebsocket } from '../../websocket/websocket';
 import Alert from '../../components/Alert';
 import { position } from 'polished';
 import { animateScroll } from 'react-scroll';
+import { addChatMessage } from '../../redux/chat/chatActions';
 
 const ChatWindow = styled.form`
 	${(props) => css`
@@ -23,6 +24,14 @@ const ChatWindow = styled.form`
 const ChatContentWrapper = styled.div`
 	overflow-y: scroll;
 	position: relative;
+
+	// Chrome, Safari, Opera
+	::-webkit-scrollbar {
+		display: none;
+	}
+
+	-ms-overflow-style: none; // Edge
+	scrollbar-width: none; // Firefox
 `;
 
 const ChatContent = styled.div`
@@ -71,10 +80,15 @@ const ChatMessageName = styled.div`
 		color: ${props.theme.colorTextPrimary};
 		width: 100%;
 		font-weight: 500;
+		margin-right: 1rem;
 
 		${respondTo.medium`
         	width: 15%;
 		`}
+
+		${props.ownMessage
+			? `border-right: 4px solid ${props.theme.colorPrimary};`
+			: null}
 	`}
 `;
 
@@ -111,6 +125,11 @@ const ScrollToBottomButton = styled.div`
 		border-top-right-radius: 1rem;
 		background-color: ${props.theme.colorPrimaryDark};
 		font-size: 1.2rem;
+		user-select: none;
+
+		> :hover {
+			cursor: pointer;
+		}
 
 		${respondTo.medium`
           	width: 30%;
@@ -225,6 +244,13 @@ class Chat extends Component {
 			})
 		);
 
+		this.props.addMessage({
+			serverId: server.id,
+			name: 'You',
+			ownMessage: true,
+			message: message,
+		});
+
 		this.setState((prevState) => ({
 			...prevState,
 			lastSend: Date.now(),
@@ -305,7 +331,9 @@ class Chat extends Component {
 							<ChatContent>
 								{messages.map((msg, i) => (
 									<ChatMessage>
-										<ChatMessageName>
+										<ChatMessageName
+											ownMessage={!!msg.ownMessage}
+										>
 											{msg.name}
 										</ChatMessageName>
 										{msg.message}
@@ -338,6 +366,8 @@ const mapStateToProps = (state) => ({
 	chat: state.chat,
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	addMessage: (messageBody) => dispatch(addChatMessage(messageBody)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Chat);
