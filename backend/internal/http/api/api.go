@@ -50,6 +50,17 @@ func NewAPI(handlers *Handlers, port string, logger log.Logger, websocketService
 		Handlers:         handlers,
 	}
 
+	// Setup CORS
+	// TODO: Introduce a way to populate allowed origins from environment variables.
+	// TODO: Allowing * is not a good idea!
+
+	corsConfig := echoMiddleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodPut},
+	}
+
+	api.echo.Use(echoMiddleware.CORSWithConfig(corsConfig))
+
 	api.setupRoutes()
 
 	return api

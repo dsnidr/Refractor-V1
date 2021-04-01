@@ -29,8 +29,8 @@ const ServerSummary = styled.div`
 		}
 
 		${respondTo.medium`
-      flex-direction: row;
-    `}
+      		flex-direction: row;
+    	`}
 	`}
 `;
 

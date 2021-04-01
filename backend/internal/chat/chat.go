@@ -9,11 +9,13 @@ import (
 type chatService struct {
 	log              log.Logger
 	websocketService refractor.WebsocketService
+	rconService      refractor.RCONService
 }
 
-func NewChatService(websocketService refractor.WebsocketService, log log.Logger) refractor.ChatService {
+func NewChatService(websocketService refractor.WebsocketService, rconService refractor.RCONService, log log.Logger) refractor.ChatService {
 	return &chatService{
 		websocketService: websocketService,
+		rconService:      rconService,
 		log:              log,
 	}
 }
