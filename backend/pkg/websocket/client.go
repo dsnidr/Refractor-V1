@@ -9,28 +9,38 @@ import (
 	"net"
 )
 
+type ChatSendHandler func(msgBody *SendChatBody)
+
 type Client struct {
-	ID     int64
-	UserID int64
-	Conn   net.Conn
-	Pool   *Pool
-	log    log.Logger
+	ID              int64
+	UserID          int64
+	Conn            net.Conn
+	Pool            *Pool
+	ChatSendHandler ChatSendHandler
+	log             log.Logger
 }
 
 var nextClientID int64 = 1
 
-func NewClient(userID int64, conn net.Conn, pool *Pool, log log.Logger) *Client {
+func NewClient(userID int64, conn net.Conn, pool *Pool, log log.Logger, chatSendHandler ChatSendHandler) *Client {
 	client := &Client{
-		ID:     nextClientID,
-		UserID: userID,
-		Conn:   conn,
-		Pool:   pool,
-		log:    log,
+		ID:              nextClientID,
+		UserID:          userID,
+		Conn:            conn,
+		Pool:            pool,
+		ChatSendHandler: chatSendHandler,
+		log:             log,
 	}
 
 	nextClientID++
 
 	return client
+}
+
+type SendChatBody struct {
+	ServerID int64 `json:"serverId"`
+	UserID   int64
+	Message  string `json:"message"`
 }
 
 func (c *Client) Read() {
@@ -77,6 +87,27 @@ func (c *Client) Read() {
 
 			// Continue as there's no need to log a ping message
 			continue
+		}
+
+		if msg.Type == "chat" {
+			data, err := json.Marshal(msg.Body)
+			if err != nil {
+				c.log.Error("Could not marshal chat message body (intermediary). Error: %v", err)
+				continue
+			}
+
+			msgBody := &SendChatBody{}
+
+			if err := json.Unmarshal(data, msgBody); err != nil {
+				c.log.Error("Could not unmarshal chat message body (intermediary). Error: %v", err)
+				continue
+			}
+
+			c.log.Info("RECEIVED CHAT BODY: %v", msgBody)
+
+			msgBody.UserID = c.UserID
+
+			c.ChatSendHandler(msgBody)
 		}
 
 		c.log.Info("Message received from client ID %d: %v", c.ID, msg)

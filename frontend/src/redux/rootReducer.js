@@ -10,6 +10,7 @@ import serverReducer from './servers/serverReducer';
 import loadingReducer from './loading/loadingReducer';
 import playerReducer from './players/playerReducer';
 import infractionReducer from './infractions/infractionReducer';
+import chatReducer from './chat/chatReducer';
 
 const createRootReducer = (history) =>
 	combineReducers({
@@ -23,6 +24,7 @@ const createRootReducer = (history) =>
 		servers: serverReducer,
 		players: playerReducer,
 		infractions: infractionReducer,
+		chat: chatReducer,
 	});
 
 export default createRootReducer;
