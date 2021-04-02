@@ -1,7 +1,14 @@
 package refractor
 
-import "github.com/sniddunc/refractor/pkg/broadcast"
+type ChatReceiveBody struct {
+	ServerID     int64  `json:"serverId"`
+	PlayerGameID string `json:"playerGameID"`
+	Name         string `json:"name"`
+	Message      string `json:"message"`
+	SentByUser   bool   `json:"sentByUser"`
+}
 
 type ChatService interface {
-	OnChatReceive(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
+	OnChatReceive(msgBody *ChatReceiveBody, serverID int64, gameConfig *GameConfig)
+	OnUserSendChat(msgBody *ChatSendBody)
 }

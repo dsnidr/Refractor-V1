@@ -49,6 +49,7 @@ func (s *websocketService) sendChatHandler(msgBody *websocket.SendChatBody) {
 		ServerID: msgBody.ServerID,
 		Message:  msgBody.Message,
 		Sender:   user.Username,
+		SentByUser: true,
 	}
 
 	for _, sub := range s.chatSendSubscribers {

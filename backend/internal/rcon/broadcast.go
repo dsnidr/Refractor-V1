@@ -18,7 +18,17 @@ func (s *rconService) HandleQuitBroadcast(bcast *broadcast.Broadcast, serverID i
 }
 
 func (s *rconService) HandleChatBroadcast(bcast *broadcast.Broadcast, serverID int64, gameConfig *refractor.GameConfig) {
+	fields := bcast.Fields
+
 	for _, sub := range s.chatSubscribers {
-		sub(bcast.Fields, serverID, gameConfig)
+		msgBody := &refractor.ChatReceiveBody{
+			ServerID:     serverID,
+			PlayerGameID: fields[gameConfig.PlayerGameIDField],
+			Name:         fields["Name"],
+			Message:      fields["Message"],
+			SentByUser:   false,
+		}
+
+		sub(msgBody, serverID, gameConfig)
 	}
 }

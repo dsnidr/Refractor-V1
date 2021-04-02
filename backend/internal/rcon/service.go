@@ -18,7 +18,7 @@ type rconService struct {
 	log                       log.Logger
 	joinSubscribers           []refractor.BroadcastSubscriber
 	quitSubscribers           []refractor.BroadcastSubscriber
-	chatSubscribers           []refractor.BroadcastSubscriber
+	chatSubscribers           []refractor.ChatReceiveSubscriber
 	onlineSubscribers         []refractor.StatusSubscriber
 	offlineSubscribers        []refractor.StatusSubscriber
 	playerListPollSubscribers []refractor.PlayerListPollSubscriber
@@ -36,7 +36,7 @@ func NewRCONService(gameService refractor.GameService, playerService refractor.P
 		log:                       log,
 		joinSubscribers:           []refractor.BroadcastSubscriber{},
 		quitSubscribers:           []refractor.BroadcastSubscriber{},
-		chatSubscribers:           []refractor.BroadcastSubscriber{},
+		chatSubscribers:           []refractor.ChatReceiveSubscriber{},
 		onlineSubscribers:         []refractor.StatusSubscriber{},
 		offlineSubscribers:        []refractor.StatusSubscriber{},
 		playerListPollSubscribers: []refractor.PlayerListPollSubscriber{},
@@ -268,7 +268,7 @@ func (s *rconService) SubscribeOffline(subscriber refractor.StatusSubscriber) {
 	s.offlineSubscribers = append(s.offlineSubscribers, subscriber)
 }
 
-func (s *rconService) SubscribeChat(subscriber refractor.BroadcastSubscriber) {
+func (s *rconService) SubscribeChat(subscriber refractor.ChatReceiveSubscriber) {
 	s.chatSubscribers = append(s.chatSubscribers, subscriber)
 }
 
