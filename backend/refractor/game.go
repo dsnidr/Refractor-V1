@@ -20,6 +20,9 @@ type GameConfig struct {
 	BroadcastPatterns map[string]*regexp.Regexp
 	CmdOutputPatterns map[string]*regexp.Regexp
 
+	// Not all games will have support for live chat. If a game does, this should be set to true.
+	EnableChat bool
+
 	// If EnableBroadcasts is set to false, we will use polling for the playerlist instead of broadcasts
 	PlayerListPollingInterval time.Duration
 

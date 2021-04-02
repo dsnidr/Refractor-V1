@@ -18,6 +18,7 @@ func NewMinecraftGame() refractor.Game {
 			SendAlivePing:             true,
 			AlivePingInterval:         time.Second * 30,
 			EnableBroadcasts:          false,
+			EnableChat:                false,
 			PlayerListPollingInterval: time.Second * 5,
 			BroadcastPatterns:         map[string]*regexp.Regexp{},
 			CmdOutputPatterns: map[string]*regexp.Regexp{

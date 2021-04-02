@@ -179,13 +179,14 @@ class Server extends Component {
 			return prevState;
 		}
 
-		const { servers } = nextProps;
+		const { servers, games } = nextProps;
 
-		if (!servers || !servers[id]) {
+		if (!servers || !servers[id] || !games) {
 			return prevState;
 		}
 
 		prevState.server = servers[id];
+		prevState.game = games[servers[id].game];
 		return prevState;
 	}
 
@@ -232,7 +233,7 @@ class Server extends Component {
 	};
 
 	render() {
-		const { server, modals } = this.state;
+		const { server, modals, game } = this.state;
 		const { warn, kick, ban } = modals;
 
 		if (!server) {
@@ -281,7 +282,7 @@ class Server extends Component {
 							<InfoSpan>{`Address: `}</InfoSpan> {server.address}
 						</p>
 					</ServerSummary>
-					{!!server.online && (
+					{!!server.online && game.config.enableChat && (
 						<Button size={'small'} onClick={this.onOpenChatClick}>
 							Open Chat
 						</Button>
