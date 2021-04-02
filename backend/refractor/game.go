@@ -23,7 +23,9 @@ type GameConfig struct {
 	// Not all games will have support for live chat. If a game does, this should be set to true.
 	EnableChat bool
 
-	// If EnableBroadcasts is set to false, we will use polling for the playerlist instead of broadcasts
+	// If EnableBroadcasts is set to false, we will use polling for the playerlist instead of broadcasts.
+	// Alternatively, if EnableBroadcasts is set to true this duration is used for the player refresh polling routine
+	// to keep the player list in sync for games which support broadcasts.
 	PlayerListPollingInterval time.Duration
 
 	// PlayerGameIDField holds the name of the regex named properly containing the player's unique identifier for a game.

@@ -102,6 +102,7 @@ func main() {
 	rconService.SubscribeOffline(serverService.OnServerOffline)
 	rconService.SubscribeOnline(websocketService.OnServerOnline)
 	rconService.SubscribeOffline(websocketService.OnServerOffline)
+	rconService.SubscribePlayerListPoll(serverService.OnPlayerListUpdate)
 
 	chatService := chat.NewChatService(websocketService, rconService, loggerInst)
 	rconService.SubscribeChat(chatService.OnChatReceive)

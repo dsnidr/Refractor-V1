@@ -15,11 +15,12 @@ type mordhau struct {
 func NewMordhauGame() refractor.Game {
 	return &mordhau{
 		config: &refractor.GameConfig{
-			UseRCON:           true,
-			SendAlivePing:     true,
-			AlivePingInterval: time.Second * 30,
-			EnableBroadcasts:  true,
-			EnableChat:        true,
+			UseRCON:                   true,
+			SendAlivePing:             true,
+			AlivePingInterval:         time.Second * 30,
+			EnableBroadcasts:          true,
+			PlayerListPollingInterval: time.Hour * 1,
+			EnableChat:                true,
 			BroadcastPatterns: map[string]*regexp.Regexp{
 				broadcast.TYPE_JOIN: regexp.MustCompile("^Login: (?P<Date>[0-9\\.-]+): (?P<Name>.+) \\((?P<PlayFabID>[0-9a-fA-F]+)\\) logged in$"),
 				broadcast.TYPE_QUIT: regexp.MustCompile("^Login: (?P<Date>[0-9\\.-]+): (?P<Name>.+) \\((?P<PlayFabID>[0-9a-fA-F]+)\\) logged out$"),
