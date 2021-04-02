@@ -52,6 +52,7 @@ func (h *serverHandler) GetAllServers(c echo.Context) error {
 type serverDataRes struct {
 	ServerID    int64               `json:"id"`
 	Name        string              `json:"name"`
+	Game        string              `json:"game"`
 	Address     string              `json:"address"`
 	RCONPort    string              `json:"rconPort"`
 	Online      bool                `json:"online"`
@@ -82,6 +83,7 @@ func (h *serverHandler) GetAllServerData(c echo.Context) error {
 			resServerData = append(resServerData, &serverDataRes{
 				ServerID:    server.ServerID,
 				Name:        server.Name,
+				Game:        server.Game,
 				Address:     server.Address,
 				RCONPort:    server.RCONPort,
 				Online:      false,
@@ -109,6 +111,7 @@ func (h *serverHandler) GetAllServerData(c echo.Context) error {
 		resServerData = append(resServerData, &serverDataRes{
 			ServerID:    serverData.ServerID,
 			Name:        server.Name,
+			Game:        server.Game,
 			Address:     server.Address,
 			RCONPort:    server.RCONPort,
 			Online:      serverData.Online,

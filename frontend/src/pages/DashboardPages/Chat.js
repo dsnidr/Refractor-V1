@@ -162,13 +162,19 @@ class Chat extends Component {
 			return prevState;
 		}
 
-		const { servers } = nextProps;
+		const { servers, games } = nextProps;
 
-		if (!servers || !servers[id]) {
+		if (!servers || !servers[id] || !games) {
 			return prevState;
 		}
 
 		prevState.server = servers[id];
+
+		const game = games[servers[id].game];
+
+		if (game && game.config && !game.config.enableChat) {
+			prevState.chatDisabled = true;
+		}
 
 		if (nextProps.chat && nextProps.chat[id]) {
 			prevState.messages = nextProps.chat[id];
@@ -307,9 +313,17 @@ class Chat extends Component {
 	};
 
 	render() {
-		const { server, messages, error, message, lastScrollPos } = this.state;
+		const { server, messages, error, message, chatDisabled } = this.state;
 		if (!server) {
 			return <Heading headingStyle={'title'}>Server not found</Heading>;
+		}
+
+		if (chatDisabled) {
+			return (
+				<Heading headingStyle={'title'}>
+					Live chat is not enabled for this game
+				</Heading>
+			);
 		}
 
 		return (
@@ -363,6 +377,7 @@ class Chat extends Component {
 
 const mapStateToProps = (state) => ({
 	servers: state.servers,
+	games: state.games,
 	chat: state.chat,
 });
 

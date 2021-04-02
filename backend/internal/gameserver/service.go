@@ -44,8 +44,13 @@ func (s *gameServerService) GetGameServers() ([]*refractor.GameServer, *refracto
 
 	gameServers := map[string]*refractor.GameServer{}
 	for _, game := range games {
+		config := game.GetConfig()
+
 		gameServers[game.GetName()] = &refractor.GameServer{
 			Name:    game.GetName(),
+			Config: &refractor.GameServerConfig{
+				EnableChat: config.EnableChat,
+			},
 			Servers: []*refractor.ServerInfo{},
 		}
 	}
