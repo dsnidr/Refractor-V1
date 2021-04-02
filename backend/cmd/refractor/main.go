@@ -107,6 +107,7 @@ func main() {
 	chatService := chat.NewChatService(websocketService, rconService, loggerInst)
 	rconService.SubscribeChat(chatService.OnChatReceive)
 	websocketService.SubscribeChatSend(rconService.SendChatMessage)
+	websocketService.SubscribeChatSend(chatService.OnUserSendChat)
 
 	infractionRepo := mysql.NewInfractionRepository(db)
 	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, userService, loggerInst)

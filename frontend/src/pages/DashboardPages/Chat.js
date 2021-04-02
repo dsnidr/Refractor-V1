@@ -89,6 +89,10 @@ const ChatMessageName = styled.div`
 		${props.ownMessage
 			? `border-right: 4px solid ${props.theme.colorPrimary};`
 			: null}
+
+        ${props.sentByUser
+			? `border-right: 4px solid ${props.theme.colorAlert};`
+			: null}
 	`}
 `;
 
@@ -136,6 +140,27 @@ const ScrollToBottomButton = styled.div`
           	margin-left: 35%;
           	margin-right: 35%;
 	  	`}
+	`}
+`;
+
+const Legend = styled.div`
+	${(props) => css`
+		display: flex;
+		font-size: 1.2rem;
+		line-height: 1.2rem;
+		margin-top: 1rem;
+
+		> * {
+			margin-right: 2rem;
+		}
+
+		> :nth-child(1) {
+			border-left: 4px solid ${props.theme.colorPrimary};
+		}
+
+		> :nth-child(2) {
+			border-left: 4px solid ${props.theme.colorAlert};
+		}
 	`}
 `;
 
@@ -343,16 +368,26 @@ class Chat extends Component {
 							id={'chat-content'}
 						>
 							<ChatContent>
-								{messages.map((msg, i) => (
-									<ChatMessage>
-										<ChatMessageName
-											ownMessage={!!msg.ownMessage}
-										>
-											{msg.name}
-										</ChatMessageName>
-										{msg.message}
-									</ChatMessage>
-								))}
+								{messages.map((msg, i) => {
+									if (
+										msg.sentByUser &&
+										msg.name === this.props.self.username
+									) {
+										return null;
+									}
+
+									return (
+										<ChatMessage key={`chatmsg${i}`}>
+											<ChatMessageName
+												sentByUser={!!msg.sentByUser}
+												ownMessage={!!msg.ownMessage}
+											>
+												{msg.name}
+											</ChatMessageName>
+											{msg.message}
+										</ChatMessage>
+									);
+								})}
 							</ChatContent>
 							{!this.isAnchoredToBottom() && (
 								<ScrollToBottomButton
@@ -369,6 +404,10 @@ class Chat extends Component {
 							value={message}
 						/>
 					</ChatWindow>
+					<Legend>
+						<div>= you</div>
+						<div>= other user</div>
+					</Legend>
 				</div>
 			</>
 		);
@@ -376,6 +415,7 @@ class Chat extends Component {
 }
 
 const mapStateToProps = (state) => ({
+	self: state.user.self,
 	servers: state.servers,
 	games: state.games,
 	chat: state.chat,

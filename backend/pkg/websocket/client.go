@@ -38,9 +38,9 @@ func NewClient(userID int64, conn net.Conn, pool *Pool, log log.Logger, chatSend
 }
 
 type SendChatBody struct {
-	ServerID int64 `json:"serverId"`
-	UserID   int64
-	Message  string `json:"message"`
+	ServerID   int64 `json:"serverId"`
+	UserID     int64
+	Message    string `json:"message"`
 }
 
 func (c *Client) Read() {
@@ -102,8 +102,6 @@ func (c *Client) Read() {
 				c.log.Error("Could not unmarshal chat message body (intermediary). Error: %v", err)
 				continue
 			}
-
-			c.log.Info("RECEIVED CHAT BODY: %v", msgBody)
 
 			msgBody.UserID = c.UserID
 

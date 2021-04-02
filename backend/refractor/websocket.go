@@ -13,9 +13,12 @@ type WebsocketMessage struct {
 type ChatSendSubscriber func(msgBody *ChatSendBody)
 
 type ChatSendBody struct {
-	ServerID int64  `json:"serverId"`
-	Message  string `json:"message"`
-	Sender   string `json:"sender"`
+	ServerID   int64  `json:"serverId"`
+	Message    string `json:"message"`
+	Sender     string `json:"sender"`
+
+	// SentByUser is true if this message was sent by another Refractor user
+	SentByUser bool   `json:"sendByUser"`
 }
 
 type WebsocketService interface {
