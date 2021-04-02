@@ -298,3 +298,16 @@ func (s *serverService) OnPlayerUpdate(updated *refractor.Player) {
 		}
 	}
 }
+
+func (s *serverService) OnPlayerListUpdate(serverID int64, gameConfig *refractor.GameConfig, players []*refractor.Player) {
+	onlinePlayerMap := map[string]*refractor.Player{}
+	for _, onlinePlayer := range players {
+		// Use reflection to get the player's game id
+		r := reflect.ValueOf(onlinePlayer)
+		field := reflect.Indirect(r).FieldByName(gameConfig.PlayerGameIDField).String()
+
+		onlinePlayerMap[field] = onlinePlayer
+	}
+
+	s.serverData[serverID].OnlinePlayers = onlinePlayerMap
+}

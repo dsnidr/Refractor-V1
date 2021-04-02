@@ -12,16 +12,18 @@ type RCONClient struct {
 }
 
 type BroadcastSubscriber func(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
+type PlayerListPollSubscriber func(serverID int64, gameConfig *GameConfig, players []*Player)
 type StatusSubscriber func(serverID int64)
 
 type RCONService interface {
 	CreateClient(*Server) error
 	GetClients() map[int64]*RCONClient
 	DeleteClient(serverID int64)
+	SendChatMessage(msgBody *ChatSendBody)
 	SubscribeJoin(subscriber BroadcastSubscriber)
 	SubscribeQuit(subscriber BroadcastSubscriber)
 	SubscribeOnline(subscriber StatusSubscriber)
 	SubscribeOffline(subscriber StatusSubscriber)
 	SubscribeChat(subscriber BroadcastSubscriber)
-	SendChatMessage(msgBody *ChatSendBody)
+	SubscribePlayerListPoll(subscriber PlayerListPollSubscriber)
 }

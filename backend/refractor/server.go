@@ -56,6 +56,7 @@ type ServerService interface {
 	OnServerOnline(serverID int64)
 	OnServerOffline(serverID int64)
 	OnPlayerUpdate(updated *Player)
+	OnPlayerListUpdate(serverID int64, gameConfig *GameConfig, players []*Player)
 }
 
 type ServerHandler interface {
