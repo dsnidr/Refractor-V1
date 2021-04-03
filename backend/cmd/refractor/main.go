@@ -39,7 +39,6 @@ func main() {
 	if err := env.RequireEnv("DB_URI").
 		RequireEnv("JWT_SECRET").
 		RequireEnv("DB_URI").
-		RequireEnv("GAME").
 		GetError(); err != nil {
 		log.Fatal(err)
 	}

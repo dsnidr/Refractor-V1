@@ -1,0 +1,63 @@
+version: "2"
+
+services:
+  backend:
+    restart: unless-stopped
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    container_name: refractor-backend
+    environment:
+      - SECURE=true
+      - VIRTUAL_HOST={{DOMAIN}}
+      - LETSENCRYPT_HOST={{DOMAIN}}
+      - DB_URI={{DB_URI}}
+      - JWT_SECRET={{JWT_SECRET}}
+      - INITIAL_USER_USERNAME={{INITIAL_USERNAME}}
+      - INITIAL_USER_PASSWORD={{INITIAL_PASSWORD}}
+      - INITIAL_USER_EMAIL={{INITIAL_EMAIL}}
+    volumes:
+      - ./data/refractor:/opt/refractor
+    networks:
+      - sub-etha
+
+  frontend:
+    restart: unless-stopped
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    container_name: refractor-frontend
+    networks:
+      - sub-etha
+    depends_on:
+      - backend
+
+  proxy:
+    container_name: proxy
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    networks:
+      - sub-etha
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - backend
+      - frontend
+
+  certbot:
+    image: certbot/certbot
+    container_name: refractor-certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - proxy
+    command: certonly --webroot --webroot-path=/var/www/html --email {{EMAIL}} --agree-tos --no-eff-email --staging -d {{DOMAIN}}
+
+networks:
+  sub-etha:
