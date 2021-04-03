@@ -63,6 +63,7 @@ func Setup(db *sql.DB) error {
 			PlayFabID VARCHAR(32) UNIQUE,
 		    MCUUID VARCHAR(36) UNIQUE,
 			LastSeen BIGINT DEFAULT 0,
+		    Watched BOOLEAN DEFAULT FALSE,
 			
 			PRIMARY KEY (PlayerID)
 		);
