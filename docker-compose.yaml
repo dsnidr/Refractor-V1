@@ -9,13 +9,13 @@ services:
     container_name: refractor-backend
     environment:
       - SECURE=true
-      - VIRTUAL_HOST=refr.dmas.dev
-      - LETSENCRYPT_HOST=refr.dmas.dev
-      - DB_URI=root:CkVpLkhLNpg46U9v@tcp(172.17.0.1:3306)/refractor?charset=utf8mb4&collation=utf8mb4_unicode_ci
-      - JWT_SECRET=BntcDrfjkBqzBIdXX4e10GfP9fgRAkBs
-      - INITIAL_USER_USERNAME=void
-      - INITIAL_USER_PASSWORD=testtest
-      - INITIAL_USER_EMAIL=test@test.com
+      - VIRTUAL_HOST={{DOMAIN}}
+      - LETSENCRYPT_HOST={{DOMAIN}}
+      - DB_URI={{DB_URI}}
+      - JWT_SECRET={{JWT_SECRET}}
+      - INITIAL_USER_USERNAME={{INITIAL_USERNAME}}
+      - INITIAL_USER_PASSWORD={{INITIAL_PASSWORD}}
+      - INITIAL_USER_EMAIL={{INITIAL_EMAIL}}
     volumes:
       - ./data/refractor:/opt/refractor
     networks:
@@ -57,7 +57,7 @@ services:
       - ./data/certbot/www:/var/www/certbot
     depends_on:
       - proxy
-    command: certonly --webroot --webroot-path=/var/www/html --email sniddunc2@gmail.com --agree-tos --no-eff-email --staging -d refr.dmas.dev
+    command: certonly --webroot --webroot-path=/var/www/html --email {{EMAIL}} --agree-tos --no-eff-email --staging -d {{DOMAIN}}
 
 networks:
   sub-etha:
