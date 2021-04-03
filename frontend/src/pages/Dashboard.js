@@ -190,20 +190,31 @@ class Dashboard extends Component {
 							</SidebarItem>
 
 							<div>
-								{games.map((game) => (
-									<SidebarSection key={game.name}>
-										<h1>&#62; {game.name.toLowerCase()}</h1>
-										{game.servers.map((server) => (
-											<SidebarItem
-												key={server.id}
-												icon={<SingleServer />}
-												to={`/server/${server.id}`}
-											>
-												{server.name}
-											</SidebarItem>
-										))}
-									</SidebarSection>
-								))}
+								{games.map((game) => {
+									if (
+										!game.servers ||
+										game.servers.length === 0
+									) {
+										return null;
+									}
+
+									return (
+										<SidebarSection key={game.name}>
+											<h1>
+												&#62; {game.name.toLowerCase()}
+											</h1>
+											{game.servers.map((server) => (
+												<SidebarItem
+													key={server.id}
+													icon={<SingleServer />}
+													to={`/server/${server.id}`}
+												>
+													{server.name}
+												</SidebarItem>
+											))}
+										</SidebarSection>
+									);
+								})}
 								<RequirePerms
 									mode={'any'}
 									perms={[
@@ -261,20 +272,28 @@ class Dashboard extends Component {
 							</SidebarItem>
 						</div>
 						<div>
-							{games.map((game) => (
-								<SidebarSection key={game.name}>
-									<h1>&#62; {game.name.toLowerCase()}</h1>
-									{game.servers.map((server) => (
-										<SidebarItem
-											key={server.id}
-											icon={<SingleServer />}
-											to={`/server/${server.id}`}
-										>
-											{server.name}
-										</SidebarItem>
-									))}
-								</SidebarSection>
-							))}
+							{games.map((game) => {
+								if (
+									!game.servers ||
+									game.servers.length === 0
+								) {
+									return null;
+								}
+								return (
+									<SidebarSection key={game.name}>
+										<h1>&#62; {game.name.toLowerCase()}</h1>
+										{game.servers.map((server) => (
+											<SidebarItem
+												key={server.id}
+												icon={<SingleServer />}
+												to={`/server/${server.id}`}
+											>
+												{server.name}
+											</SidebarItem>
+										))}
+									</SidebarSection>
+								);
+							})}
 							<RequirePerms
 								mode={'any'}
 								perms={[flags.SUPER_ADMIN, flags.FULL_ACCESS]}
