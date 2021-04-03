@@ -83,6 +83,8 @@ class AddServer extends Component {
 	onAddServerClick = () => {
 		const { game, name, address, rconPort, rconPassword } = this.state;
 
+		console.log(game, name, address, rconPort, rconPassword);
+
 		this.props.createServer({
 			game,
 			name,

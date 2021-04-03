@@ -23,9 +23,11 @@ function* getServersAsync(action) {
 		const servers = {};
 
 		// Flatten the server structure
-		data.payload.forEach((server) => {
-			servers[server.id] = server;
-		});
+		if (data.payload) {
+			data.payload.forEach((server) => {
+				servers[server.id] = server;
+			});
+		}
 
 		yield put(setServers(servers));
 	} catch (err) {
@@ -112,7 +114,7 @@ function* watchDeleteServer() {
 	yield takeLatest(DELETE_SERVER, deleteServerAsync);
 }
 
-export default function* gameSagas() {
+export default function* serverSagas() {
 	yield all([
 		call(watchGetServers),
 		call(watchUpdateServer),
