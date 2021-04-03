@@ -1,0 +1,63 @@
+version: "2"
+
+services:
+  backend:
+    restart: unless-stopped
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    container_name: refractor-backend
+    environment:
+      - SECURE=true
+      - VIRTUAL_HOST=refr.dmas.dev
+      - LETSENCRYPT_HOST=refr.dmas.dev
+      - DB_URI=root:CkVpLkhLNpg46U9v@tcp(172.17.0.1:3306)/refractor?charset=utf8mb4&collation=utf8mb4_unicode_ci
+      - JWT_SECRET=BntcDrfjkBqzBIdXX4e10GfP9fgRAkBs
+      - INITIAL_USER_USERNAME=void
+      - INITIAL_USER_PASSWORD=testtest
+      - INITIAL_USER_EMAIL=test@test.com
+    volumes:
+      - ./data/refractor:/opt/refractor
+    networks:
+      - sub-etha
+
+  frontend:
+    restart: unless-stopped
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    container_name: refractor-frontend
+    networks:
+      - sub-etha
+    depends_on:
+      - backend
+
+  proxy:
+    container_name: proxy
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    networks:
+      - sub-etha
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - backend
+      - frontend
+
+  certbot:
+    image: certbot/certbot
+    container_name: refractor-certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - proxy
+    command: certonly --webroot --webroot-path=/var/www/html --email sniddunc2@gmail.com --agree-tos --no-eff-email --staging -d refr.dmas.dev
+
+networks:
+  sub-etha:
