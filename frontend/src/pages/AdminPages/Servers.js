@@ -110,9 +110,23 @@ class Servers extends Component {
 
 		if (!serversObj) {
 			return (
-				<div>
-					<Heading headingStyle={'title'}>No servers found</Heading>
-				</div>
+				<>
+					<div>
+						<Heading headingStyle={'title'}>
+							No servers found
+						</Heading>
+					</div>
+
+					<div>
+						<Button
+							size="normal"
+							color="primary"
+							onClick={this.onAddServerClick}
+						>
+							Add Server
+						</Button>
+					</div>
+				</>
 			);
 		}
 
