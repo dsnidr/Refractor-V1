@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import './index.scss';
+import './index.css';
 import { history, store } from './redux/store';
 import { Provider } from 'react-redux';
 import { setInterceptors } from './utils/tokenUtils';
