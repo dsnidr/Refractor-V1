@@ -203,7 +203,7 @@ func (s *userService) SetUserPermissions(body params.SetUserPermissionsParams) (
 	return updatedUser, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
-		Message:    "Permissions set. Any new access rights will come into effect next time the user logs in",
+		Message:    "Permissions set. Any new access rights will come into effect next time the reloads.",
 	}
 }
 

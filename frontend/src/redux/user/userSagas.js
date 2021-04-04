@@ -222,26 +222,26 @@ function* forceUserPasswordChangeAsync(action) {
 
 function* setUserPermissionsAsync(action) {
 	try {
-		yield call(setUserPermissions, {
+		const { data } = yield call(setUserPermissions, {
 			id: action.userId,
 			permissions: action.payload.toString(),
 		});
 
-		// yield put(setSuccess('setpermissions', data.message));
-		// yield put(setErrors('setpermissions', undefined));
+		yield put(setSuccess('setpermissions', data.message));
+		yield put(setErrors('setpermissions', undefined));
 	} catch (err) {
 		console.log('Could not set user permissions', err);
-		// const { data } = err.response;
-		//
-		// yield put(setSuccess('adduser', undefined));
-		// yield put(
-		// 	setErrors(
-		// 		'setpermissions',
-		// 		!data.errors
-		// 			? `Could not set permissions for user: ${err.response.data.message}`
-		// 			: data.errors
-		// 	)
-		// );
+		const { data } = err.response;
+
+		yield put(setSuccess('adduser', undefined));
+		yield put(
+			setErrors(
+				'setpermissions',
+				!data.errors
+					? `Could not set permissions for user: ${err.response.data.message}`
+					: data.errors
+			)
+		);
 	}
 }
 

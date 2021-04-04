@@ -242,7 +242,12 @@ class User extends Component {
 
 	render() {
 		const { user, perms, errors } = this.state;
-		const { passwordSuccess, passwordErrors } = this.props;
+		const {
+			passwordSuccess,
+			passwordErrors,
+			permErrors,
+			permSuccess,
+		} = this.props;
 
 		const adminBoxChecked = !!perms[FULL_ACCESS];
 
@@ -308,6 +313,14 @@ class User extends Component {
 				</ManagementSection>
 
 				<ManagementSection>
+					<Alert
+						type="error"
+						message={
+							typeof permErrors === 'string' ? permErrors : null
+						}
+					/>
+					<Alert type="success" message={permSuccess} />
+
 					<Heading headingStyle={'subtitle'}>
 						Permission Management
 					</Heading>
@@ -404,6 +417,8 @@ const mapStateToProps = (state) => ({
 	users: state.user.others,
 	passwordErrors: state.error.passwordmgmt,
 	passwordSuccess: state.success.passwordmgmt,
+	permErrors: state.error.setpermissions,
+	permSuccess: state.success.setpermissions,
 });
 
 const mapDispatchToProps = (dispatch) => ({
