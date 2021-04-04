@@ -6,6 +6,11 @@ export const logIn = (credentials) => ({
 	payload: credentials,
 });
 
+export const REFRESH_TOKENS = 'REFRESH_TOKENS';
+export const refreshTokens = () => ({
+	type: REFRESH_TOKENS,
+});
+
 export const setUser = (data) => ({
 	type: SET_CURRENT_USER,
 	payload: data,
