@@ -10,6 +10,8 @@ import {
 	SidebarSection,
 	Topbar,
 	TopbarItem,
+	TopbarItems,
+	UsernameTopbarItem,
 	Wrapper,
 } from './Dashboard.styled';
 import SidebarItem from '../components/SidebarItem';
@@ -166,9 +168,9 @@ class Dashboard extends Component {
 	};
 
 	render() {
-		let { games } = this.props;
+		let { games, user } = this.props;
 
-		if (games === null) {
+		if (games === null || user === null) {
 			return null;
 		}
 
@@ -252,11 +254,14 @@ class Dashboard extends Component {
 							<div />
 						</DrawerToggle>
 						<h1>REFRACTOR</h1>
-						<div className={'items'}>
+						<TopbarItems>
+							<UsernameTopbarItem>
+								{user.username}
+							</UsernameTopbarItem>
 							<TopbarItem onClick={this.onLogOutClick}>
 								LOG OUT
 							</TopbarItem>
-						</div>
+						</TopbarItems>
 					</Topbar>
 
 					<Sidebar>
