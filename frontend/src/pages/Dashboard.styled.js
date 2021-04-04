@@ -83,6 +83,10 @@ export const Topbar = styled.div`
 	`}
 `;
 
+export const TopbarItems = styled.div`
+	display: flex;
+`;
+
 export const TopbarItem = styled.div`
 	${(props) => css`
 		font-size: 1.2rem;
@@ -92,7 +96,19 @@ export const TopbarItem = styled.div`
 
 		:hover {
 			cursor: pointer;
-			background-color: ${lighten(0.02, props.theme.colorBackground)};
+			background-color: ${lighten(0.02, props.theme.colorBackgroundAlt)};
+		}
+	`}
+`;
+
+export const UsernameTopbarItem = styled(TopbarItem)`
+	${(props) => css`
+		margin-right: 2rem;
+		color: ${props.theme.colorDisabled};
+
+		:hover {
+			cursor: revert;
+			background: none;
 		}
 	`}
 `;
