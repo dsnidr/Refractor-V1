@@ -143,10 +143,16 @@ class BanModal extends Component {
 
 	render() {
 		const { player, success, errors, duration } = this.state;
-		const { show, inputRef } = this.props;
+		const { show, inputRef, reload } = this.props;
 
 		if (success) {
-			setTimeout(() => window.location.reload(), 1500);
+			setTimeout(() => {
+				if (reload) {
+					window.location.reload();
+				} else {
+					this.onClose();
+				}
+			}, 1500);
 		}
 
 		return (
@@ -209,6 +215,7 @@ BanModal.propTypes = {
 	onClose: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func,
 	inputRef: PropTypes.object,
+	reload: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => ({

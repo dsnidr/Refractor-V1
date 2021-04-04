@@ -250,6 +250,7 @@ class Server extends Component {
 					show={warn.show}
 					onClose={this.closeModal('warn')}
 					inputRef={this.warnModalRef}
+					reload={false}
 				/>
 
 				<KickModal
@@ -258,6 +259,7 @@ class Server extends Component {
 					show={kick.show}
 					onClose={this.closeModal('kick')}
 					inputRef={this.kickModalRef}
+					reload={false}
 				/>
 
 				<BanModal
@@ -266,6 +268,7 @@ class Server extends Component {
 					show={ban.show}
 					onClose={this.closeModal('ban')}
 					inputRef={this.banModalRef}
+					reload={false}
 				/>
 
 				<Header>
