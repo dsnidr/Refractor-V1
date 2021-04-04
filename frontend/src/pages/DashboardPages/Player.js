@@ -279,6 +279,7 @@ class Player extends Component {
 					show={warn.show}
 					onClose={this.closeModal('warn')}
 					inputRef={this.warnModalRef}
+					reload={true}
 				/>
 
 				<MuteModal
@@ -286,6 +287,7 @@ class Player extends Component {
 					show={mute.show}
 					onClose={this.closeModal('mute')}
 					inputRef={this.muteModalRef}
+					reload={true}
 				/>
 
 				<KickModal
@@ -293,6 +295,7 @@ class Player extends Component {
 					show={kick.show}
 					onClose={this.closeModal('kick')}
 					inputRef={this.kickModalRef}
+					reload={true}
 				/>
 
 				<BanModal
@@ -300,6 +303,7 @@ class Player extends Component {
 					show={ban.show}
 					onClose={this.closeModal('ban')}
 					inputRef={this.banModalRef}
+					reload={true}
 				/>
 
 				<EditInfractionModal

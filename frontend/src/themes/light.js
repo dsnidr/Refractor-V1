@@ -5,7 +5,7 @@ export default {
 	colorPrimaryDark: '#197fc2',
 	colorDanger: '#FF0035',
 	colorAlert: '#FBB13C',
-	colorWarning: '#FFFD82',
+	colorWarning: '#197fc2',
 	colorSuccess: '#30db64',
 	colorAccent: '#e6e6e6',
 	colorDisabled: '#a2b2b8',

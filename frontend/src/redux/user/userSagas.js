@@ -233,7 +233,7 @@ function* setUserPermissionsAsync(action) {
 		console.log('Could not set user permissions', err);
 		const { data } = err.response;
 
-		yield put(setSuccess('adduser', undefined));
+		yield put(setSuccess('setpermissions', undefined));
 		yield put(
 			setErrors(
 				'setpermissions',
