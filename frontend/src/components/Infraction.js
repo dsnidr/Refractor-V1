@@ -3,6 +3,11 @@ import styled, { css, keyframes } from 'styled-components';
 import { respondTo } from '../mixins/respondTo';
 import PropTypes from 'prop-types';
 import { buildTimeRemainingString } from '../utils/timeUtils';
+import {
+	hasFullAccess,
+	hasPermission,
+	flags,
+} from '../permissions/permissions';
 
 const borderFlashKeyframes = (color) => keyframes`
 	0% {
@@ -87,6 +92,21 @@ const Infraction = (props) => {
 		}
 	}
 
+	const { perms, isOwnInfraction } = props;
+
+	/* global BigInt */
+	const userPerms = BigInt(perms);
+
+	const showEdit =
+		hasFullAccess(userPerms) ||
+		(isOwnInfraction && flags.EDIT_OWN_INFRACTIONS) ||
+		hasPermission(userPerms, flags.EDIT_ANY_INFRACTION);
+
+	const showDelete =
+		hasFullAccess(userPerms) ||
+		(isOwnInfraction && flags.DELETE_OWN_INFRACTIONS) ||
+		hasPermission(userPerms, flags.DELETE_ANY_INFRACTION);
+
 	return (
 		<InfractionBox highlight={!!props.highlight} ref={props.highlightRef}>
 			<MetaDisplay>
@@ -107,8 +127,8 @@ const Infraction = (props) => {
 				</MetaDisplay>
 			)}
 			<UtilBox>
-				<div onClick={props.onEditClick}>Edit</div>
-				<div onClick={props.onDeleteClick}>Delete</div>
+				{showEdit && <div onClick={props.onEditClick}>Edit</div>}
+				{showDelete && <div onClick={props.onDeleteClick}>Delete</div>}
 			</UtilBox>
 			<InfractionInfo>{props.reason}</InfractionInfo>
 		</InfractionBox>
@@ -123,6 +143,8 @@ Infraction.propTypes = {
 	reason: PropTypes.string.isRequired,
 	onEditClick: PropTypes.func,
 	onDeleteClick: PropTypes.func,
+	perms: PropTypes.any,
+	isOwnInfraction: PropTypes.bool,
 };
 
 export default Infraction;

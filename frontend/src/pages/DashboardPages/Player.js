@@ -231,6 +231,7 @@ class Player extends Component {
 	render() {
 		const { player, error, modals, highlightId } = this.state;
 		const { warn, mute, kick, ban, edit, del } = modals;
+		const { self } = this.props;
 
 		if (error) {
 			return (
@@ -412,7 +413,11 @@ class Player extends Component {
 											date={timestampToDateTime(
 												warning.timestamp
 											)}
+											perms={self.permissions}
 											issuer={warning.staffName}
+											isOwnInfraction={
+												self.id === warning.userId
+											}
 											reason={warning.reason}
 											onEditClick={this.showModal(
 												'edit',
@@ -450,6 +455,10 @@ class Player extends Component {
 											date={timestampToDateTime(
 												mute.timestamp
 											)}
+											perms={self.permissions}
+											isOwnInfraction={
+												self.id === mute.userId
+											}
 											issuer={mute.staffName}
 											reason={mute.reason}
 											duration={mute.duration}
@@ -493,6 +502,10 @@ class Player extends Component {
 											date={timestampToDateTime(
 												kick.timestamp
 											)}
+											perms={self.permissions}
+											isOwnInfraction={
+												self.id === kick.userId
+											}
 											issuer={kick.staffName}
 											reason={kick.reason}
 											onEditClick={this.showModal(
@@ -531,7 +544,11 @@ class Player extends Component {
 											date={timestampToDateTime(
 												ban.timestamp
 											)}
+											perms={self.permissions}
 											issuer={ban.staffName}
+											isOwnInfraction={
+												self.id === ban.userId
+											}
 											reason={ban.reason}
 											duration={ban.duration}
 											remaining={getTimeRemaining(
@@ -573,6 +590,7 @@ class Player extends Component {
 }
 
 const mapStateToProps = (state) => ({
+	self: state.user.self,
 	player: state.players.currentPlayer,
 	loading: state.loading.playersummary,
 });
