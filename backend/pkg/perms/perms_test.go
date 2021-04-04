@@ -72,6 +72,14 @@ func TestHasHigherAccess(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			name: "perms.hashigheraccess.8",
+			args: args{
+				user1Perms: bitperms.PermissionValue(FULL_ACCESS),
+				user2Perms: bitperms.PermissionValue(SUPER_ADMIN),
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
