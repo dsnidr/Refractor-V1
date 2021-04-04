@@ -7,10 +7,11 @@ import {
 	getAllUsers,
 	getUserInfo,
 	logInUser,
+	refreshToken,
 	setUserPassword,
 	setUserPermissions,
 } from '../../api/userApi';
-import { setToken } from '../../utils/tokenUtils';
+import { decodeToken, getToken, setToken } from '../../utils/tokenUtils';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import {
 	ACTIVATE_USER,
@@ -21,6 +22,7 @@ import {
 	FORCE_USER_PASSWORD_CHANGE,
 	GET_ALL_USERS,
 	LOG_IN,
+	REFRESH_TOKENS,
 	SET_USER_PASSWORD,
 	SET_USER_PERMISSIONS,
 	setAllUsers,
@@ -47,6 +49,16 @@ function* logInAsync(action) {
 	} catch (err) {
 		yield put(setErrors('auth', err.response.data.message));
 		yield put(setSuccess('auth', undefined));
+	}
+}
+
+function* refreshTokensAsync(action) {
+	try {
+		const { data } = yield call(refreshToken);
+
+		setToken(data.payload);
+	} catch (err) {
+		console.log('Could not refresh tokens', err);
 	}
 }
 
@@ -237,6 +249,10 @@ function* watchLogIn() {
 	yield takeLatest(LOG_IN, logInAsync);
 }
 
+function* watchRefreshTokens() {
+	yield takeLatest(REFRESH_TOKENS, refreshTokensAsync);
+}
+
 function* watchGetUserInfo() {
 	yield takeLatest(GET_USER_INFO, getUserInfoAsync);
 }
@@ -276,6 +292,7 @@ function* watchSetUserPermissions() {
 export default function* userSagas() {
 	yield all([
 		call(watchLogIn),
+		call(watchRefreshTokens),
 		call(watchGetUserInfo),
 		call(watchChangeUserPassword),
 		call(watchGetAllUsers),

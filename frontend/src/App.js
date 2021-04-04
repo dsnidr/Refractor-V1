@@ -5,7 +5,7 @@ import { store, history } from './redux/store';
 import { Router, Switch } from 'react-router';
 import { setTheme } from './redux/theme/themeActions';
 import { css, ThemeProvider } from 'styled-components';
-import { getUserInfo, setUser } from './redux/user/userActions';
+import { getUserInfo, refreshTokens, setUser } from './redux/user/userActions';
 import styled from 'styled-components';
 import themes from './themes';
 import UnprotectedRoute from './components/UnprotectedRoute';
@@ -74,6 +74,16 @@ class App extends Component {
 		const nextState = prevState;
 
 		if (nextProps.user !== null) {
+			// Check if permissions fetched from the server are the same as the permissions in the token.
+			// This is necessary to detect user permission changes and prevent desync.
+			// If they are not equal, a refresh is forced.
+			const decoded = decodeToken(getToken());
+
+			if (nextProps.user.permissions !== decoded.permissions) {
+				nextProps.refreshTokens();
+			}
+
+			// Mark token as checked
 			nextState.tokenChecked = true;
 		}
 
@@ -115,6 +125,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
 	getUserInfo: () => dispatch(getUserInfo()),
 	setUser: (user) => dispatch(setUser(user)),
+	refreshTokens: () => dispatch(refreshTokens()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
