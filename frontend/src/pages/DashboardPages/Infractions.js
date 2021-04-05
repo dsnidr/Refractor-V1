@@ -274,26 +274,30 @@ class Infractions extends Component {
 					<Heading headingStyle={'title'}>Infractions</Heading>
 				</div>
 
-				<RecentInfractionsBox>
-					<Heading headingStyle={'subtitle'}>
-						Recent Infractions
-					</Heading>
+				{recentInfractions && (
+					<RecentInfractionsBox>
+						<Heading headingStyle={'subtitle'}>
+							Recent Infractions
+						</Heading>
 
-					<RecentInfractions>
-						{recentInfractions.map((infraction, index) => (
-							<InfractionPreview
-								key={`ri${index}`}
-								to={`/player/${infraction.playerId}?highlight=${infraction.id}`}
-								type={infraction.type}
-								player={infraction.playerName}
-								date={timestampToDateTime(infraction.timestamp)}
-								issuer={infraction.staffName}
-								duration={infraction.duration}
-								reason={infraction.reason}
-							/>
-						))}
-					</RecentInfractions>
-				</RecentInfractionsBox>
+						<RecentInfractions>
+							{recentInfractions.map((infraction, index) => (
+								<InfractionPreview
+									key={`ri${index}`}
+									to={`/player/${infraction.playerId}?highlight=${infraction.id}`}
+									type={infraction.type}
+									player={infraction.playerName}
+									date={timestampToDateTime(
+										infraction.timestamp
+									)}
+									issuer={infraction.staffName}
+									duration={infraction.duration}
+									reason={infraction.reason}
+								/>
+							))}
+						</RecentInfractions>
+					</RecentInfractionsBox>
+				)}
 
 				<InfractionSearchBox>
 					<Heading headingStyle={'subtitle'}>
