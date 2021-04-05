@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set to 1 to do a test run without generating a proper certificate.
+staging=0
+
 # Use tput to determine the right sequences for bold/colored text
 bold=$(tput bold)
 reset=$(tput sgr0)
@@ -101,7 +104,6 @@ echo "REACT_APP_DOMAIN=$domain" >> ./frontend/.env
 
 rsa_key_size=4096
 data_path="./data/certbot"
-staging=0 # set to 1 if you're testing your setup to avoid rate limits
 
 # Check for existing data
 if [ -d "$data_path" ]; then
