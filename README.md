@@ -66,7 +66,7 @@ If not, you can install one on the same machine as Refractor. The recommended wa
 
 ```zsh
 docker run --name mysql --restart unless-stopped --network host \
-  -e MYSQL_ROOT_HOST='%'  -e MYSQL_ROOT_PASSWORD='strongpassword' \
+  -e MYSQL_ROOT_HOST='0.0.0.0'  -e MYSQL_ROOT_PASSWORD='strongpassword' \
   -d mysql/mysql-server:latest
 ```
 
@@ -88,11 +88,11 @@ docker exec -it mysql mysql -u root -p
 
 The first `mysql` is the name of your Docker container. The second is the mysql command available in the container. `-u` is where you specify your username and `-p` tells the server that you'll provide a password.
 
-It should ask you for your password. Once you enter it, you should be presented with a MySQL prompt and see something like: `mysql >`.
+It should ask you for your password. Once you enter it, you should be presented with a MySQL prompt and see something like: `mysql>`.
 
 You can now create a database by typing the following command:
 
-```zsh
+```sql
 CREATE DATABASE refractor;
 ```
 
@@ -102,7 +102,7 @@ This will create a new database called refractor.
 
 For security reasons, it's best not to run applications right from the root user. Instead, you should create an additional user. You can do this using the following command from inside the MySQL prompt:
 
-```zsh
+```sql
 CREATE USER refractor IDENTIFIED BY 'password';
 ```
 
@@ -110,11 +110,17 @@ CREATE USER refractor IDENTIFIED BY 'password';
 
 Next, you need to give this user permissions on the database you created previously. You can do this with the following command:
 
-```zsh
+```sql
 GRANT ALL PRIVILEGES ON refractor.* TO refractor;
 ```
 
 The first `refractor` is the name of the database which you're assigning the new user's privileges on. The second `refractor` is the name of your new user. This will grant the user all permissions.
+
+Now, just flush the permissions to make them take effect.
+
+```sql
+FLUSH PRIVILEGES;
+```
 
 ## 2. Cloning the Repository
 
@@ -126,6 +132,8 @@ cd Refractor
 ```
 
 ## 3. Running the setup script
+
+> If you are a on a system with low memory (1gb or less) you may want to create a swapfile. See Troubleshooting below under section "**The installation hangs, freezes up my server or just takes forever**"
 
 Inside the directory you cloned, you should see a file called `setup.sh`.
 
@@ -148,3 +156,15 @@ Follow the instructions in the setup script. Provide your domain name, email add
 Once this is done, the docker images for the various components of Refractor will be built. You will likely see lots of text appearing on your screen as everything gets installed. This is perfectly normal.
 
 This installation could take a good amount of time to complete, so be patient!
+
+Once the installation is complete, navigate to your domain and you should be presented with the Refractor login screen. If you enter the credentials you provided for the initial user, you should be able to log in.
+
+You're all set. Enjoy Refractor!
+
+## Troubleshooting
+
+### **The installation hangs, freezes up my server or just takes forever**
+
+This issue is often caused by a lack of system memory during the build process of the React client. If you are on a low memory system (1gb or less) then you may consider creating a swapfile of 1gb or more to help along the build process. Research how to create a swapfile for your Linux distribution for more information.
+
+> If you ran into and resolved any issues during the installation which you think others may run into, feel free to add a section under troubleshooting and submit a PR.
