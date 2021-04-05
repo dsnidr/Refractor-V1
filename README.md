@@ -1,9 +1,9 @@
 # Refractor
 
-![Latest Version Tag](https://img.shields.io/github/v/tag/sniddunc/mordhau-rcon?label=version&style=flat-square)
-![License](https://img.shields.io/github/license/sniddunc/mordhau-rcon?style=flat-square)
-![Lines of Code](https://img.shields.io/tokei/lines/github/sniddunc/mordhau-rcon?label=lines%20of%20code&style=flat-square)
-![Contributors](https://img.shields.io/github/contributors/sniddunc/mordhau-rcon?color=%2397CA00&style=flat-square)
+![Latest Version Tag](https://img.shields.io/github/v/tag/sniddunc/refractor?label=version&style=flat-square)
+![License](https://img.shields.io/github/license/sniddunc/refractor?style=flat-square)
+![Lines of Code](https://img.shields.io/tokei/lines/github/sniddunc/refractor?label=lines%20of%20code&style=flat-square)
+![Contributors](https://img.shields.io/github/contributors/sniddunc/refractor?color=%2397CA00&style=flat-square)
 
 A game server community management panel written in Go and React.
 
