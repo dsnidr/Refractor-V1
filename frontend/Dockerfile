@@ -10,9 +10,9 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN yarn install --verbose
-RUN yarn global add react-scripts
-RUN yarn global add serve
+RUN yarn install --silent
+RUN yarn global add react-scripts --silent
+RUN yarn global add serve --silent
 
 # Remove build deps
 #RUN apk del build-dependencies
