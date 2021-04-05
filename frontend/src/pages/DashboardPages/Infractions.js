@@ -71,8 +71,9 @@ const SearchBox = styled.div`
 
 const ResultsBox = styled.div`
 	${(props) => css`
-		> :first-child {
+		> :nth-child(2) {
 			margin-bottom: 1rem;
+			font-size: 1.2rem;
 		}
 
 		> :nth-child(odd) {
@@ -371,6 +372,7 @@ class Infractions extends Component {
 				{results && results.length > 0 ? (
 					<ResultsBox>
 						<Heading headingStyle={'subtitle'}>Results</Heading>
+						<p>found {count} results</p>
 
 						{results.map((result, index) => (
 							<InfractionPreview
