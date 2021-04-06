@@ -36,7 +36,7 @@ With Refractor, all this information is centralized and easy to find with the he
 The following games are currently supported:
 
 - Mordhau
-- RCON
+- Minecraft
 
 # Installing with Docker
 
