@@ -62,7 +62,7 @@ If you have a MySQL database you can use, skip to step 2.
 
 ### Creating a MySQL Docker container
 
-If not, you can install one on the same machine as Refractor. The recommended way to do this is with Docker. With Docker already installed, you can run the following command to set up a MySQL server container:
+If you don't yet have a MySQL database, you can install one on the same machine as Refractor. The recommended way to do this is with Docker. With Docker already installed, you can run the following command to set up a MySQL server container:
 
 ```zsh
 docker run --name mysql --restart unless-stopped --network host \
@@ -166,5 +166,13 @@ You're all set. Enjoy Refractor!
 ### **The installation hangs, freezes up my server or just takes forever**
 
 This issue is often caused by a lack of system memory during the build process of the React client. If you are on a low memory system (1gb or less) then you may consider creating a swapfile of 1gb or more to help along the build process. Research how to create a swapfile for your Linux distribution for more information.
+
+### **Too many certificates already issued for exact set of domains**
+
+Let's Encrypt (the service used to handle our certificates) has rate limiting. If you get this error, you have requested too many certificates in their rate limiting timeframe. More info can be found (here)[https://letsencrypt.org/docs/rate-limits/].
+
+### **Challenge failed / Some challenges have failed**
+
+This is likely because the domain record you're using has not yet been fully propagated. Domain changes can take up to 48 hours to propagate fully. You should re-try the installation in at least a few hours, if not longer.
 
 > If you ran into and resolved any issues during the installation which you think others may run into, feel free to add a section under troubleshooting and submit a PR.
