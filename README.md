@@ -1,5 +1,7 @@
 # Refractor
 
+[![Join the chat at https://gitter.im/refractor-app/community](https://badges.gitter.im/refractor-app/community.svg)](https://gitter.im/refractor-app/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![Latest Version Tag](https://img.shields.io/github/v/tag/sniddunc/refractor?label=version&style=flat-square)
 ![License](https://img.shields.io/github/license/sniddunc/refractor?style=flat-square)
 ![Lines of Code](https://img.shields.io/tokei/lines/github/sniddunc/refractor?label=lines%20of%20code&style=flat-square)
