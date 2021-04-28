@@ -4,6 +4,7 @@
 ![License](https://img.shields.io/github/license/sniddunc/refractor?style=flat-square)
 ![Lines of Code](https://img.shields.io/tokei/lines/github/sniddunc/refractor?label=lines%20of%20code&style=flat-square)
 ![Contributors](https://img.shields.io/github/contributors/sniddunc/refractor?color=%2397CA00&style=flat-square)
+![Gitter](https://img.shields.io/gitter/room/Sniddunc/Refractor?style=flat-square)
 
 A game server community management panel written in Go and React.
 
