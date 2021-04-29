@@ -37,7 +37,7 @@ const Title = styled.span`
 `;
 
 const arrowSvgEncoded = (color) =>
-	`url(\"data:image/svg+xml;utf8,<svg fill='${color}' height='25' viewBox='0 0 25 25' width='25' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h25v25H0z' fill='none'/></svg>\")`;
+	`url("data:image/svg+xml;utf8,<svg fill='${color}' height='25' viewBox='0 0 25 25' width='25' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h25v25H0z' fill='none'/></svg>")`;
 
 const StyledSelect = styled.select`
 	${(props) => css`

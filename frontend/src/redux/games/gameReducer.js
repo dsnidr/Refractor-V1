@@ -20,7 +20,14 @@ const initialState = null;
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SET_GAMES:
-			return action.payload;
+			const unsorted = action.payload;
+			const sorted = Object.keys(unsorted)
+				.sort()
+				.reduce((acc, key) => ({
+					...acc, [key]: unsorted[key]
+				}), {})
+
+			return sorted;
 		default:
 			return state;
 	}

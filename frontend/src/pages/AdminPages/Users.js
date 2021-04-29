@@ -22,10 +22,8 @@ import {
 	deactivateUser,
 	getAllUsers,
 } from '../../redux/user/userActions';
-import Spinner from '../../components/Spinner';
 import styled, { css } from 'styled-components';
 import Button from '../../components/Button';
-import { Link } from 'react-router-dom';
 import BasicModal from '../../components/modals/BasicModal';
 
 const UserInfo = styled.div`

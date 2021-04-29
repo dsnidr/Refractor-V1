@@ -13,7 +13,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React from 'react';
 import { connect } from 'react-redux';
 import { flags, hasPermission } from '../permissions/permissions';
 import PropTypes from 'prop-types';

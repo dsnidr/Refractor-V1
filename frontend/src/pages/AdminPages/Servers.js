@@ -19,11 +19,8 @@ import respondTo from '../../mixins/respondTo';
 import Heading from '../../components/Heading';
 import Button from '../../components/Button';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
 import { Link } from 'react-router-dom';
-import { useHistory } from 'react-router';
 import StatusTag from '../../components/StatusTag';
-import Modal from '../../components/Modal';
 import BasicModal from '../../components/modals/BasicModal';
 import { deleteServer } from '../../redux/servers/serverActions';
 
@@ -155,6 +152,7 @@ class Servers extends Component {
 					message={`Are you sure you wish to delete ${deleteServerModal.ctx.name}? This action cannot be undone.`}
 					success={null}
 					error={null}
+					submitLabel={"Delete"}
 					onClose={this.hideModal('deleteServer')}
 					onSubmit={this.onDeleteServerSubmit}
 				/>

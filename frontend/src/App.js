@@ -16,8 +16,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { store, history } from './redux/store';
-import { Router, Switch } from 'react-router';
+import { store } from './redux/store';
+import { Switch } from 'react-router';
 import { setTheme } from './redux/theme/themeActions';
 import { css, ThemeProvider } from 'styled-components';
 import { getUserInfo, refreshTokens, setUser } from './redux/user/userActions';

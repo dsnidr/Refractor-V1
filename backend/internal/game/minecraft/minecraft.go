@@ -39,7 +39,7 @@ func NewMinecraftGame() refractor.Game {
 			PlayerListPollingInterval: time.Second * 5,
 			BroadcastPatterns:         map[string]*regexp.Regexp{},
 			CmdOutputPatterns: map[string]*regexp.Regexp{
-				"PlayerList": regexp.MustCompile("(?P<MCUUID>[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}):(?P<Name>[\\S]+)"),
+				"PlayerList": regexp.MustCompile("(?P<MCUUID>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}):(?P<Name>[\\S]+)"),
 			},
 			PlayerGameIDField: "MCUUID",
 		},

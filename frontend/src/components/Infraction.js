@@ -15,7 +15,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { respondTo } from '../mixins/respondTo';
 import PropTypes from 'prop-types';
 import { buildTimeRemainingString } from '../utils/timeUtils';
 import {

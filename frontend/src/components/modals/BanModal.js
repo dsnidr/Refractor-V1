@@ -20,7 +20,6 @@ import Alert from '../Alert';
 import TextArea from '../TextArea';
 import Button from '../Button';
 import { reasonIsValid } from '../../utils/infractionUtils';
-import styled, { css } from 'styled-components';
 import TextInput from '../TextInput';
 import { createBan } from '../../redux/infractions/infractionActions';
 import { setErrors } from '../../redux/error/errorActions';

@@ -39,7 +39,6 @@ import {
 	ResultPlatform,
 	SearchResults,
 } from '../pages/DashboardPages/Players';
-import { Link } from 'react-router-dom';
 import { timestampToDateTime } from '../utils/timeUtils';
 import { setSuccess } from '../redux/success/successActions';
 import { setErrors } from '../redux/error/errorActions';

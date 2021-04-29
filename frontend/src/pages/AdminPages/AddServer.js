@@ -14,7 +14,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import React, { Component } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { connect } from 'react-redux';
 import Heading from '../../components/Heading';
 import Alert from '../../components/Alert';
@@ -132,6 +132,7 @@ class AddServer extends Component {
 								name={'game'}
 								onChange={this.onChange}
 								error={errors.game}
+								title={"game"}
 							>
 								{games.map((game) => (
 									<option key={game.id} value={game.name}>

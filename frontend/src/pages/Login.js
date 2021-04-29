@@ -18,7 +18,7 @@ import { connect } from 'react-redux';
 import respondTo from '../mixins/respondTo';
 import styled, { css } from 'styled-components';
 import Wrapper from '../components/Wrapper';
-import { Field, Form, Formik } from 'formik';
+import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import TextInput from '../components/TextInput';
 import Alert from '../components/Alert';

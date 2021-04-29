@@ -41,7 +41,6 @@ import {
 	getToken,
 	tokenIsCurrent,
 } from '../utils/tokenUtils';
-import RequireAccessLevel from '../components/RequirePerms';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import Main from './DashboardPages/Main';
 import { Route, Switch } from 'react-router';

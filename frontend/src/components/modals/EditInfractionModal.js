@@ -20,7 +20,6 @@ import PropTypes from 'prop-types';
 import Alert from '../Alert';
 import Button from '../Button';
 import {
-	createWarning,
 	updateInfraction,
 } from '../../redux/infractions/infractionActions';
 import { setErrors } from '../../redux/error/errorActions';
@@ -74,6 +73,9 @@ class EditInfractionModal extends Component {
 					break;
 				case 'BAN':
 					prevState.editableFields = ['reason', 'duration'];
+					break;
+				default:
+					prevState.editableFields = [];
 					break;
 			}
 

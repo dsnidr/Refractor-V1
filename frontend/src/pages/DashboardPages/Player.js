@@ -32,7 +32,6 @@ import BanModal from '../../components/modals/BanModal';
 import MuteModal from '../../components/modals/MuteModal';
 import { setLoading } from '../../redux/loading/loadingActions';
 import EditInfractionModal from '../../components/modals/EditInfractionModal';
-import BasicModal from '../../components/modals/BasicModal';
 import DeleteInfractionModal from '../../components/modals/DeleteInfractionModal';
 import queryString from 'querystring';
 

@@ -18,11 +18,8 @@ import { connect } from 'react-redux';
 import styled, { css } from 'styled-components';
 import Heading from '../../components/Heading';
 import respondTo from '../../mixins/respondTo';
-import TextInput from '../../components/TextInput';
-import Button from '../../components/Button';
 import { getCurrentWebsocket } from '../../websocket/websocket';
 import Alert from '../../components/Alert';
-import { position } from 'polished';
 import { animateScroll } from 'react-scroll';
 import { addChatMessage } from '../../redux/chat/chatActions';
 

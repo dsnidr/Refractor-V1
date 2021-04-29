@@ -24,9 +24,7 @@ import Button from '../../components/Button';
 import PlayerSelector from '../../components/PlayerSelector';
 import { getAllUsers } from '../../redux/user/userActions';
 import {
-	flags,
 	hasFullAccess,
-	hasPermission,
 } from '../../permissions/permissions';
 import {
 	getRecentInfractions,

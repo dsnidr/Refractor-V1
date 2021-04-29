@@ -14,12 +14,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import React from 'react';
-import styled, { css, keyframes } from 'styled-components';
-import { respondTo } from '../mixins/respondTo';
+import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
-import { buildTimeRemainingString } from '../utils/timeUtils';
 import { Link } from 'react-router-dom';
-import { lighten } from 'polished';
 import { typeHasDuration } from '../utils/infractionUtils';
 
 const InfractionBox = styled(Link)`
