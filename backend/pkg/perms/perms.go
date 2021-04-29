@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package perms
 
 import (
-	"fmt"
 	"github.com/sniddunc/bitperms"
 )
 
@@ -60,12 +59,10 @@ func UserHasFullAccess(userPerms bitperms.PermissionValue) bool {
 //  b) user1 is a super admin and user2 is not
 func HasHigherAccess(user1Perms bitperms.PermissionValue, user2Perms bitperms.PermissionValue) bool {
 	if UserIsSuperAdmin(user1Perms) && !UserIsSuperAdmin(user2Perms) {
-		fmt.Println("Setter is a super admin, target is not")
 		return true
 	}
 
 	if UserIsAdmin(user1Perms) && (!UserIsAdmin(user2Perms) && !UserIsSuperAdmin(user2Perms)) {
-		fmt.Println("Setter is admin, target is not")
 		return true
 	}
 
