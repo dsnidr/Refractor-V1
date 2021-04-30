@@ -21,6 +21,7 @@ import {
 	setServerStatus,
 } from '../redux/servers/serverActions';
 import { addChatMessage } from '../redux/chat/chatActions';
+import { setErrors } from '../redux/error/errorActions';
 
 let currentWebsocket = null;
 let pingInterval = null;
@@ -53,6 +54,8 @@ const onOpen = (client, handleOpen) => () => {
 		);
 	}, 40000);
 
+	store.dispatch(setErrors('websocket', undefined))
+
 	handleOpen();
 };
 
@@ -63,6 +66,8 @@ const onClose = (client, handleClose) => (data) => {
 		'Reason:',
 		data.reason
 	);
+
+	store.dispatch(setErrors('websocket', 'Websocket connection closed'))
 
 	clearInterval(pingInterval);
 

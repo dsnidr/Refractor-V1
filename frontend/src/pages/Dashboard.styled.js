@@ -215,3 +215,35 @@ export const DrawerItems = styled.div`
 		color: ${props.theme.colorPrimary};
 	`}
 `;
+
+export const WebsocketError = styled.div`
+  	${(props) => css`
+		position: fixed;
+		overflow-y: scroll;
+		z-index: 100000;
+		top: 0;
+		left: 0;
+		background: rgba(0, 0, 0, 0.65) !important;
+		width: 100%;
+		height: 100%;
+	  
+	  	display: flex;
+	  	justify-content: center;
+	  	align-items: center;
+	  
+	  	h1 {
+		  font-size: 3rem;
+		  text-transform: uppercase;
+		  color: ${props.theme.colorDanger};
+		  font-weight: 300;
+		  text-align: center;
+		}
+	  
+	  	p {
+		  font-size: 2rem;
+		  color: ${props.theme.colorTextSecondary};
+		  margin-top: 2rem;
+		  text-align: center;
+		}
+	`}
+`

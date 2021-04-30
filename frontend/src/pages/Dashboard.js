@@ -26,8 +26,8 @@ import {
 	Topbar,
 	TopbarItem,
 	TopbarItems,
-	UsernameTopbarItem,
-	Wrapper,
+	UsernameTopbarItem, WebsocketError,
+	Wrapper
 } from './Dashboard.styled';
 import SidebarItem from '../components/SidebarItem';
 import { ReactComponent as House } from '../assets/house.svg';
@@ -143,7 +143,7 @@ class Dashboard extends Component {
 						handleClose();
 					}
 				);
-			}, 15000);
+			}, 10000);
 		};
 
 		// Initial websocket client connection
@@ -192,6 +192,16 @@ class Dashboard extends Component {
 
 		return (
 			<>
+				{this.props.websocketError && (
+					<WebsocketError>
+						<div>
+							<h1>{this.props.websocketError}</h1>
+
+							<p>We will try to reconnect you shortly.</p>
+						</div>
+					</WebsocketError>
+				)}
+
 				{this.state.drawerOpen ? (
 					<Drawer>
 						<DrawerItems>
@@ -399,6 +409,7 @@ const mapStateToProps = (state) => ({
 	user: state.user.self,
 	games: state.games,
 	servers: state.servers,
+	websocketError: state.error.websocket
 });
 
 const mapDispatchToProps = (dispatch) => ({
