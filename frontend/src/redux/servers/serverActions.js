@@ -69,3 +69,22 @@ export const removeServer = (serverId) => ({
 	type: REMOVE_SERVER,
 	serverId: serverId,
 });
+
+export const UPDATE_ONLINE_PLAYER = 'UPDATE_ONLINE_PLAYER'
+
+// updateOnlinePlayer updates a player in state if they are online in any server.
+// fields can either be an object with updated fields which will be spread out in
+// order to do the update, or it can be a function.
+//
+// If fields is a function, the player will be provided as an argument. Any passed
+// in function must return the updated player.
+//
+// Example:
+//
+// updateOnlinePlayer(1, (player) =>
+//   { ...player, infractionCount: player.infractionCount + 1 });
+export const updateOnlinePlayer = (playerId, fields) => ({
+	type: UPDATE_ONLINE_PLAYER,
+	playerId: playerId,
+	payload: fields
+})

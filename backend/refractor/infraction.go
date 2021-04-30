@@ -85,6 +85,7 @@ type InfractionRepository interface {
 	Delete(id int64) error
 	Search(args FindArgs, limit int, offset int) (int, []*Infraction, error)
 	GetRecent(count int) ([]*Infraction, error)
+	GetCountByPlayerID(playerID int64) (int, error)
 }
 
 type InfractionService interface {

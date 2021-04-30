@@ -240,3 +240,15 @@ func (r *mockInfractionsRepo) Search(args refractor.FindArgs, limit int, offset 
 func (r *mockInfractionsRepo) GetRecent(count int) ([]*refractor.Infraction, error) {
 	panic("implement me")
 }
+
+func (r *mockInfractionsRepo) GetCountByPlayerID(playerID int64) (int, error) {
+	count := 0
+
+	for _, infraction := range r.infractions {
+		if infraction.PlayerID == playerID {
+			count++
+		}
+	}
+
+	return count, nil
+}

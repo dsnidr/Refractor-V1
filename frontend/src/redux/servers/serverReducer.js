@@ -17,7 +17,7 @@ import {
 	ADD_PLAYER_TO_SERVER,
 	REMOVE_PLAYER_FROM_SERVER,
 	SET_SERVER_STATUS,
-	SET_SERVERS,
+	SET_SERVERS, UPDATE_ONLINE_PLAYER
 } from './serverActions';
 import { REMOVE_SERVER } from './constants';
 
@@ -39,6 +39,8 @@ const reducer = (state = initialState, action) => {
 			return setServerStatus(state, action.serverId, action.payload);
 		case REMOVE_SERVER:
 			return removeServer(state, action.serverId);
+		case UPDATE_ONLINE_PLAYER:
+			return updateOnlinePlayer(state, action.playerId, action.payload);
 		default:
 			return state;
 	}
@@ -49,13 +51,13 @@ function addPlayerToServer(state, serverId, player) {
 		return state;
 	}
 
-	let players = [];
+	let players = {};
 
 	if (state[serverId].players) {
 		players = state[serverId].players;
 	}
 
-	players.push(player);
+	players[player.id] = player
 
 	return {
 		...state,
@@ -71,13 +73,13 @@ function removePlayerFromServer(state, serverId, player) {
 		return state;
 	}
 
-	let players = [];
+	let players = {};
 
 	if (state[serverId].players) {
 		players = state[serverId].players;
 	}
 
-	players = players.filter((arrPlayer) => arrPlayer.id !== player.id);
+	delete players[player.id]
 
 	return {
 		...state,
@@ -110,6 +112,44 @@ function removeServer(state, serverId) {
 	delete state[serverId];
 
 	return state;
+}
+
+function updateOnlinePlayer(state, targetPlayerId, updateFields) {
+	if (!targetPlayerId || (typeof updateFields !== 'function' && !updateFields)) {
+		return state
+	}
+
+	Object.keys(state).forEach(serverId => {
+		const server = state[serverId]
+
+		if (!server.players) {
+			return
+		}
+
+		console.log(updateFields)
+
+		Object.keys(server.players).forEach(playerIdStr => {
+			const playerId = parseInt(playerIdStr)
+
+			if (playerId !== targetPlayerId) {
+				return
+			}
+
+			if (typeof updateFields === 'function') {
+				updateFields = updateFields(state[serverId].players[targetPlayerId])
+			}
+
+			state[serverId].players = {
+				...state[serverId].players,
+				[targetPlayerId]: {
+					...state[serverId].players[targetPlayerId],
+					...updateFields
+				}
+			}
+		})
+	})
+
+	return state
 }
 
 export default reducer;

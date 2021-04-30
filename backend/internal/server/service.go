@@ -29,18 +29,21 @@ import (
 )
 
 type serverService struct {
-	repo        refractor.ServerRepository
-	gameService refractor.GameService
-	log         log.Logger
-	serverData  map[int64]*refractor.ServerData
+	repo                    refractor.ServerRepository
+	gameService             refractor.GameService
+	playerInfractionService refractor.PlayerInfractionService
+	log                     log.Logger
+	serverData              map[int64]*refractor.ServerData
 }
 
-func NewServerService(repo refractor.ServerRepository, gameService refractor.GameService, log log.Logger) refractor.ServerService {
+func NewServerService(repo refractor.ServerRepository, gameService refractor.GameService,
+	playerInfractionService refractor.PlayerInfractionService, log log.Logger) refractor.ServerService {
 	return &serverService{
-		repo:        repo,
-		gameService: gameService,
-		log:         log,
-		serverData:  map[int64]*refractor.ServerData{},
+		repo:                    repo,
+		gameService:             gameService,
+		playerInfractionService: playerInfractionService,
+		log:                     log,
+		serverData:              map[int64]*refractor.ServerData{},
 	}
 }
 
@@ -142,6 +145,12 @@ func (s *serverService) GetAllServerData() ([]*refractor.ServerData, *refractor.
 	var allServerData []*refractor.ServerData
 
 	for _, serverData := range s.serverData {
+		// Get the infraction counts of all online players
+		for _, player := range serverData.OnlinePlayers {
+			count, _ := s.playerInfractionService.GetPlayerInfractionCount(player.PlayerID)
+			player.InfractionCount = &count
+		}
+
 		allServerData = append(allServerData, serverData)
 	}
 

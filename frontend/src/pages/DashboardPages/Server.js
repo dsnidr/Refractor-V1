@@ -88,25 +88,50 @@ const Player = styled.div`
 		text-overflow: ellipsis;
 		overflow: hidden;
 		grid-row: auto;
-
-		a {
-			color: ${props.theme.colorTextSecondary} !important;
-			text-decoration: none !important;
-		}
-
-		h1 {
-			padding: 1rem;
-			font-weight: 400;
-			font-size: 1.7rem;
-
-			${respondTo.medium`
-        		padding: 1.5rem;
-      		`}
-
-			${props.watched ? `color: ${props.theme.colorDanger}` : ''}
-		}
 	`}
 `;
+
+const PlayerHeader = styled.div`
+	${(props) => css`
+	  position: relative;
+	  
+      h1 {
+        padding: 1rem;
+        font-weight: 400;
+        font-size: 1.7rem;
+		flex: 0 0 90%;
+
+        ${respondTo.medium`
+          padding: 1.5rem;
+		`}
+
+        ${props.watched ? `color: ${props.theme.colorDanger}` : ''}
+      }
+	  
+	  span {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		font-size: 1.5rem;
+		background-color: ${props.theme.colorBackground};
+		width: 2rem;
+		height: 2rem;
+		border-radius: ${props.theme.borderRadiusNormal};
+		
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+        ${respondTo.medium`
+          top: calc(50% - 1rem);
+		`}
+	  }
+	  
+	  :hover {
+		cursor: pointer;
+	  }
+	`}
+`
 
 const PlayerButtons = styled.div`
 	${(props) => css`
@@ -247,6 +272,10 @@ class Server extends Component {
 		this.props.history.push(`/server/${server.id}/chat`);
 	};
 
+	onPlayerClick = (playerId) => () => {
+		this.props.history.push(`/player/${playerId}`)
+	}
+
 	render() {
 		const { server, modals, game } = this.state;
 		const { warn, kick, ban } = modals;
@@ -255,7 +284,10 @@ class Server extends Component {
 			return null;
 		}
 
-		const players = server.players || [];
+		let players = []
+		if (server.players) {
+			players = Object.values(server.players)
+		}
 
 		return (
 			<>
@@ -321,9 +353,10 @@ class Server extends Component {
 					<PlayerList>
 						{players.map((player) => (
 							<Player watched={player.watched}>
-								<Link to={`/player/${player.id}`}>
+								<PlayerHeader onClick={this.onPlayerClick(player.id)}>
 									<h1>{player.currentName}</h1>
-								</Link>
+									<span>{player.infractionCount}</span>
+								</PlayerHeader>
 								<PlayerButtons>
 									<RequirePerms
 										mode={'all'}

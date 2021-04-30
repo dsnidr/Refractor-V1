@@ -34,6 +34,7 @@ import {
 } from '../../api/playerApi';
 import { setErrors } from '../error/errorActions';
 import { SET_SUCCESS, setSuccess } from '../success/successActions';
+import { updateOnlinePlayer } from '../servers/serverActions';
 
 function* getPlayerSummaryAsync(action) {
 	try {
@@ -117,6 +118,9 @@ function* watchPlayerAsync(action) {
 		yield call(watchPlayer, action.playerId);
 
 		yield put(setPlayerWatched(action.playerId, true));
+		yield put(updateOnlinePlayer(action.playerId, {
+			watched: true,
+		}))
 	} catch (err) {
 		console.log('Could not watch player', err);
 	}
@@ -127,6 +131,9 @@ function* unwatchPlayerAsync(action) {
 		yield call(unwatchPlayer, action.playerId);
 
 		yield put(setPlayerWatched(action.playerId, false));
+		yield put(updateOnlinePlayer(action.playerId, {
+			watched: false,
+		}))
 	} catch (err) {
 		console.log('Could not unwatch player', err);
 	}

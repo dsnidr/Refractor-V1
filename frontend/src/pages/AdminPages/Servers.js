@@ -172,7 +172,7 @@ class Servers extends Component {
 							<>
 								<div>{server.name}</div>
 								<div>
-									{server.players ? server.players.length : 0}
+									{server.players ? Object.keys(server.players).length : 0}
 								</div>
 								<div>
 									<StatusTag status={server.online} />

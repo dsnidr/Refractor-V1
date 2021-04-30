@@ -40,7 +40,19 @@ function* getServersAsync(action) {
 		// Flatten the server structure
 		if (data.payload) {
 			data.payload.forEach((server) => {
-				servers[server.id] = server;
+				// Turn players array into object
+				const players = {}
+
+				if (server.players) {
+					server.players.forEach((player) => {
+						players[player.id] = player
+					})
+				}
+
+				servers[server.id] = {
+					...server,
+					players
+				};
 			});
 		}
 

@@ -32,6 +32,7 @@ import (
 	"github.com/sniddunc/refractor/internal/infraction"
 	"github.com/sniddunc/refractor/internal/params"
 	"github.com/sniddunc/refractor/internal/player"
+	"github.com/sniddunc/refractor/internal/playerinfraction"
 	"github.com/sniddunc/refractor/internal/rcon"
 	"github.com/sniddunc/refractor/internal/search"
 	"github.com/sniddunc/refractor/internal/server"
@@ -96,15 +97,18 @@ func main() {
 	playerService := player.NewPlayerService(playerRepo, loggerInst)
 	playerHandler := api.NewPlayerHandler(playerService)
 
+	infractionRepo := mysql.NewInfractionRepository(db)
+	playerInfractionService := playerinfraction.NewPlayerInfractionService(playerRepo, infractionRepo, loggerInst)
+
 	serverRepo := mysql.NewServerRepository(db)
-	serverService := server.NewServerService(serverRepo, gameService, loggerInst)
+	serverService := server.NewServerService(serverRepo, gameService, playerInfractionService, loggerInst)
 	serverHandler := api.NewServerHandler(serverService, playerService, loggerInst)
 	playerService.SubscribeUpdate(serverService.OnPlayerUpdate)
 
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
 
-	websocketService := websocket.NewWebsocketService(playerService, userService, loggerInst)
+	websocketService := websocket.NewWebsocketService(playerService, userService, playerInfractionService, loggerInst)
 	go websocketService.StartPool()
 
 	rconService := rcon.NewRCONService(gameService, playerService, loggerInst)
@@ -125,7 +129,6 @@ func main() {
 	websocketService.SubscribeChatSend(rconService.SendChatMessage)
 	websocketService.SubscribeChatSend(chatService.OnUserSendChat)
 
-	infractionRepo := mysql.NewInfractionRepository(db)
 	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, userService, loggerInst)
 	infractionHandler := api.NewInfractionHandler(infractionService)
 

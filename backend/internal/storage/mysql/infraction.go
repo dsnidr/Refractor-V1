@@ -342,6 +342,20 @@ func (r *infractionRepo) GetRecent(count int) ([]*refractor.Infraction, error) {
 	return foundInfractions, nil
 }
 
+func (r *infractionRepo) GetCountByPlayerID(playerID int64) (int, error) {
+	query := "SELECT COUNT(1) FROM Infractions WHERE PlayerID = ?;"
+
+	row := r.db.QueryRow(query, playerID)
+
+	var count int
+
+	if err := row.Scan(&count); err != nil {
+		return 0, wrapError(err)
+	}
+
+	return count, nil
+}
+
 // Scan helpers
 func (r *infractionRepo) scanRow(row *sql.Row, infr *refractor.DBInfraction) error {
 	return row.Scan(&infr.InfractionID, &infr.PlayerID, &infr.UserID, &infr.ServerID, &infr.Type, &infr.Reason,

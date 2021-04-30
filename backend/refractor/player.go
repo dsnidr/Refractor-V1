@@ -24,13 +24,14 @@ import (
 )
 
 type Player struct {
-	PlayerID      int64    `json:"id"`
-	PlayFabID     string   `json:"playFabId"`
-	MCUUID        string   `json:"mcuuid"`
-	LastSeen      int64    `json:"lastSeen"`
-	CurrentName   string   `json:"currentName"`
-	PreviousNames []string `json:"previousNames,omitempty"`
-	Watched       bool     `json:"watched"`
+	PlayerID        int64    `json:"id"`
+	PlayFabID       string   `json:"playFabId"`
+	MCUUID          string   `json:"mcuuid"`
+	LastSeen        int64    `json:"lastSeen"`
+	CurrentName     string   `json:"currentName"`
+	PreviousNames   []string `json:"previousNames,omitempty"`
+	Watched         bool     `json:"watched"`
+	InfractionCount *int     `json:"infractionCount,omitempty"` // not a db field
 }
 
 type DBPlayer struct {

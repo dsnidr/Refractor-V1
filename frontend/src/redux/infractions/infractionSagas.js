@@ -38,6 +38,7 @@ import {
 	searchInfractions,
 	updateInfraction,
 } from '../../api/infractionApi';
+import { updateOnlinePlayer } from '../servers/serverActions';
 
 function* createWarningAsync(action) {
 	try {
@@ -49,6 +50,13 @@ function* createWarningAsync(action) {
 
 		yield put(setSuccess('createwarning', 'Warning logged'));
 		yield put(setErrors('createwarning', undefined));
+
+		yield put(updateOnlinePlayer(action.playerId, (player) => {
+			return {
+				...player,
+				infractionCount: player.infractionCount + 1
+			}
+		}))
 	} catch (err) {
 		console.log('Could not create warning', err);
 		const { data } = err.response;
@@ -73,6 +81,13 @@ function* createMuteAsync(action) {
 
 		yield put(setSuccess('createmute', 'Mute logged'));
 		yield put(setErrors('createmute', undefined));
+
+		yield put(updateOnlinePlayer(action.playerId, (player) => {
+			return {
+				...player,
+				infractionCount: player.infractionCount + 1
+			}
+		}))
 	} catch (err) {
 		console.log('Could not create mute', err);
 		const { data } = err.response;
@@ -94,6 +109,13 @@ function* createKickAsync(action) {
 
 		yield put(setSuccess('createkick', 'Kick logged'));
 		yield put(setErrors('createkick', undefined));
+
+		yield put(updateOnlinePlayer(action.playerId, (player) => {
+			return {
+				...player,
+				infractionCount: player.infractionCount + 1
+			}
+		}))
 	} catch (err) {
 		console.log('Could not create kick', err);
 		const { data } = err.response;
@@ -115,6 +137,13 @@ function* createBanAsync(action) {
 
 		yield put(setSuccess('createban', 'Ban logged'));
 		yield put(setErrors('createban', undefined));
+
+		yield put(updateOnlinePlayer(action.playerId, (player) => {
+			return {
+				...player,
+				infractionCount: player.infractionCount + 1
+			}
+		}))
 	} catch (err) {
 		console.log('Could not create ban', err);
 		const { data } = err.response;

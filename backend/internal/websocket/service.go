@@ -26,20 +26,23 @@ import (
 )
 
 type websocketService struct {
-	pool                *websocket.Pool
-	userService         refractor.UserService
-	playerService       refractor.PlayerService
-	log                 log.Logger
-	chatSendSubscribers []refractor.ChatSendSubscriber
+	pool                    *websocket.Pool
+	userService             refractor.UserService
+	playerService           refractor.PlayerService
+	playerInfractionService refractor.PlayerInfractionService
+	log                     log.Logger
+	chatSendSubscribers     []refractor.ChatSendSubscriber
 }
 
-func NewWebsocketService(playerService refractor.PlayerService, userService refractor.UserService, log log.Logger) refractor.WebsocketService {
+func NewWebsocketService(playerService refractor.PlayerService, userService refractor.UserService,
+	playerInfractionService refractor.PlayerInfractionService, log log.Logger) refractor.WebsocketService {
 	return &websocketService{
-		pool:                websocket.NewPool(log),
-		playerService:       playerService,
-		userService:         userService,
-		log:                 log,
-		chatSendSubscribers: []refractor.ChatSendSubscriber{},
+		pool:                    websocket.NewPool(log),
+		playerService:           playerService,
+		playerInfractionService: playerInfractionService,
+		userService:             userService,
+		log:                     log,
+		chatSendSubscribers:     []refractor.ChatSendSubscriber{},
 	}
 }
 
@@ -79,10 +82,11 @@ func (s *websocketService) StartPool() {
 }
 
 type playerJoinQuitData struct {
-	ServerID     int64  `json:"serverId"`
-	PlayerID     int64  `json:"id"`
-	PlayerGameID string `json:"playerGameId"`
-	Name         string `json:"name"`
+	ServerID        int64  `json:"serverId"`
+	PlayerID        int64  `json:"id"`
+	PlayerGameID    string `json:"playerGameId"`
+	Name            string `json:"name"`
+	InfractionCount int    `json:"infractionCount,omitempty"`
 }
 
 func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
@@ -97,6 +101,8 @@ func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64,
 		return
 	}
 
+	count, _ := s.playerInfractionService.GetPlayerInfractionCount(player.PlayerID)
+
 	s.Broadcast(&refractor.WebsocketMessage{
 		Type: "player-join",
 		Body: playerJoinQuitData{
@@ -104,6 +110,7 @@ func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64,
 			PlayerID:     player.PlayerID,
 			PlayerGameID: fields[idField],
 			Name:         player.CurrentName,
+			InfractionCount: count,
 		},
 	})
 }
