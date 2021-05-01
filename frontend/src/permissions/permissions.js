@@ -23,6 +23,7 @@ export const EDIT_OWN_INFRACTIONS = 'EDIT_OWN_INFRACTIONS';
 export const EDIT_ANY_INFRACTION = 'EDIT_ANY_INFRACTION';
 export const DELETE_OWN_INFRACTIONS = 'DELETE_OWN_INFRACTIONS';
 export const DELETE_ANY_INFRACTION = 'DELETE_ANY_INFRACTION';
+export const VIEW_CHAT_RECORDS = 'VIEW_CHAT_RECORDS';
 
 /* global BigInt */
 /* prettier-ignore */
@@ -37,6 +38,7 @@ export const flags = {
 	EDIT_ANY_INFRACTION: 		BigInt(0b0000000010000000000000000000000000000000000000000000000000000000),
 	DELETE_OWN_INFRACTIONS: 	BigInt(0b0000000001000000000000000000000000000000000000000000000000000000),
 	DELETE_ANY_INFRACTION: 		BigInt(0b0000000000100000000000000000000000000000000000000000000000000000),
+	VIEW_CHAT_RECORDS: 			BigInt(0b0000000000010000000000000000000000000000000000000000000000000000),
 };
 
 // hasPermissions takes in a BigInt userPerms variable and a BigInt flag and runs bitwise comparison on them
@@ -49,11 +51,7 @@ export function hasPermission(userPerms, flag) {
 }
 
 export function isRestricted(flagName) {
-	if (flagName === SUPER_ADMIN) {
-		return true;
-	}
-
-	return false;
+	return flagName === SUPER_ADMIN;
 }
 
 export function hasFullAccess(userPerms) {
