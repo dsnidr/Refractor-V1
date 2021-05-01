@@ -36,6 +36,7 @@ import { ReactComponent as ServerIcon } from '../assets/server.svg';
 import { ReactComponent as Avatar } from '../assets/avatar.svg';
 import { ReactComponent as SingleServer } from '../assets/server-1.svg';
 import { ReactComponent as List } from '../assets/list.svg';
+import { ReactComponent as Notifications } from '../assets/notifications.svg';
 import {
 	decodeToken,
 	destroyToken,
@@ -64,11 +65,11 @@ import User from './AdminPages/User';
 import Player from './DashboardPages/Player';
 import Players from './DashboardPages/Players';
 import Infractions from './DashboardPages/Infractions';
+import ChatRecords from './DashboardPages/ChatRecords';
 import Chat from './DashboardPages/Chat';
 import RequirePerms from '../components/RequirePerms';
 import { flags } from '../permissions/permissions';
 import { addChatMessage } from '../redux/chat/chatActions';
-import { toastr } from 'react-redux-toastr';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -301,6 +302,21 @@ class Dashboard extends Component {
 							<SidebarItem to="/infractions" icon={<List />}>
 								Infractions
 							</SidebarItem>
+							<RequirePerms
+								mode={'any'}
+								perms={[
+									flags.VIEW_CHAT_RECORDS,
+									flags.SUPER_ADMIN,
+									flags.FULL_ACCESS,
+								]}
+							>
+								<SidebarItem
+									to="/chatrecords"
+									icon={<Notifications />}
+								>
+									Chat Records
+								</SidebarItem>
+							</RequirePerms>
 						</div>
 						<div>
 							{games.map((game) => {
@@ -399,6 +415,20 @@ class Dashboard extends Component {
 								path={'/infractions'}
 								component={Infractions}
 							/>
+							<RequirePerms
+								mode={'any'}
+								perms={[
+									flags.VIEW_CHAT_RECORDS,
+									flags.SUPER_ADMIN,
+									flags.FULL_ACCESS,
+								]}
+							>
+								<Route
+									exact
+									path={'/chatrecords'}
+									component={ChatRecords}
+								/>
+							</RequirePerms>
 						</Switch>
 					</Content>
 				</Wrapper>

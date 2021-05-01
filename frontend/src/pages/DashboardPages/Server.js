@@ -187,6 +187,14 @@ const PlayerButtons = styled.div`
 	`}
 `;
 
+const ServerButtonWrapper = styled.div`
+	display: flex;
+
+	> * {
+		margin-right: 1rem;
+	}
+`;
+
 class Server extends Component {
 	constructor(props) {
 		super(props);
@@ -277,6 +285,8 @@ class Server extends Component {
 		this.props.history.push(`/player/${playerId}`);
 	};
 
+	onViewChatRecordsClick = () => {};
+
 	render() {
 		const { server, modals, game } = this.state;
 		const { warn, kick, ban } = modals;
@@ -333,10 +343,15 @@ class Server extends Component {
 							<InfoSpan>{`Address: `}</InfoSpan> {server.address}
 						</p>
 					</ServerSummary>
-					{!!server.online && game.config.enableChat && (
-						<Button size={'small'} onClick={this.onOpenChatClick}>
-							Open Chat
-						</Button>
+					{game.config.enableChat && (
+						<ServerButtonWrapper>
+							<Button
+								size={'small'}
+								onClick={this.onOpenChatClick}
+							>
+								Open Chat
+							</Button>
+						</ServerButtonWrapper>
 					)}
 				</Header>
 

@@ -22,6 +22,7 @@ const Wrapper = styled.div`
 		display: flex;
 		flex-direction: column;
 		height: ${props.theme.height};
+		position: relative;
 	`}
 `;
 
@@ -76,6 +77,16 @@ const Input = styled.input`
 	`}
 `;
 
+const Title = styled.span`
+	${(props) => css`
+		font-size: 1rem;
+		color: ${props.theme.colorTextPrimary};
+		position: absolute;
+		top: -1.6rem;
+		left: 0.5rem;
+	`}
+`;
+
 const themes = {
 	small: (theme) => ({
 		height: '7rem',
@@ -100,6 +111,7 @@ class TextInput extends Component {
 		return (
 			<ThemeProvider theme={theme(props.theme)}>
 				<Wrapper className={'text-input'}>
+					<Title>{props.title}</Title>
 					<InputMain>
 						{hasIcon ? (
 							<IconBox>{props.icon}</IconBox>
