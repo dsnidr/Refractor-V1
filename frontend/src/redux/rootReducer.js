@@ -26,6 +26,7 @@ import loadingReducer from './loading/loadingReducer';
 import playerReducer from './players/playerReducer';
 import infractionReducer from './infractions/infractionReducer';
 import chatReducer from './chat/chatReducer';
+import { reducer as toastrReducer } from 'react-redux-toastr';
 
 const createRootReducer = (history) =>
 	combineReducers({
@@ -40,6 +41,7 @@ const createRootReducer = (history) =>
 		players: playerReducer,
 		infractions: infractionReducer,
 		chat: chatReducer,
+		toastr: toastrReducer,
 	});
 
 export default createRootReducer;

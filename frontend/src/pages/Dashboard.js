@@ -26,8 +26,9 @@ import {
 	Topbar,
 	TopbarItem,
 	TopbarItems,
-	UsernameTopbarItem, WebsocketError,
-	Wrapper
+	UsernameTopbarItem,
+	WebsocketError,
+	Wrapper,
 } from './Dashboard.styled';
 import SidebarItem from '../components/SidebarItem';
 import { ReactComponent as House } from '../assets/house.svg';
@@ -67,6 +68,7 @@ import Chat from './DashboardPages/Chat';
 import RequirePerms from '../components/RequirePerms';
 import { flags } from '../permissions/permissions';
 import { addChatMessage } from '../redux/chat/chatActions';
+import { toastr } from 'react-redux-toastr';
 
 let reconnectInterval;
 let reconnectTaskStarted = false;
@@ -409,7 +411,7 @@ const mapStateToProps = (state) => ({
 	user: state.user.self,
 	games: state.games,
 	servers: state.servers,
-	websocketError: state.error.websocket
+	websocketError: state.error.websocket,
 });
 
 const mapDispatchToProps = (dispatch) => ({

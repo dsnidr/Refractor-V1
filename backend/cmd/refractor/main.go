@@ -131,6 +131,7 @@ func main() {
 
 	infractionService := infraction.NewInfractionService(infractionRepo, playerService, serverService, userService, loggerInst)
 	infractionHandler := api.NewInfractionHandler(infractionService)
+	infractionService.SubscribeInfractionCreate(websocketService.OnInfractionCreate)
 
 	summaryService := summary.NewSummaryService(playerService, infractionService, loggerInst)
 	summaryHandler := api.NewSummaryHandler(summaryService)

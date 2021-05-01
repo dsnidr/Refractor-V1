@@ -157,6 +157,50 @@ func (s *websocketService) OnServerOffline(serverID int64) {
 	})
 }
 
+type infractionCreateBody struct {
+	InfractionID int64  `json:"id"`
+	PlayerID     int64  `json:"playerId"`
+	ServerID     int64  `json:"serverId"`
+	Type         string `json:"type"`
+	Reason       string `json:"reason"`
+	Duration     int    `json:"duration"`
+	SystemAction bool   `json:"systemAction"`
+	StaffName    string `json:"staffName"`
+	PlayerName   string `json:"playerName"`
+}
+
+func (s *websocketService) OnInfractionCreate(infraction *refractor.Infraction) {
+	sendParams := &refractor.WebsocketDirectMessage{
+		ClientID: 0,
+		Message:  &refractor.WebsocketMessage{
+			Type: "infraction-create",
+			Body: &infractionCreateBody{
+				InfractionID: infraction.InfractionID,
+				PlayerID:     infraction.PlayerID,
+				ServerID:     infraction.ServerID,
+				Type:         infraction.Type,
+				Reason:       infraction.Reason,
+				Duration:     infraction.Duration,
+				SystemAction: infraction.SystemAction,
+				StaffName:    infraction.StaffName,
+				PlayerName:   infraction.PlayerName,
+			},
+		},
+	}
+
+	for clientID, client := range s.pool.Clients {
+		if client.UserID == infraction.UserID {
+			// Do not send to the user who created the infraction
+			continue
+		}
+
+		sendParams.ClientID = clientID
+
+		// Send direct
+		s.pool.SendDirect <- sendParams
+	}
+}
+
 func (s *websocketService) SubscribeChatSend(subscriber refractor.ChatSendSubscriber) {
 	s.chatSendSubscribers = append(s.chatSendSubscribers, subscriber)
 }

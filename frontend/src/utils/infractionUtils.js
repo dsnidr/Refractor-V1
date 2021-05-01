@@ -24,3 +24,29 @@ export function reasonIsValid(reason) {
 export function typeHasDuration(type) {
 	return type === 'MUTE' || type === 'BAN';
 }
+
+export function buildInfractionTitle(infraction) {
+	return `${infraction.type}`;
+}
+
+export function buildInfractionText(infraction) {
+	const nameSection = `${infraction.staffName} has ${getInfractionVerb(
+		infraction.type
+	)} player ${infraction.playerName}`;
+	const reasonSection = `for: ${infraction.reason}`;
+
+	return `${nameSection} ${reasonSection}`;
+}
+
+function getInfractionVerb(infractionType) {
+	switch (infractionType) {
+		case 'WARNING':
+			return 'warned';
+		case 'KICK':
+			return 'kicked';
+		case 'MUTE':
+			return 'muted';
+		case 'BAN':
+			return 'banned';
+	}
+}

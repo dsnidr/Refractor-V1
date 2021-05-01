@@ -19,9 +19,15 @@ import {
 	addPlayerToServer,
 	removePlayerFromServer,
 	setServerStatus,
+	updateOnlinePlayer,
 } from '../redux/servers/serverActions';
 import { addChatMessage } from '../redux/chat/chatActions';
 import { setErrors } from '../redux/error/errorActions';
+import { toastr } from 'react-redux-toastr';
+import {
+	buildInfractionText,
+	buildInfractionTitle,
+} from '../utils/infractionUtils';
 
 let currentWebsocket = null;
 let pingInterval = null;
@@ -54,7 +60,7 @@ const onOpen = (client, handleOpen) => () => {
 		);
 	}, 40000);
 
-	store.dispatch(setErrors('websocket', undefined))
+	store.dispatch(setErrors('websocket', undefined));
 
 	handleOpen();
 };
@@ -67,7 +73,7 @@ const onClose = (client, handleClose) => (data) => {
 		data.reason
 	);
 
-	store.dispatch(setErrors('websocket', 'Websocket connection closed'))
+	store.dispatch(setErrors('websocket', 'Websocket connection closed'));
 
 	clearInterval(pingInterval);
 
@@ -87,6 +93,7 @@ const onMessage = () => (msg) => {
 					id: body.id,
 					playerGameId: body.playerGameId,
 					currentName: body.name,
+					infractionCount: body.infractionCount,
 				})
 			);
 			break;
@@ -107,6 +114,22 @@ const onMessage = () => (msg) => {
 			break;
 		case 'chat':
 			store.dispatch(addChatMessage(body));
+			break;
+		case 'infraction-create':
+			// Show toast
+			toastr.info(buildInfractionTitle(body), buildInfractionText(body), {
+				timeOut: 10000,
+				position: 'bottom-right',
+				removeOnHover: false,
+			});
+
+			// Increment user's infraction count if they are online
+			store.dispatch(
+				updateOnlinePlayer(body.playerId, (player) => ({
+					...player,
+					infractionCount: player.infractionCount + 1,
+				}))
+			);
 			break;
 		default:
 			console.log('Unknown message type received:', type);

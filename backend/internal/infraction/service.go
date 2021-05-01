@@ -32,21 +32,23 @@ import (
 )
 
 type infractionService struct {
-	repo          refractor.InfractionRepository
-	playerService refractor.PlayerService
-	serverService refractor.ServerService
-	userService   refractor.UserService
-	log           log.Logger
+	repo                        refractor.InfractionRepository
+	playerService               refractor.PlayerService
+	serverService               refractor.ServerService
+	userService                 refractor.UserService
+	infractionCreateSubscribers []refractor.InfractionCreateSubscriber
+	log                         log.Logger
 }
 
 func NewInfractionService(repo refractor.InfractionRepository, playerService refractor.PlayerService,
 	serverService refractor.ServerService, userService refractor.UserService, log log.Logger) refractor.InfractionService {
 	return &infractionService{
-		repo:          repo,
-		playerService: playerService,
-		serverService: serverService,
-		userService:   userService,
-		log:           log,
+		repo:                        repo,
+		playerService:               playerService,
+		serverService:               serverService,
+		userService:                 userService,
+		infractionCreateSubscribers: []refractor.InfractionCreateSubscriber{},
+		log:                         log,
 	}
 }
 
@@ -138,6 +140,20 @@ func (s *infractionService) createInfraction(playerID int64, userID int64, serve
 	if err != nil {
 		s.log.Error("Could not create new infraction in repo. Error: %v", err)
 		return nil, refractor.InternalErrorResponse
+	}
+
+	// Notify subscribers
+	if len(s.infractionCreateSubscribers) > 0 {
+		infraction.PlayerName = player.CurrentName
+
+		user, _ := s.userService.GetUserByID(userID)
+		if user != nil {
+			infraction.StaffName = user.Username
+		}
+
+		for _, subscriber := range s.infractionCreateSubscribers {
+			subscriber(infraction)
+		}
 	}
 
 	return infraction, &refractor.ServiceResponse{
@@ -369,4 +385,8 @@ func (s *infractionService) GetRecentInfractions(count int) ([]*refractor.Infrac
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("Fetched %d recent infractions", len(infractions)),
 	}
+}
+
+func (s *infractionService) SubscribeInfractionCreate(subscriber refractor.InfractionCreateSubscriber) {
+	s.infractionCreateSubscribers = append(s.infractionCreateSubscribers, subscriber)
 }

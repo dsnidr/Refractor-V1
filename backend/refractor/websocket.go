@@ -27,6 +27,11 @@ type WebsocketMessage struct {
 	Body interface{} `json:"body"`
 }
 
+type WebsocketDirectMessage struct {
+	ClientID int64
+	Message *WebsocketMessage
+}
+
 type ChatSendSubscriber func(msgBody *ChatSendBody)
 
 type ChatSendBody struct {
@@ -46,5 +51,6 @@ type WebsocketService interface {
 	OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *GameConfig)
 	OnServerOnline(serverID int64)
 	OnServerOffline(serverID int64)
+	OnInfractionCreate(infraction *Infraction)
 	SubscribeChatSend(subscriber ChatSendSubscriber)
 }

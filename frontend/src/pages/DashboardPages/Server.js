@@ -93,45 +93,46 @@ const Player = styled.div`
 
 const PlayerHeader = styled.div`
 	${(props) => css`
-	  position: relative;
-	  
-      h1 {
-        padding: 1rem;
-        font-weight: 400;
-        font-size: 1.7rem;
-		flex: 0 0 90%;
+		position: relative;
 
-        ${respondTo.medium`
+		h1 {
+			padding: 1rem;
+			font-weight: 400;
+			font-size: 1.7rem;
+			flex: 0 0 90%;
+
+			${respondTo.medium`
           padding: 1.5rem;
 		`}
 
-        ${props.watched ? `color: ${props.theme.colorDanger}` : ''}
-      }
-	  
-	  span {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		font-size: 1.5rem;
-		background-color: ${props.theme.colorBackground};
-		width: 2rem;
-		height: 2rem;
-		border-radius: ${props.theme.borderRadiusNormal};
-		
-		display: flex;
-		align-items: center;
-		justify-content: center;
+			${props.watched ? `color: ${props.theme.colorDanger}` : ''}
+		}
 
-        ${respondTo.medium`
+		span {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			font-size: 1.5rem;
+			background-color: ${props.theme.colorBackgroundAlt};
+			width: 2rem;
+			height: 2rem;
+			border-radius: ${props.theme.borderRadiusNormal};
+			color: ${props.theme.colorTextLight};
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			${respondTo.medium`
           top: calc(50% - 1rem);
 		`}
-	  }
-	  
-	  :hover {
-		cursor: pointer;
-	  }
+		}
+
+		:hover {
+			cursor: pointer;
+		}
 	`}
-`
+`;
 
 const PlayerButtons = styled.div`
 	${(props) => css`
@@ -273,8 +274,8 @@ class Server extends Component {
 	};
 
 	onPlayerClick = (playerId) => () => {
-		this.props.history.push(`/player/${playerId}`)
-	}
+		this.props.history.push(`/player/${playerId}`);
+	};
 
 	render() {
 		const { server, modals, game } = this.state;
@@ -284,9 +285,9 @@ class Server extends Component {
 			return null;
 		}
 
-		let players = []
+		let players = [];
 		if (server.players) {
-			players = Object.values(server.players)
+			players = Object.values(server.players);
 		}
 
 		return (
@@ -353,9 +354,13 @@ class Server extends Component {
 					<PlayerList>
 						{players.map((player) => (
 							<Player watched={player.watched}>
-								<PlayerHeader onClick={this.onPlayerClick(player.id)}>
+								<PlayerHeader
+									onClick={this.onPlayerClick(player.id)}
+								>
 									<h1>{player.currentName}</h1>
-									<span>{player.infractionCount}</span>
+									{player.infractionCount > 0 && (
+										<span>{player.infractionCount}</span>
+									)}
 								</PlayerHeader>
 								<PlayerButtons>
 									<RequirePerms

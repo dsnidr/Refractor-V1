@@ -29,6 +29,7 @@ type Pool struct {
 	Register   chan *Client
 	Unregister chan *Client
 	Broadcast  chan *refractor.WebsocketMessage
+	SendDirect chan *refractor.WebsocketDirectMessage
 	log        log.Logger
 }
 
@@ -38,6 +39,7 @@ func NewPool(log log.Logger) *Pool {
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 		Broadcast:  make(chan *refractor.WebsocketMessage),
+		SendDirect: make(chan *refractor.WebsocketDirectMessage),
 		log:        log,
 	}
 }
@@ -68,6 +70,20 @@ func (pool *Pool) Start() {
 					pool.log.Warn("Could not send broadcast message to client ID %d. Error: %v\n", client.ID, err)
 					continue
 				}
+			}
+
+			break
+		case sendParams := <-pool.SendDirect:
+			msgBytes, err := json.Marshal(sendParams.Message)
+			if err != nil {
+				pool.log.Error("Could not marshal direct message. Error: %v\n", err)
+				continue
+			}
+
+			client := pool.Clients[sendParams.ClientID]
+
+			if err := wsutil.WriteServerText(client.Conn, msgBytes); err != nil {
+				pool.log.Warn("Could not send direct message to client ID %d. Error: %v\n", client.ID, err)
 			}
 
 			break

@@ -17,7 +17,8 @@ import {
 	ADD_PLAYER_TO_SERVER,
 	REMOVE_PLAYER_FROM_SERVER,
 	SET_SERVER_STATUS,
-	SET_SERVERS, UPDATE_ONLINE_PLAYER
+	SET_SERVERS,
+	UPDATE_ONLINE_PLAYER,
 } from './serverActions';
 import { REMOVE_SERVER } from './constants';
 
@@ -57,7 +58,7 @@ function addPlayerToServer(state, serverId, player) {
 		players = state[serverId].players;
 	}
 
-	players[player.id] = player
+	players[player.id] = player;
 
 	return {
 		...state,
@@ -79,7 +80,7 @@ function removePlayerFromServer(state, serverId, player) {
 		players = state[serverId].players;
 	}
 
-	delete players[player.id]
+	delete players[player.id];
 
 	return {
 		...state,
@@ -115,41 +116,52 @@ function removeServer(state, serverId) {
 }
 
 function updateOnlinePlayer(state, targetPlayerId, updateFields) {
-	if (!targetPlayerId || (typeof updateFields !== 'function' && !updateFields)) {
-		return state
+	if (
+		!targetPlayerId ||
+		(typeof updateFields !== 'function' && !updateFields)
+	) {
+		return state;
 	}
 
-	Object.keys(state).forEach(serverId => {
-		const server = state[serverId]
+	Object.keys(state).forEach((serverId) => {
+		const server = state[serverId];
 
 		if (!server.players) {
-			return
+			return;
 		}
 
-		console.log(updateFields)
-
-		Object.keys(server.players).forEach(playerIdStr => {
-			const playerId = parseInt(playerIdStr)
+		Object.keys(server.players).forEach((playerIdStr) => {
+			const playerId = parseInt(playerIdStr);
 
 			if (playerId !== targetPlayerId) {
-				return
+				return;
 			}
 
 			if (typeof updateFields === 'function') {
-				updateFields = updateFields(state[serverId].players[targetPlayerId])
+				updateFields = updateFields(
+					state[serverId].players[targetPlayerId]
+				);
 			}
 
-			state[serverId].players = {
-				...state[serverId].players,
-				[targetPlayerId]: {
-					...state[serverId].players[targetPlayerId],
-					...updateFields
-				}
-			}
-		})
-	})
+			state = {
+				...state,
+				[serverId]: {
+					...state[serverId],
+					players: {
+						...state[serverId].players,
+						[targetPlayerId]: {
+							...state[serverId].players[targetPlayerId],
+							...updateFields,
+						},
+					},
+				},
+			};
 
-	return state
+			console.log('UPDATED STATE', state);
+		});
+	});
+
+	return state;
 }
 
 export default reducer;

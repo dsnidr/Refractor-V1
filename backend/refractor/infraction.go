@@ -88,6 +88,8 @@ type InfractionRepository interface {
 	GetCountByPlayerID(playerID int64) (int, error)
 }
 
+type InfractionCreateSubscriber func(infraction *Infraction)
+
 type InfractionService interface {
 	CreateWarning(userID int64, body params.CreateWarningParams) (*Infraction, *ServiceResponse)
 	CreateMute(userID int64, body params.CreateMuteParams) (*Infraction, *ServiceResponse)
@@ -98,6 +100,7 @@ type InfractionService interface {
 	GetPlayerInfractionsType(infractionType string, playerID int64) ([]*Infraction, *ServiceResponse)
 	GetPlayerInfractions(playerID int64) ([]*Infraction, *ServiceResponse)
 	GetRecentInfractions(count int) ([]*Infraction, *ServiceResponse)
+	SubscribeInfractionCreate(subscriber InfractionCreateSubscriber)
 }
 
 type InfractionHandler interface {

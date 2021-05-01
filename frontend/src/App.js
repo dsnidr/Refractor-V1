@@ -27,7 +27,8 @@ import UnprotectedRoute from './components/UnprotectedRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import Spinner from './components/Spinner';
 import { decodeToken, destroyToken, getToken } from './utils/tokenUtils';
-
+import ReduxToastr from 'react-redux-toastr';
+import 'react-redux-toastr/lib/css/react-redux-toastr.min.css';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ChangePassword from './pages/ChangePassword';
@@ -46,6 +47,34 @@ store.dispatch(setTheme(theme));
 const AppContainer = styled.div`
 	${(props) => css`
 		background: ${props.theme.colorBackground};
+
+		/* react-redux-toastr style overrides */
+		.toastr.rrt-info {
+			background-color: ${themes[theme].colorPrimary} !important;
+		}
+
+		.toastr.rrt-success {
+			background-color: ${themes[theme].colorSuccess} !important;
+		}
+
+		.toastr {
+			.rrt-left-container {
+				display: none;
+			}
+
+			.rrt-middle-container {
+				width: 100%;
+				margin-left: 0.75rem;
+			}
+
+			.rrt-title {
+				font-size: 1.3rem !important;
+			}
+
+			.rrt-text {
+				font-size: 1.3rem !important;
+			}
+		}
 	`}
 `;
 
@@ -110,6 +139,18 @@ class App extends Component {
 			<AppContainer>
 				<ThemeProvider theme={themes[this.props.theme]}>
 					{this.props.isLoading ? <Spinner /> : null}
+
+					<ReduxToastr
+						timeOut={4000}
+						newestOnTop={false}
+						preventDuplicates
+						position="bottom-right"
+						transitionIn="fadeIn"
+						transitionOut="fadeOut"
+						getState={(state) => state.toastr}
+						progressBar
+						closeOnToastrClick
+					/>
 
 					<Switch>
 						<UnprotectedRoute
