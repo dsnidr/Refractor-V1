@@ -68,6 +68,7 @@ type PlayerRepository interface {
 	UpdateName(player *Player, currentName string) error
 	Update(id int64, args UpdateArgs) (*Player, error)
 	SearchByName(name string, limit int, offset int) (int, []*Player, error)
+	GetPlayerNames(id int64) (string, []string, error)
 }
 
 type PlayerService interface {

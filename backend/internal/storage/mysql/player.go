@@ -97,7 +97,7 @@ func (r *playerRepo) FindByID(id int64) (*refractor.Player, error) {
 	}
 
 	// Get player names
-	currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+	currentName, previousNames, err := r.GetPlayerNames(foundPlayer.PlayerID)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -119,7 +119,7 @@ func (r *playerRepo) FindByPlayFabID(playFabID string) (*refractor.Player, error
 	}
 
 	// Get player names
-	currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+	currentName, previousNames, err := r.GetPlayerNames(foundPlayer.PlayerID)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -141,7 +141,7 @@ func (r *playerRepo) FindByMCUUID(MCUUID string) (*refractor.Player, error) {
 	}
 
 	// Get player names
-	currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+	currentName, previousNames, err := r.GetPlayerNames(foundPlayer.PlayerID)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -177,7 +177,7 @@ func (r *playerRepo) UpdateName(player *refractor.Player, currentName string) er
 	}
 
 	// Get updated names list
-	updatedCurrentName, previousNames, err := r.getPlayerNames(player.PlayerID)
+	updatedCurrentName, previousNames, err := r.GetPlayerNames(player.PlayerID)
 	if err != nil {
 		return wrapError(err)
 	}
@@ -201,7 +201,7 @@ func (r *playerRepo) FindOne(args refractor.FindArgs) (*refractor.Player, error)
 	}
 
 	// Get names
-	currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+	currentName, previousNames, err := r.GetPlayerNames(foundPlayer.PlayerID)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -229,7 +229,7 @@ func (r *playerRepo) Update(id int64, args refractor.UpdateArgs) (*refractor.Pla
 	}
 
 	// Get names
-	currentName, previousNames, err := r.getPlayerNames(updatedPlayer.PlayerID)
+	currentName, previousNames, err := r.GetPlayerNames(updatedPlayer.PlayerID)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -270,7 +270,7 @@ func (r *playerRepo) SearchByName(name string, limit int, offset int) (int, []*r
 		}
 
 		// Get names list
-		currentName, previousNames, err := r.getPlayerNames(foundPlayer.PlayerID)
+		currentName, previousNames, err := r.GetPlayerNames(foundPlayer.PlayerID)
 		if err != nil {
 			return 0, nil, wrapError(err)
 		}
@@ -304,7 +304,7 @@ func (r *playerRepo) SearchByName(name string, limit int, offset int) (int, []*r
 	return count, foundPlayers, nil
 }
 
-func (r *playerRepo) getPlayerNames(playerID int64) (string, []string, error) {
+func (r *playerRepo) GetPlayerNames(playerID int64) (string, []string, error) {
 	query := "SELECT Name FROM PlayerNames WHERE PlayerID = ? ORDER BY DateRecorded DESC;"
 
 	rows, err := r.db.Query(query, playerID)

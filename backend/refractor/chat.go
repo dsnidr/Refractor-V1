@@ -44,4 +44,5 @@ type ChatRepository interface {
 type ChatService interface {
 	OnChatReceive(msgBody *ChatReceiveBody, serverID int64, gameConfig *GameConfig)
 	OnUserSendChat(msgBody *ChatSendBody)
+	LogMessage(message *ChatMessage) (*ChatMessage, *ServiceResponse)
 }

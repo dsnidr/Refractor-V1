@@ -86,7 +86,7 @@ func main() {
 	playerRepo := mysql.NewPlayerRepository(db)
 	infractionRepo := mysql.NewInfractionRepository(db)
 	serverRepo := mysql.NewServerRepository(db)
-	//chatRepo := mysql.NewChatRepository(db)
+	chatRepo := mysql.NewChatRepository(db)
 
 	gameService := game.NewGameService()
 	gameService.AddGame(mordhau.NewMordhauGame())
@@ -126,7 +126,7 @@ func main() {
 	rconService.SubscribeOffline(websocketService.OnServerOffline)
 	rconService.SubscribePlayerListPoll(serverService.OnPlayerListUpdate)
 
-	chatService := chat.NewChatService(websocketService, rconService, loggerInst)
+	chatService := chat.NewChatService(chatRepo, playerRepo, websocketService, rconService, loggerInst)
 	rconService.SubscribeChat(chatService.OnChatReceive)
 	websocketService.SubscribeChatSend(rconService.SendChatMessage)
 	websocketService.SubscribeChatSend(chatService.OnUserSendChat)

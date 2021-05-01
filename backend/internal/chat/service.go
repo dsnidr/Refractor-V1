@@ -21,16 +21,22 @@ import (
 	"fmt"
 	"github.com/sniddunc/refractor/pkg/log"
 	"github.com/sniddunc/refractor/refractor"
+	"net/http"
 )
 
 type chatService struct {
-	log              log.Logger
+	repo             refractor.ChatRepository
+	playerRepo       refractor.PlayerRepository
 	websocketService refractor.WebsocketService
 	rconService      refractor.RCONService
+	log              log.Logger
 }
 
-func NewChatService(websocketService refractor.WebsocketService, rconService refractor.RCONService, log log.Logger) refractor.ChatService {
+func NewChatService(chatRepo refractor.ChatRepository, playerRepo refractor.PlayerRepository,
+	websocketService refractor.WebsocketService, rconService refractor.RCONService, log log.Logger) refractor.ChatService {
 	return &chatService{
+		repo:             chatRepo,
+		playerRepo:       playerRepo,
 		websocketService: websocketService,
 		rconService:      rconService,
 		log:              log,
@@ -41,6 +47,26 @@ func (s *chatService) OnChatReceive(message *refractor.ChatReceiveBody, serverID
 	s.websocketService.Broadcast(&refractor.WebsocketMessage{
 		Type: "chat",
 		Body: message,
+	})
+
+	player, err := s.playerRepo.FindOne(refractor.FindArgs{
+		gameConfig.PlayerGameIDField: message.PlayerGameID,
+	})
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			s.log.Warn("OnChatReceive player not find by %s = %s", gameConfig.PlayerGameIDField, message.PlayerGameID)
+			return
+		}
+
+		s.log.Error("Could not find player by %s. Error: %v", gameConfig.PlayerGameIDField, err)
+		return
+	}
+
+	// Log chat message
+	_, _ = s.LogMessage(&refractor.ChatMessage{
+		PlayerID: player.PlayerID,
+		ServerID: serverID,
+		Message:  message.Message,
 	})
 }
 
@@ -61,4 +87,27 @@ func (s *chatService) OnUserSendChat(msgBody *refractor.ChatSendBody) {
 			SentByUser:   msgBody.SentByUser,
 		},
 	})
+}
+
+func (s *chatService) LogMessage(message *refractor.ChatMessage) (*refractor.ChatMessage, *refractor.ServiceResponse) {
+	newMessage, err := s.repo.Create(message)
+	if err != nil {
+		s.log.Error("Could not create chat message. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	// Get player name
+	currentName, _, err := s.playerRepo.GetPlayerNames(newMessage.PlayerID)
+	if err != nil {
+		s.log.Error("Could not get player's current name. Error: %v", err)
+		return nil, refractor.InternalErrorResponse
+	}
+
+	newMessage.PlayerName = currentName
+
+	return newMessage, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Chat message logged",
+	}
 }
