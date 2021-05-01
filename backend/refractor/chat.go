@@ -25,6 +25,22 @@ type ChatReceiveBody struct {
 	SentByUser   bool   `json:"sentByUser"`
 }
 
+type ChatMessage struct {
+	MessageID    int64  `json:"id"`
+	PlayerID     int64  `json:"playerId"`
+	ServerID     int64  `json:"serverId"`
+	Message      string `json:"message"`
+	DateRecorded int64  `json:"timestamp"`
+	Flagged      bool   `json:"flagged"`
+	PlayerName   string `json:"playerName,omitempty"` // not a db field
+}
+
+type ChatRepository interface {
+	Create(message *ChatMessage) (*ChatMessage, error)
+	FindByID(id int64) (*ChatMessage, error)
+	FindMany(args FindArgs) ([]*ChatMessage, error)
+}
+
 type ChatService interface {
 	OnChatReceive(msgBody *ChatReceiveBody, serverID int64, gameConfig *GameConfig)
 	OnUserSendChat(msgBody *ChatSendBody)

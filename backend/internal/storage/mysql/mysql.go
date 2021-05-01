@@ -147,6 +147,28 @@ func Setup(db *sql.DB) error {
 		return fmt.Errorf("could not create Infractions table. Error: %v", err)
 	}
 
+	// Create chat messages table
+	if _, err := tx.Exec(`
+		CREATE TABLE IF NOT EXISTS ChatMessages (
+			MessageID INT NOT NULL AUTO_INCREMENT,
+			PlayerID INT NOT NULL,
+			ServerID INT NOT NULL,
+			Message TEXT NOT NULL,
+			DateRecorded TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			Flagged BOOLEAN DEFAULT FALSE,
+			
+			PRIMARY KEY (MessageID),
+			FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID),
+			FOREIGN KEY (ServerID) REFERENCES Servers(ServerID)
+		);
+	`); err != nil {
+		if err = tx.Rollback(); err != nil {
+			return err
+		}
+
+		return fmt.Errorf("could not create ChatMessages table. Error: %v", err)
+	}
+
 	return tx.Commit()
 }
 

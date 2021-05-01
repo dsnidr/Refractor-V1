@@ -81,26 +81,28 @@ func main() {
 		log.Fatalf("Could not setup database. Error: %v", err)
 	}
 
-	// Set up application components
+	// Create repositories
+	userRepo := mysql.NewUserRepository(db)
+	playerRepo := mysql.NewPlayerRepository(db)
+	infractionRepo := mysql.NewInfractionRepository(db)
+	serverRepo := mysql.NewServerRepository(db)
+	//chatRepo := mysql.NewChatRepository(db)
+
 	gameService := game.NewGameService()
 	gameService.AddGame(mordhau.NewMordhauGame())
 	gameService.AddGame(minecraft.NewMinecraftGame())
 
-	userRepo := mysql.NewUserRepository(db)
 	userService := user.NewUserService(userRepo, loggerInst)
 	userHandler := api.NewUserHandler(userService)
 
 	authService := auth.NewAuthService(userRepo, loggerInst, os.Getenv("JWT_SECRET"))
 	authHandler := api.NewAuthHandler(authService, secureMode)
 
-	playerRepo := mysql.NewPlayerRepository(db)
 	playerService := player.NewPlayerService(playerRepo, loggerInst)
 	playerHandler := api.NewPlayerHandler(playerService)
 
-	infractionRepo := mysql.NewInfractionRepository(db)
 	playerInfractionService := playerinfraction.NewPlayerInfractionService(playerRepo, infractionRepo, loggerInst)
 
-	serverRepo := mysql.NewServerRepository(db)
 	serverService := server.NewServerService(serverRepo, gameService, playerInfractionService, loggerInst)
 	serverHandler := api.NewServerHandler(serverService, playerService, loggerInst)
 	playerService.SubscribeUpdate(serverService.OnPlayerUpdate)
