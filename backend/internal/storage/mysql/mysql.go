@@ -159,7 +159,8 @@ func Setup(db *sql.DB) error {
 			
 			PRIMARY KEY (MessageID),
 			FOREIGN KEY (PlayerID) REFERENCES Players(PlayerID),
-			FOREIGN KEY (ServerID) REFERENCES Servers(ServerID)
+			FOREIGN KEY (ServerID) REFERENCES Servers(ServerID),
+		    FULLTEXT (Message)
 		);
 	`); err != nil {
 		if err = tx.Rollback(); err != nil {
