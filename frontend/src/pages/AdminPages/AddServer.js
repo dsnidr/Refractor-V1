@@ -59,7 +59,7 @@ class AddServer extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		// Set the default game value
-		if (nextProps.games) {
+		if (nextProps.games && !prevState.game) {
 			prevState.game = Object.values(nextProps.games)[0].name;
 		}
 
@@ -90,6 +90,7 @@ class AddServer extends Component {
 	}
 
 	onChange = (e) => {
+		console.log(e.target.name, e.target.value);
 		this.setState({
 			[e.target.name]: e.target.value,
 		});
@@ -97,8 +98,6 @@ class AddServer extends Component {
 
 	onAddServerClick = () => {
 		const { game, name, address, rconPort, rconPassword } = this.state;
-
-		console.log(game, name, address, rconPort, rconPassword);
 
 		this.props.createServer({
 			game,
@@ -132,7 +131,7 @@ class AddServer extends Component {
 								name={'game'}
 								onChange={this.onChange}
 								error={errors.game}
-								title={"game"}
+								title={'game'}
 							>
 								{games.map((game) => (
 									<option key={game.id} value={game.name}>
