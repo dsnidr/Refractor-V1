@@ -23,9 +23,7 @@ import ServerSelector from '../../components/ServerSelector';
 import Button from '../../components/Button';
 import PlayerSelector from '../../components/PlayerSelector';
 import { getAllUsers } from '../../redux/user/userActions';
-import {
-	hasFullAccess,
-} from '../../permissions/permissions';
+import { hasFullAccess } from '../../permissions/permissions';
 import {
 	getRecentInfractions,
 	searchInfractions,
@@ -190,7 +188,7 @@ class Infractions extends Component {
 		}
 
 		if (server) {
-			searchData.serverId = server.id.toString();
+			searchData.serverId = server;
 		}
 
 		if (Object.keys(searchData).length === 0) {
