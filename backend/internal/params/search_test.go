@@ -19,6 +19,7 @@ package params
 
 import (
 	"github.com/sniddunc/refractor/pkg/config"
+	"math"
 	"strings"
 	"testing"
 )
@@ -212,6 +213,123 @@ func TestSearchInfractionsParams_Validate(t *testing.T) {
 				UserID:       tt.fields.UserID,
 				Game:         tt.fields.Game,
 				ServerID:     tt.fields.ServerID,
+				SearchParams: tt.fields.SearchParams,
+			}
+
+			got, errors := body.Validate()
+			if got != tt.want {
+				t.Errorf("Validate() got = %v, want %v\nErrors: %v", got, tt.want, errors)
+			}
+		})
+	}
+}
+
+func TestSearchChatMessagesParams_Validate(t *testing.T) {
+	type fields struct {
+		Message      string
+		PlayerID     string
+		ServerID     string
+		StartDate    int64
+		EndDate      int64
+		SearchParams SearchParams
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name: "params.search.infractions.validate.1",
+			fields: fields{
+				PlayerID:  "1",
+				ServerID:  "1",
+				StartDate: 0,
+				EndDate:   math.MaxInt64,
+				SearchParams: SearchParams{
+					Offset: config.SearchOffsetMin,
+					Limit:  config.SearchLimitMin,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "params.search.infractions.validate.2",
+			fields: fields{
+				PlayerID:  "1",
+				ServerID:  "1",
+				StartDate: -1,
+				EndDate:   0,
+				SearchParams: SearchParams{
+					Offset: config.SearchOffsetMin,
+					Limit:  config.SearchLimitMin,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "params.search.infractions.validate.3",
+			fields: fields{
+				PlayerID:  "1",
+				ServerID:  "1",
+				StartDate: 0,
+				EndDate:   -1,
+				SearchParams: SearchParams{
+					Offset: config.SearchOffsetMin,
+					Limit:  config.SearchLimitMin,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "params.search.infractions.validate.4",
+			fields: fields{
+				PlayerID:  "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+				ServerID:  "4341",
+				StartDate: 0,
+				EndDate:   0,
+				SearchParams: SearchParams{
+					Offset: config.SearchOffsetMin,
+					Limit:  config.SearchLimitMin,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "params.search.infractions.validate.4",
+			fields: fields{
+				PlayerID:  "34422323",
+				ServerID:  "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+				StartDate: 0,
+				EndDate:   0,
+				SearchParams: SearchParams{
+					Offset: config.SearchOffsetMin,
+					Limit:  config.SearchLimitMin,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "params.search.infractions.validate.4",
+			fields: fields{
+				PlayerID:  "321834561243287",
+				ServerID:  "321834561243287",
+				StartDate: 43412,
+				EndDate:   321211,
+				SearchParams: SearchParams{
+					Offset: config.SearchOffsetMin,
+					Limit:  config.SearchLimitMin,
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body := &SearchChatMessagesParams{
+				PlayerID:     tt.fields.PlayerID,
+				ServerID:     tt.fields.ServerID,
+				StartDate:    tt.fields.StartDate,
+				EndDate:      tt.fields.EndDate,
 				SearchParams: tt.fields.SearchParams,
 			}
 

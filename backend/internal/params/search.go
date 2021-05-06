@@ -93,20 +93,20 @@ func (body *SearchPlayersParams) Validate() (bool, url.Values) {
 	return len(errors) == 0, errors
 }
 
+type ParsedInfractionIDs struct {
+	PlayerID int64
+	UserID   int64
+	ServerID int64
+}
+
 type SearchInfractionsParams struct {
 	Type     string `json:"type" form:"type"`
 	PlayerID string `json:"playerId" form:"playerId"`
 	UserID   string `json:"userId" form:"userId"`
 	Game     string `json:"game" form:"game"`
 	ServerID string `json:"serverId" form:"serverId"`
-	*ParsedIDs
+	*ParsedInfractionIDs
 	SearchParams
-}
-
-type ParsedIDs struct {
-	PlayerID int64
-	UserID   int64
-	ServerID int64
 }
 
 var validInfractionTypes = []string{"WARNING", "MUTE", "KICK", "BAN"}
@@ -115,7 +115,7 @@ func (body *SearchInfractionsParams) Validate() (bool, url.Values) {
 	if ok, errors := body.SearchParams.Validate(); !ok {
 		return ok, errors
 	}
-	body.ParsedIDs = &ParsedIDs{}
+	body.ParsedInfractionIDs = &ParsedInfractionIDs{}
 
 	errors := url.Values{}
 
@@ -140,7 +140,7 @@ func (body *SearchInfractionsParams) Validate() (bool, url.Values) {
 		if err != nil {
 			errors.Set("playerId", config.MessageInvalidIDProvided)
 		} else {
-			body.ParsedIDs.PlayerID = playerID
+			body.ParsedInfractionIDs.PlayerID = playerID
 		}
 	}
 
@@ -150,7 +150,7 @@ func (body *SearchInfractionsParams) Validate() (bool, url.Values) {
 		if err != nil {
 			errors.Set("userId", config.MessageInvalidIDProvided)
 		} else {
-			body.ParsedIDs.UserID = playerID
+			body.ParsedInfractionIDs.UserID = playerID
 		}
 	}
 
@@ -160,7 +160,7 @@ func (body *SearchInfractionsParams) Validate() (bool, url.Values) {
 		if err != nil {
 			errors.Set("serverId", config.MessageInvalidIDProvided)
 		} else {
-			body.ParsedIDs.ServerID = playerID
+			body.ParsedInfractionIDs.ServerID = playerID
 		}
 	}
 
@@ -170,6 +170,62 @@ func (body *SearchInfractionsParams) Validate() (bool, url.Values) {
 			errors.Set("game", fmt.Sprintf("Game name must be between %d and %d characters in length",
 				config.ServerGameMinLen, config.ServerGameMaxLen))
 		}
+	}
+
+	return len(errors) == 0, errors
+}
+
+type ParsedChatMessageIDs struct {
+	PlayerID int64
+	ServerID int64
+}
+
+type SearchChatMessagesParams struct {
+	Message   string `json:"message" form:"message"`
+	StartDate int64  `json:"startDate" form:"startDate"`
+	EndDate   int64  `json:"endDate" form:"endDate"`
+	PlayerID  string `json:"playerId" form:"playerId"`
+	ServerID  string `json:"serverId" form:"serverId"`
+	*ParsedChatMessageIDs
+	SearchParams
+}
+
+func (body *SearchChatMessagesParams) Validate() (bool, url.Values) {
+	if ok, errors := body.SearchParams.Validate(); !ok {
+		return ok, errors
+	}
+	body.ParsedChatMessageIDs = &ParsedChatMessageIDs{}
+
+	errors := url.Values{}
+
+	// Validate and parse PlayerID
+	if body.PlayerID != "" {
+		playerID, err := strconv.ParseInt(body.PlayerID, 10, 64)
+		if err != nil {
+			errors.Set("playerId", config.MessageInvalidIDProvided)
+		} else {
+			body.ParsedChatMessageIDs.PlayerID = playerID
+		}
+	}
+
+	// Validate and parse ServerID
+	if body.ServerID != "" {
+		playerID, err := strconv.ParseInt(body.ServerID, 10, 64)
+		if err != nil {
+			errors.Set("serverId", config.MessageInvalidIDProvided)
+		} else {
+			body.ParsedChatMessageIDs.ServerID = playerID
+		}
+	}
+
+	// Validate start date
+	if body.StartDate < 0 {
+		errors.Set("startDate", "Invalid start date provided")
+	}
+
+	// Validate end date
+	if body.EndDate < 0 {
+		errors.Set("endDate", "Invalid end date provided")
 	}
 
 	return len(errors) == 0, errors

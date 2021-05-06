@@ -42,6 +42,10 @@ const FilterBox = styled.div`
 	    > :nth-child(1) {
 		  grid-column: span 2;
 		}
+
+	  	> :nth-child(4) {
+		  grid-column: span 2;
+		}
 	  
 	  	button {
 		  height: 4rem;
@@ -171,7 +175,6 @@ class ChatRecords extends Component {
 							value={filters.enddate}
 						/>
 						<ServerSelector />
-						<GameSelector />
 						<PlayerSelector
 							title={'player'}
 							value={

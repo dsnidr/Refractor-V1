@@ -169,16 +169,16 @@ func (s *searchService) SearchInfractions(body params.SearchInfractionsParams) (
 		searchArgs["Game"] = body.Game
 	}
 
-	if body.ParsedIDs.PlayerID != 0 {
-		searchArgs["PlayerID"] = body.ParsedIDs.PlayerID
+	if body.ParsedInfractionIDs.PlayerID != 0 {
+		searchArgs["PlayerID"] = body.ParsedInfractionIDs.PlayerID
 	}
 
-	if body.ParsedIDs.ServerID != 0 {
-		searchArgs["ServerID"] = body.ParsedIDs.ServerID
+	if body.ParsedInfractionIDs.ServerID != 0 {
+		searchArgs["ServerID"] = body.ParsedInfractionIDs.ServerID
 	}
 
-	if body.ParsedIDs.UserID != 0 {
-		searchArgs["UserID"] = body.ParsedIDs.UserID
+	if body.ParsedInfractionIDs.UserID != 0 {
+		searchArgs["UserID"] = body.ParsedInfractionIDs.UserID
 	}
 
 	if len(searchArgs) == 0 {
