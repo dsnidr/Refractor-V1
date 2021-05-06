@@ -37,6 +37,7 @@ import { ReactComponent as Avatar } from '../assets/avatar.svg';
 import { ReactComponent as SingleServer } from '../assets/server-1.svg';
 import { ReactComponent as List } from '../assets/list.svg';
 import { ReactComponent as Notifications } from '../assets/notifications.svg';
+import { ReactComponent as Padlock } from '../assets/padlock.svg';
 import {
 	decodeToken,
 	destroyToken,
@@ -267,6 +268,17 @@ class Dashboard extends Component {
 										</SidebarItem>
 									</SidebarSection>
 								</RequirePerms>
+
+								<SidebarSection>
+									<h1>&#62; settings</h1>
+									<SidebarItem
+										to="/changepassword"
+										icon={<Padlock />}
+									>
+										Change Password
+									</SidebarItem>
+									<ThemeSwitcher />
+								</SidebarSection>
 							</div>
 						</DrawerItems>
 						<DrawerOverlay onClick={this.closeDrawer} />
@@ -360,7 +372,13 @@ class Dashboard extends Component {
 							</RequirePerms>
 
 							<SidebarSection>
-								<h1>&#62; theme</h1>
+								<h1>&#62; settings</h1>
+								<SidebarItem
+									to="/changepassword"
+									icon={<Padlock />}
+								>
+									Change Password
+								</SidebarItem>
 								<ThemeSwitcher />
 							</SidebarSection>
 						</div>

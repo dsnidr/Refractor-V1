@@ -36,7 +36,7 @@ export const Wrapper = styled.div`
 
 export const Sidebar = styled.div`
 	${(props) => css`
-		width: 23rem;
+		width: 24rem;
 		grid-row: 2;
 		grid-column: 1;
 		background-color: ${props.theme.colorBackgroundAlt};
@@ -118,13 +118,17 @@ export const TopbarItem = styled.div`
 
 export const UsernameTopbarItem = styled(TopbarItem)`
 	${(props) => css`
-		margin-right: 2rem;
-		color: ${props.theme.colorDisabled};
+		display: none;
 
-		:hover {
-			cursor: revert;
-			background: none;
-		}
+		${respondTo.medium`
+          margin-right: 2rem;
+          color: ${props.theme.colorDisabled};
+
+          :hover {
+            cursor: revert;
+            background: none;
+          }
+		`}
 	`}
 `;
 
@@ -205,9 +209,9 @@ export const DrawerItems = styled.div`
 		position: fixed;
 		top: 0;
 		left: 0;
-		background-color: ${props.theme.colorBackground};
+		background-color: ${props.theme.colorBackgroundAlt};
 		border-right: 1px solid ${props.theme.colorPrimary};
-		width: 55%;
+		width: 65%;
 		height: 100%;
 		z-index: 10000;
 		display: flex;
@@ -217,7 +221,7 @@ export const DrawerItems = styled.div`
 `;
 
 export const WebsocketError = styled.div`
-  	${(props) => css`
+	${(props) => css`
 		position: fixed;
 		overflow-y: scroll;
 		z-index: 100000;
@@ -226,24 +230,24 @@ export const WebsocketError = styled.div`
 		background: rgba(0, 0, 0, 0.65) !important;
 		width: 100%;
 		height: 100%;
-	  
-	  	display: flex;
-	  	justify-content: center;
-	  	align-items: center;
-	  
-	  	h1 {
-		  font-size: 3rem;
-		  text-transform: uppercase;
-		  color: ${props.theme.colorDanger};
-		  font-weight: 300;
-		  text-align: center;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		h1 {
+			font-size: 3rem;
+			text-transform: uppercase;
+			color: ${props.theme.colorDanger};
+			font-weight: 300;
+			text-align: center;
 		}
-	  
-	  	p {
-		  font-size: 2rem;
-		  color: ${props.theme.colorTextSecondary};
-		  margin-top: 2rem;
-		  text-align: center;
+
+		p {
+			font-size: 2rem;
+			color: ${props.theme.colorTextSecondary};
+			margin-top: 2rem;
+			text-align: center;
 		}
 	`}
-`
+`;
