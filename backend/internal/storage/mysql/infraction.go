@@ -251,7 +251,7 @@ func (r *infractionRepo) Search(args refractor.FindArgs, limit int, offset int) 
 
 		infraction := dbinfr.Infraction()
 
-		// Get player's name here since I can't figure out how to do it in the query in a reasonable amount of time.
+		// Get player's name
 		nameQuery := `SELECT Name FROM PlayerNames WHERE PlayerID = ? ORDER BY DateRecorded DESC LIMIT 1`
 
 		row := r.db.QueryRow(nameQuery, infraction.PlayerID)

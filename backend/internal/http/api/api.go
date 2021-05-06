@@ -154,6 +154,7 @@ func (api *API) setupRoutes() {
 	searchGroup := apiGroup.Group("/search", jwtMiddleware, AttachClaims())
 	searchGroup.POST("/players", api.SearchHandler.SearchPlayers)
 	searchGroup.POST("/infractions", api.SearchHandler.SearchInfractions)
+	searchGroup.POST("/chatmessages", api.SearchHandler.SearchChatMessages, api.RequirePerms(perms.VIEW_CHAT_RECORDS))
 
 	// Websocket endpoint
 	api.echo.Any("/ws", api.websocketHandler)

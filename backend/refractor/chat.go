@@ -39,6 +39,7 @@ type ChatRepository interface {
 	Create(message *ChatMessage) (*ChatMessage, error)
 	FindByID(id int64) (*ChatMessage, error)
 	FindMany(args FindArgs) ([]*ChatMessage, error)
+	Search(args FindArgs, limit int, offset int) (int, []*ChatMessage, error)
 }
 
 type ChatService interface {

@@ -78,3 +78,26 @@ func (h *searchHandler) SearchInfractions(c echo.Context) error {
 		},
 	})
 }
+
+type chatMessageResultPayload struct {
+	Results []*refractor.ChatMessage `json:"results"`
+	Count   int                      `json:"count"`
+}
+
+func (h *searchHandler) SearchChatMessages(c echo.Context) error {
+	body := params.SearchChatMessagesParams{}
+	if ok := ValidateRequest(&body, c); !ok {
+		return nil
+	}
+
+	count, chatMessages, res := h.service.SearchChatMessages(body)
+	return c.JSON(res.StatusCode, Response{
+		Success: res.Success,
+		Message: res.Message,
+		Errors:  res.ValidationErrors,
+		Payload: chatMessageResultPayload{
+			Results: chatMessages,
+			Count:   count,
+		},
+	})
+}

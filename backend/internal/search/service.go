@@ -24,19 +24,22 @@ import (
 	"github.com/sniddunc/refractor/refractor"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type searchService struct {
 	playerRepo     refractor.PlayerRepository
 	infractionRepo refractor.InfractionRepository
+	chatRepo       refractor.ChatRepository
 	log            logger.Logger
 }
 
 func NewSearchService(playerRepo refractor.PlayerRepository, infractionRepo refractor.InfractionRepository,
-	log logger.Logger) refractor.SearchService {
+	chatRepo refractor.ChatRepository, log logger.Logger) refractor.SearchService {
 	return &searchService{
 		playerRepo:     playerRepo,
 		infractionRepo: infractionRepo,
+		chatRepo:       chatRepo,
 		log:            log,
 	}
 }
@@ -205,6 +208,47 @@ func (s *searchService) SearchInfractions(body params.SearchInfractionsParams) (
 	}
 
 	return count, infractions, &refractor.ServiceResponse{
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("Found %d total results", count),
+	}
+}
+
+func (s *searchService) SearchChatMessages(body params.SearchChatMessagesParams) (int, []*refractor.ChatMessage, *refractor.ServiceResponse) {
+	searchArgs := refractor.FindArgs{}
+
+	if body.ParsedChatMessageIDs.PlayerID != 0 {
+		searchArgs["PlayerID"] = body.ParsedChatMessageIDs.PlayerID
+	}
+
+	if body.ParsedChatMessageIDs.ServerID != 0 {
+		searchArgs["ServerID"] = body.ParsedChatMessageIDs.ServerID
+	}
+
+	searchArgs["Message"] = body.Message
+	searchArgs["StartDate"] = body.StartDate
+
+	if body.EndDate == 0 {
+		body.EndDate = time.Now().Unix()
+	}
+	searchArgs["EndDate"] = body.EndDate
+
+	// Run search
+	count, results, err := s.chatRepo.Search(searchArgs, body.SearchParams.Limit, body.SearchParams.Offset)
+	if err != nil {
+		if err == refractor.ErrNotFound {
+			return 0, []*refractor.ChatMessage{}, &refractor.ServiceResponse{
+				Success:    true,
+				StatusCode: http.StatusOK,
+				Message:    "Found 0 total results",
+			}
+		}
+
+		s.log.Error("Could not search chat messages. Error: %v", err)
+		return 0, []*refractor.ChatMessage{}, refractor.InternalErrorResponse
+	}
+
+	return count, results, &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("Found %d total results", count),

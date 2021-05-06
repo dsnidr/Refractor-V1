@@ -94,11 +94,76 @@ func (r *chatRepo) FindMany(args refractor.FindArgs) ([]*refractor.ChatMessage, 
 	return foundMessages, nil
 }
 
+func (r *chatRepo) Search(args refractor.FindArgs, limit int, offset int) (int, []*refractor.ChatMessage, error) {
+	query := `
+		SELECT
+		       MessageID,
+		       PlayerID,
+		       ServerID,
+		       Message,
+		       UNIX_TIMESTAMP(DateRecorded) AS DateRecorded,
+		       Flagged
+		FROM ChatMessages cm
+		WHERE
+			(? IS NULL OR cm.PlayerID = ?) AND
+			(? IS NULL OR cm.ServerID = ?) AND
+		    (DateRecorded BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?)) AND
+			IF(? IS NOT NULL, MATCH(Message) AGAINST(? IN NATURAL LANGUAGE MODE), TRUE)
+		LIMIT ? OFFSET ?;
+	`
+
+	var (
+		playerID  = args["PlayerID"]
+		serverID  = args["ServerID"]
+		message   = args["Message"]
+		startDate = args["StartDate"]
+		endDate   = args["EndDate"]
+	)
+
+	rows, err := r.db.Query(query, playerID, playerID, serverID, serverID, startDate, endDate, message, message, limit, offset)
+	if err != nil {
+		return 0, nil, wrapError(err)
+	}
+
+	var foundMessages []*refractor.ChatMessage
+
+	for rows.Next() {
+		foundMessage := &refractor.ChatMessage{}
+
+		if err := r.scanRows(rows, foundMessage); err != nil {
+			return 0, nil, wrapError(err)
+		}
+
+		foundMessages = append(foundMessages, foundMessage)
+	}
+
+	// Get total number of results
+	query = `
+		SELECT
+			COUNT(1) AS Count
+		FROM ChatMessages cm
+		WHERE
+			(? IS NULL OR cm.PlayerID = ?) AND
+			(? IS NULL OR cm.ServerID = ?) AND
+		    (DateRecorded BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?)) AND
+			IF(? IS NOT NULL, MATCH(Message) AGAINST(? IN NATURAL LANGUAGE MODE), TRUE)
+	`
+
+	row := r.db.QueryRow(query, playerID, playerID, serverID, serverID, startDate, endDate, message, message)
+
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, nil, wrapError(err)
+	}
+
+	return count, foundMessages, nil
+}
+
 // Scan helpers
 func (r *chatRepo) scanRow(row *sql.Row, msg *refractor.ChatMessage) error {
-	return row.Scan(&msg.MessageID, &msg.PlayerID, &msg.ServerID, &msg.MessageID, &msg.DateRecorded, &msg.Flagged)
+	return row.Scan(&msg.MessageID, &msg.PlayerID, &msg.ServerID, &msg.Message, &msg.DateRecorded, &msg.Flagged)
 }
 
 func (r *chatRepo) scanRows(rows *sql.Rows, msg *refractor.ChatMessage) error {
-	return rows.Scan(&msg.MessageID, &msg.PlayerID, &msg.ServerID, &msg.MessageID, &msg.DateRecorded, &msg.Flagged)
+	return rows.Scan(&msg.MessageID, &msg.PlayerID, &msg.ServerID, &msg.Message, &msg.DateRecorded, &msg.Flagged)
 }

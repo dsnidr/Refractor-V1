@@ -159,3 +159,7 @@ func (r *mockPlayerRepo) SearchByName(name string, offset int, limit int) (int, 
 
 	return len(foundPlayers), foundPlayers, nil
 }
+
+func (r *mockPlayerRepo) GetPlayerNames(id int64) (string, []string, error) {
+	panic("implement me")
+}

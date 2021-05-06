@@ -25,9 +25,11 @@ import (
 type SearchService interface {
 	SearchPlayers(body params.SearchPlayersParams) (int, []*Player, *ServiceResponse)
 	SearchInfractions(body params.SearchInfractionsParams) (int, []*Infraction, *ServiceResponse)
+	SearchChatMessages(body params.SearchChatMessagesParams) (int, []*ChatMessage, *ServiceResponse)
 }
 
 type SearchHandler interface {
 	SearchPlayers(c echo.Context) error
 	SearchInfractions(c echo.Context) error
+	SearchChatMessages(c echo.Context) error
 }
