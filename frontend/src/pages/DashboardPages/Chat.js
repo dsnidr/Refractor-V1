@@ -30,6 +30,7 @@ const ChatWindow = styled.form`
 		flex-direction: column;
 		justify-content: space-between;
 		border-radius: ${props.theme.borderRadiusNormal};
+		background-color: ${props.theme.colorAccent};
 	`}
 `;
 
@@ -58,7 +59,6 @@ const ChatContent = styled.div`
 		::-webkit-scrollbar {
 			display: none;
 		}
-
 		-ms-overflow-style: none; // Edge
 		scrollbar-width: none; // Firefox
 

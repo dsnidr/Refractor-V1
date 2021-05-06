@@ -14,47 +14,6 @@ const Title = styled.span`
 	`}
 `;
 
-// const DateTimeTheme = styled.div`
-// 	${(props) => css`
-// 		position: relative;
-//
-// 		.react-datetime-picker__clock {
-// 			display: none;
-// 		}
-//
-// 		.react-calendar {
-// 			background-color: ${props.theme.colorBackground};
-// 		}
-//
-// 		.react-datetime-picker {
-// 			height: 4rem;
-// 			width: 100%;
-//
-// 			background-color: ${props.theme.inputs.fillInBackground
-// 				? props.theme.colorBorderPrimary
-// 				: null};
-//
-// 			.react-datetime-picker__wrapper {
-// 				border: 1px solid ${props.theme.colorBorderPrimary};
-// 				border-radius: ${props.theme.borderRadiusNormal};
-// 				padding: 1rem;
-// 			}
-//
-// 			input,
-// 			select,
-// 			span {
-// 				color: ${props.theme.colorTextPrimary};
-// 				font-size: 1.4rem;
-// 			}
-//
-// 			svg {
-// 				fill: ${props.theme.colorBorderPrimary} !important;
-// 				stroke: ${props.theme.colorBorderPrimary} !important;
-// 			}
-// 		}
-// 	`}
-// `;
-
 const DateTimeTheme = styled.div`
 	${(props) => css`
 		position: relative;
@@ -89,6 +48,10 @@ const DateTimeTheme = styled.div`
 				.rdtSwitch:hover {
 					cursor: pointer;
 				}
+			}
+
+			.rdtTimeToggle:hover {
+				background-color: ${props.theme.colorBackground};
 			}
 		}
 	`}

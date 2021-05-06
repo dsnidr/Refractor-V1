@@ -25,6 +25,7 @@ import PlayerSelector from '../../components/PlayerSelector';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
 import DateTimeSelector from '../../components/DateTimeSelector';
+import { timestampToDateTime } from '../../utils/timeUtils';
 
 const ChatRecordsBox = styled.div``;
 
@@ -38,14 +39,81 @@ const FilterBox = styled.div`
 		grid-template-columns: 1fr 1fr 1fr 1fr;
 	  	grid-column-gap: 1rem;
 	  
-	    > :first-child {
-		  grid-column: span 4;
-		}
-	  
-	  	> :nth-child(4) {
+	    > :nth-child(1) {
 		  grid-column: span 2;
 		}
+	  
+	  	button {
+		  height: 4rem;
+		}
   	`}
+`;
+
+const ResultsBox = styled.div``;
+
+const Results = styled.div`
+	${(props) => css`
+		display: flex;
+		flex-direction: column;
+		background-color: ${props.theme.colorAccent};
+		margin-top: 1rem;
+		border-radius: ${props.theme.borderRadiusNormal};
+
+		> :nth-child(even) {
+			background-color: ${props.theme.colorBackground};
+		}
+	`}
+`;
+
+export const MobileLabel = styled.div`
+	${(props) => css`
+		display: inline;
+		color: ${props.theme.colorPrimary};
+
+		${respondTo.medium`
+			display: none;
+		`};
+	`}
+`;
+
+const Result = styled.div`
+	${(props) => css`
+		font-size: 1.2rem;
+		display: flex;
+		flex-direction: column;
+
+		${respondTo.medium`
+		  flex-direction: row;
+		`}
+
+		> * {
+			padding: 0.5rem;
+		}
+
+		> :nth-child(1) {
+			min-width: 3rem;
+			max-width: 10rem;
+			width: auto;
+
+			:hover {
+				cursor: pointer;
+				background-color: ${props.theme.colorPrimary};
+			}
+		}
+
+		> :nth-child(2) {
+			width: 20rem;
+
+			:hover {
+				cursor: pointer;
+				background-color: ${props.theme.colorPrimary};
+			}
+		}
+
+		> :nth-child(3) {
+			flex: 1;
+		}
+	`}
 `;
 
 class ChatRecords extends Component {
@@ -112,7 +180,55 @@ class ChatRecords extends Component {
 									: 'Select...'
 							}
 						/>
+						<Button>View Records</Button>
 					</FilterBox>
+
+					<ResultsBox>
+						<Heading headingStyle={'subtitle'}>Results</Heading>
+
+						<Results>
+							<Result>
+								<div>
+									<MobileLabel>ID: </MobileLabel>1
+								</div>
+								<div>
+									<MobileLabel>Date: </MobileLabel>
+									{timestampToDateTime(18000)}
+								</div>
+								<div>Lorem ipsum dolor si amet</div>
+							</Result>
+							<Result>
+								<div>
+									<MobileLabel>ID: </MobileLabel>2
+								</div>
+								<div>
+									<MobileLabel>Date: </MobileLabel>
+									{timestampToDateTime(19000)}
+								</div>
+								<div>Lorem ipsum dolor si amet</div>
+							</Result>
+							<Result>
+								<div>
+									<MobileLabel>ID: </MobileLabel>3
+								</div>
+								<div>
+									<MobileLabel>Date: </MobileLabel>
+									{timestampToDateTime(20000)}
+								</div>
+								<div>Lorem ipsum dolor si amet</div>
+							</Result>
+							<Result>
+								<div>
+									<MobileLabel>ID: </MobileLabel>4
+								</div>
+								<div>
+									<MobileLabel>Date: </MobileLabel>
+									{timestampToDateTime(21000)}
+								</div>
+								<div>Lorem ipsum dolor si amet</div>
+							</Result>
+						</Results>
+					</ResultsBox>
 				</ChatRecordsBox>
 			</>
 		);
