@@ -13,14 +13,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ADD_CHAT_MESSAGE } from './chatActions';
+import { ADD_CHAT_MESSAGE, SET_CHAT_SEARCH_RESULTS } from './chatActions';
 
-const initialState = {};
+const initialState = {
+	searchResults: [],
+};
 
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
 		case ADD_CHAT_MESSAGE:
 			return addChatMessage(state, action.payload);
+		case SET_CHAT_SEARCH_RESULTS:
+			return {
+				...state,
+				searchResults: action.payload,
+			};
 		default:
 			return state;
 	}

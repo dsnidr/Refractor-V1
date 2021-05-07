@@ -25,6 +25,14 @@ import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
 import DateTimeSelector from '../../components/DateTimeSelector';
 import { timestampToDateTime } from '../../utils/timeUtils';
+import { searchChatRecords } from '../../redux/chat/chatActions';
+import { Link } from 'react-router-dom';
+import {
+	DisabledPageSwitcherButton,
+	PageSwitcher,
+	PageSwitcherButton,
+	PageSwitcherLabel,
+} from './Players';
 
 const ChatRecordsBox = styled.div``;
 
@@ -61,6 +69,7 @@ const Results = styled.div`
 		background-color: ${props.theme.colorAccent};
 		margin-top: 1rem;
 		border-radius: ${props.theme.borderRadiusNormal};
+		//font-family: 'Roboto Mono', 'Poppins', sans-serif;
 
 		> :nth-child(even) {
 			background-color: ${props.theme.colorBackground};
@@ -93,15 +102,13 @@ const Result = styled.div`
 			padding: 0.5rem;
 		}
 
-		> :nth-child(1) {
-			min-width: 3rem;
-			max-width: 10rem;
-			width: auto;
+		a {
+			text-decoration: none !important;
+			color: ${props.theme.colorTextSecondary};
+		}
 
-			:hover {
-				cursor: pointer;
-				background-color: ${props.theme.colorPrimary};
-			}
+		> :nth-child(1) {
+			width: 7rem;
 		}
 
 		> :nth-child(2) {
@@ -114,10 +121,21 @@ const Result = styled.div`
 		}
 
 		> :nth-child(3) {
+			width: 20rem;
+
+			:hover {
+				cursor: pointer;
+				background-color: ${props.theme.colorPrimary};
+			}
+		}
+
+		> :nth-child(4) {
 			flex: 1;
 		}
 	`}
 `;
+
+const limitInterval = 20;
 
 class ChatRecords extends Component {
 	constructor(props) {
@@ -150,11 +168,13 @@ class ChatRecords extends Component {
 	}
 
 	onDateChange = (key) => (date) => {
+		console.log(key, typeof date, date);
+
 		this.setState((prevState) => ({
 			...prevState,
 			filters: {
 				...prevState.filters,
-				[key]: date,
+				[key]: date.toDate(),
 			},
 		}));
 	};
@@ -179,6 +199,78 @@ class ChatRecords extends Component {
 		}));
 	};
 
+	onNextPage = () => {
+		const { page, currentFilters } = this.state;
+
+		const nextPage = page + 1;
+
+		const searchData = {
+			...currentFilters,
+			limit: limitInterval,
+			offset: nextPage * limitInterval,
+		};
+
+		// Update page in state
+		this.setState((prevState) => ({
+			...prevState,
+			page: nextPage,
+		}));
+
+		this.props.searchChatRecords(searchData);
+	};
+
+	onPrevPage = () => {
+		const { page, currentFilters } = this.state;
+
+		const prevPage = page - 1;
+
+		const searchData = {
+			...currentFilters,
+			limit: limitInterval,
+			offset: prevPage * limitInterval,
+		};
+
+		// Update page in state
+		this.setState((prevState) => ({
+			...prevState,
+			page: prevPage,
+		}));
+
+		this.props.searchChatRecords(searchData);
+	};
+
+	onResultsKeyDown = (e) => {
+		const { page, searchWasRun } = this.state;
+		const { results: searchResults } = this.props;
+
+		if (!searchWasRun || !searchResults) {
+			return;
+		}
+
+		const { results, count } = searchResults;
+
+		if (results.length <= 0) {
+			return;
+		}
+
+		const amountOfPages = Math.ceil(count / limitInterval);
+
+		switch (e.keyCode) {
+			case 39:
+				if (page !== amountOfPages - 1) {
+					this.onNextPage();
+				}
+				break;
+			case 37:
+				if (page > 0) {
+					this.onPrevPage();
+				}
+				break;
+			default:
+				return;
+		}
+	};
+
 	onViewRecordsClicked = () => {
 		const {
 			message,
@@ -188,17 +280,48 @@ class ChatRecords extends Component {
 			player,
 		} = this.state.filters;
 
-		console.log(
-			message,
-			startDate,
-			endDate,
-			serverId,
-			player ? player.id : undefined
-		);
+		const searchData = {};
+		const errors = {};
+
+		if (message) {
+			searchData.message = message.toString();
+		}
+
+		if (startDate) {
+			searchData.startDate = Math.floor(startDate.getTime() / 1000);
+		}
+
+		if (endDate) {
+			searchData.endDate = Math.floor(endDate.getTime() / 1000);
+		}
+
+		if (serverId) {
+			searchData.serverId = serverId.toString();
+		}
+
+		if (player) {
+			searchData.playerId = player.id.toString();
+		}
+
+		// Set limit and offset
+		searchData.limit = limitInterval;
+		searchData.offset = 0;
+
+		// Record current search data
+		this.setState((prevState) => ({
+			...prevState,
+			currentFilters: searchData,
+		}));
+
+		this.props.searchChatRecords(searchData);
 	};
 
 	render() {
-		const { errors, filters } = this.state;
+		const { errors, filters, searchWasRun, page } = this.state;
+		const { results } = this.props;
+		const { results: searchResults, count } = results;
+
+		const amountOfPages = Math.ceil(count / limitInterval);
 
 		return (
 			<>
@@ -246,52 +369,73 @@ class ChatRecords extends Component {
 						</Button>
 					</FilterBox>
 
-					<ResultsBox>
-						<Heading headingStyle={'subtitle'}>Results</Heading>
+					{searchResults && (
+						<ResultsBox
+							onKeyDown={this.onResultsKeyDown}
+							tabIndex={'0'}
+						>
+							<Heading headingStyle={'subtitle'}>Results</Heading>
+							<p>found {count} results</p>
 
-						<Results>
-							<Result>
-								<div>
-									<MobileLabel>ID: </MobileLabel>1
-								</div>
-								<div>
-									<MobileLabel>Date: </MobileLabel>
-									{timestampToDateTime(18000)}
-								</div>
-								<div>Lorem ipsum dolor si amet</div>
-							</Result>
-							<Result>
-								<div>
-									<MobileLabel>ID: </MobileLabel>2
-								</div>
-								<div>
-									<MobileLabel>Date: </MobileLabel>
-									{timestampToDateTime(19000)}
-								</div>
-								<div>Lorem ipsum dolor si amet</div>
-							</Result>
-							<Result>
-								<div>
-									<MobileLabel>ID: </MobileLabel>3
-								</div>
-								<div>
-									<MobileLabel>Date: </MobileLabel>
-									{timestampToDateTime(20000)}
-								</div>
-								<div>Lorem ipsum dolor si amet</div>
-							</Result>
-							<Result>
-								<div>
-									<MobileLabel>ID: </MobileLabel>4
-								</div>
-								<div>
-									<MobileLabel>Date: </MobileLabel>
-									{timestampToDateTime(21000)}
-								</div>
-								<div>Lorem ipsum dolor si amet</div>
-							</Result>
-						</Results>
-					</ResultsBox>
+							<Results>
+								{searchResults.map((result) => (
+									<Result>
+										<div>
+											<MobileLabel>ID: </MobileLabel>
+											{result.id}
+										</div>
+										<div>
+											<MobileLabel>Date: </MobileLabel>
+											{timestampToDateTime(
+												result.timestamp
+											)}
+										</div>
+										<Link to={`/player/${result.playerId}`}>
+											<MobileLabel>Player: </MobileLabel>
+											{result.playerName}
+										</Link>
+										<div>{result.message}</div>
+									</Result>
+								))}
+							</Results>
+						</ResultsBox>
+					)}
+
+					{searchWasRun &&
+					searchResults &&
+					searchResults.length > 0 ? (
+						<PageSwitcher>
+							<div>
+								{page > 0 ? (
+									<PageSwitcherButton
+										onClick={this.onPrevPage}
+									>
+										Prev
+									</PageSwitcherButton>
+								) : (
+									<DisabledPageSwitcherButton>
+										Prev
+									</DisabledPageSwitcherButton>
+								)}
+								<PageSwitcherLabel>
+									{page + 1}
+								</PageSwitcherLabel>
+								{searchResults &&
+								searchResults.length > 0 &&
+								page !== amountOfPages - 1 ? (
+									<PageSwitcherButton
+										onClick={this.onNextPage}
+									>
+										Next
+									</PageSwitcherButton>
+								) : (
+									<DisabledPageSwitcherButton>
+										Next
+									</DisabledPageSwitcherButton>
+								)}
+							</div>
+						</PageSwitcher>
+					) : null}
 				</ChatRecordsBox>
 			</>
 		);
@@ -301,10 +445,11 @@ class ChatRecords extends Component {
 const mapStateToProps = (state) => ({
 	success: state.success.chatrecords,
 	error: state.error.chatrecords,
-	servers: state.servers,
-	games: state.games,
+	results: state.chat.searchResults,
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+	searchChatRecords: (searchData) => dispatch(searchChatRecords(searchData)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChatRecords);
