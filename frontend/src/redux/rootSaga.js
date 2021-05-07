@@ -20,6 +20,7 @@ import gameSagas from './games/gameSagas';
 import serverSagas from './servers/serverSagas';
 import infractionSagas from './infractions/infractionSagas';
 import playerSagas from './players/playerSagas';
+import chatSagas from './chat/chatSagas';
 
 export default function* rootSaga() {
 	yield all([
@@ -28,5 +29,6 @@ export default function* rootSaga() {
 		call(serverSagas),
 		call(infractionSagas),
 		call(playerSagas),
+		call(chatSagas),
 	]);
 }

@@ -25,3 +25,15 @@ export const sendChatMessage = (message, serverId) => ({
 	serverId: serverId,
 	payload: message,
 });
+
+export const SEARCH_CHAT_RECORDS = 'SEARCH_CHAT_RECORDS';
+export const searchChatRecords = (searchData) => ({
+	type: SEARCH_CHAT_RECORDS,
+	payload: searchData,
+});
+
+export const SET_CHAT_SEARCH_RESULTS = 'SET_CHAT_SEARCH_RESULTS';
+export const setChatSearchResults = (results) => ({
+	type: SET_CHAT_SEARCH_RESULTS,
+	payload: results,
+});
