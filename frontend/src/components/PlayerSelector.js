@@ -175,6 +175,24 @@ const CustomPageSwitcher = styled(PageSwitcher)`
 	width: 100%;
 `;
 
+const ClearSelection = styled.span`
+	${(props) => css`
+		position: absolute;
+		top: calc(50% - 1rem);
+		right: 1rem;
+		width: 2rem;
+		height: 2rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		:hover {
+			border: 1px solid ${props.theme.colorPrimary};
+			border-radius: ${props.theme.borderRadiusNormal};
+		}
+	`}
+`;
+
 class PlayerSelector extends Component {
 	constructor(props) {
 		super(props);
@@ -330,6 +348,14 @@ class PlayerSelector extends Component {
 			...prevState,
 			showModal: true,
 		}));
+	};
+
+	onClearClicked = (e) => {
+		e.stopPropagation();
+
+		if (this.props.onSelect) {
+			this.props.onSelect(undefined);
+		}
 	};
 
 	onSubmit = () => {
@@ -514,6 +540,9 @@ class PlayerSelector extends Component {
 				<StyledPlayerSelector onClick={this.onSelectClicked}>
 					<Title>{title}</Title>
 					<PlayerName>{value}</PlayerName>
+					<ClearSelection onClick={this.onClearClicked}>
+						x
+					</ClearSelection>
 				</StyledPlayerSelector>
 			</Wrapper>
 		);
