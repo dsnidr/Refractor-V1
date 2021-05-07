@@ -57,6 +57,7 @@ func (dbp DBPlayer) Player() *Player {
 }
 
 type PlayerUpdateSubscriber func(updated *Player)
+type PlayerNameGetter func(id int64) (string, []string, error)
 
 type PlayerRepository interface {
 	Create(player *DBPlayer) error

@@ -94,7 +94,7 @@ func (r *chatRepo) FindMany(args refractor.FindArgs) ([]*refractor.ChatMessage, 
 	return foundMessages, nil
 }
 
-func (r *chatRepo) Search(args refractor.FindArgs, limit int, offset int) (int, []*refractor.ChatMessage, error) {
+func (r *chatRepo) Search(args refractor.FindArgs, limit int, offset int, getPlayerName refractor.PlayerNameGetter) (int, []*refractor.ChatMessage, error) {
 	query := `
 		SELECT
 		       MessageID,
@@ -108,7 +108,7 @@ func (r *chatRepo) Search(args refractor.FindArgs, limit int, offset int) (int, 
 			(? IS NULL OR cm.PlayerID = ?) AND
 			(? IS NULL OR cm.ServerID = ?) AND
 		    (DateRecorded BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?)) AND
-			IF(? IS NOT NULL, MATCH(Message) AGAINST(? IN NATURAL LANGUAGE MODE), TRUE)
+			IF(? IS NOT NULL AND ? != '', MATCH(Message) AGAINST(? IN NATURAL LANGUAGE MODE), TRUE)
 		LIMIT ? OFFSET ?;
 	`
 
@@ -120,7 +120,7 @@ func (r *chatRepo) Search(args refractor.FindArgs, limit int, offset int) (int, 
 		endDate   = args["EndDate"]
 	)
 
-	rows, err := r.db.Query(query, playerID, playerID, serverID, serverID, startDate, endDate, message, message, limit, offset)
+	rows, err := r.db.Query(query, playerID, playerID, serverID, serverID, startDate, endDate, message, message, message, limit, offset)
 	if err != nil {
 		return 0, nil, wrapError(err)
 	}
@@ -134,6 +134,13 @@ func (r *chatRepo) Search(args refractor.FindArgs, limit int, offset int) (int, 
 			return 0, nil, wrapError(err)
 		}
 
+		// Get player's name
+		currentName, _, err := getPlayerName(foundMessage.PlayerID)
+		if err != nil {
+			return 0, nil, wrapError(err)
+		}
+
+		foundMessage.PlayerName = currentName
 		foundMessages = append(foundMessages, foundMessage)
 	}
 
@@ -146,10 +153,10 @@ func (r *chatRepo) Search(args refractor.FindArgs, limit int, offset int) (int, 
 			(? IS NULL OR cm.PlayerID = ?) AND
 			(? IS NULL OR cm.ServerID = ?) AND
 		    (DateRecorded BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?)) AND
-			IF(? IS NOT NULL, MATCH(Message) AGAINST(? IN NATURAL LANGUAGE MODE), TRUE)
+			IF(? IS NOT NULL AND ? != '', MATCH(Message) AGAINST(? IN NATURAL LANGUAGE MODE), TRUE)
 	`
 
-	row := r.db.QueryRow(query, playerID, playerID, serverID, serverID, startDate, endDate, message, message)
+	row := r.db.QueryRow(query, playerID, playerID, serverID, serverID, startDate, endDate, message, message, message)
 
 	var count int
 	if err := row.Scan(&count); err != nil {

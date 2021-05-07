@@ -234,7 +234,7 @@ func (s *searchService) SearchChatMessages(body params.SearchChatMessagesParams)
 	searchArgs["EndDate"] = body.EndDate
 
 	// Run search
-	count, results, err := s.chatRepo.Search(searchArgs, body.SearchParams.Limit, body.SearchParams.Offset)
+	count, results, err := s.chatRepo.Search(searchArgs, body.SearchParams.Limit, body.SearchParams.Offset, s.playerRepo.GetPlayerNames)
 	if err != nil {
 		if err == refractor.ErrNotFound {
 			return 0, []*refractor.ChatMessage{}, &refractor.ServiceResponse{
