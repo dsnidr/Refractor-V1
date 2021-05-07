@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 import styled, { css } from 'styled-components';
 import Alert from '../../components/Alert';
 import ServerSelector from '../../components/ServerSelector';
-import GameSelector from '../../components/GameSelector';
 import respondTo from '../../mixins/respondTo';
 import PlayerSelector from '../../components/PlayerSelector';
 import TextInput from '../../components/TextInput';
@@ -125,15 +124,30 @@ class ChatRecords extends Component {
 		super(props);
 
 		this.state = {
+			page: 0,
+			currentFilters: {},
 			filters: {
-				startdate: new Date(new Date().getTime() - 1000 * 60 * 60), // 1 hour ago
-				enddate: new Date(), // now
+				startDate: new Date(new Date().getTime() - 1000 * 60 * 60), // 1 hour ago
+				endDate: new Date(), // now
 			},
+			searchWasRun: false,
 			errors: {},
 		};
 	}
 
-	static getDerivedStateFromProps(nextProps, prevState) {}
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.success) {
+			prevState.searchWasRun = true;
+			prevState.errors = {};
+		}
+
+		if (nextProps.errors) {
+			prevState.errors = {
+				...prevState.errors,
+				...nextProps.errors,
+			};
+		}
+	}
 
 	onDateChange = (key) => (date) => {
 		this.setState((prevState) => ({
@@ -143,6 +157,44 @@ class ChatRecords extends Component {
 				[key]: date,
 			},
 		}));
+	};
+
+	onChange = (e) => {
+		this.setState((prevState) => ({
+			...prevState,
+			filters: {
+				...prevState.filters,
+				[e.target.name]: e.target.value,
+			},
+		}));
+	};
+
+	onPlayerChange = (player) => {
+		this.setState((prevState) => ({
+			...prevState,
+			filters: {
+				...prevState.filters,
+				player: player,
+			},
+		}));
+	};
+
+	onViewRecordsClicked = () => {
+		const {
+			message,
+			startDate,
+			endDate,
+			serverId,
+			player,
+		} = this.state.filters;
+
+		console.log(
+			message,
+			startDate,
+			endDate,
+			serverId,
+			player ? player.id : undefined
+		);
 	};
 
 	render() {
@@ -163,27 +215,35 @@ class ChatRecords extends Component {
 							title={'message'}
 							size={'small'}
 							placeholder={'Message'}
+							onChange={this.onChange}
 						/>
 						<DateTimeSelector
 							title={'start date'}
-							onChange={this.onDateChange('startdate')}
-							value={filters.startdate}
+							onChange={this.onDateChange('startDate')}
+							value={filters.startDate}
 						/>
 						<DateTimeSelector
 							title={'end date'}
-							onChange={this.onDateChange('enddate')}
-							value={filters.enddate}
+							onChange={this.onDateChange('endDate')}
+							value={filters.endDate}
 						/>
-						<ServerSelector />
+						<ServerSelector
+							onChange={this.onChange}
+							name={'serverId'}
+						/>
 						<PlayerSelector
 							title={'player'}
+							name={'playerId'}
 							value={
 								filters.player
 									? filters.player.currentName
 									: 'Select...'
 							}
+							onSelect={this.onPlayerChange}
 						/>
-						<Button>View Records</Button>
+						<Button onClick={this.onViewRecordsClicked}>
+							View Records
+						</Button>
 					</FilterBox>
 
 					<ResultsBox>
