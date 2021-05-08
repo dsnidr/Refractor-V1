@@ -30,6 +30,7 @@ const ServerSelector = (props) => {
 			onChange={props.onChange}
 			error={props.error}
 			title={'server'}
+			value={props.value}
 		>
 			<option value={''}>{props.default || 'Select server'}</option>
 			{games.map((game) =>

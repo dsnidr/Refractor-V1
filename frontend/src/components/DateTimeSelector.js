@@ -58,6 +58,8 @@ const DateTimeTheme = styled.div`
 `;
 
 const DateTimeSelector = (props) => {
+	console.log('DateTimeSelector value', props.value);
+
 	return (
 		<DateTimeTheme>
 			<Title>{props.title}</Title>

@@ -33,6 +33,7 @@ import {
 	PageSwitcherButton,
 	PageSwitcherLabel,
 } from './Players';
+import ReactTooltip from 'react-tooltip';
 
 const ChatRecordsBox = styled.div``;
 
@@ -147,6 +148,9 @@ class ChatRecords extends Component {
 			filters: {
 				startDate: new Date(new Date().getTime() - 1000 * 60 * 60), // 1 hour ago
 				endDate: new Date(), // now
+				message: '',
+				player: null,
+				serverId: '',
 			},
 			searchWasRun: false,
 			errors: {},
@@ -168,7 +172,9 @@ class ChatRecords extends Component {
 	}
 
 	onDateChange = (key) => (date) => {
-		console.log(key, typeof date, date);
+		if (!date.toDate) {
+			return;
+		}
 
 		this.setState((prevState) => ({
 			...prevState,
@@ -271,6 +277,30 @@ class ChatRecords extends Component {
 		}
 	};
 
+	onDateClick = (timestamp) => () => {
+		// When a date is clicked we want to show the messages within 2 minutes
+		// of either side of the date clicked.
+		const nanoTimestamp = Math.floor(timestamp * 1000);
+
+		const newStartTime = nanoTimestamp - 1000 * 60 * 2;
+		const newEndTime = nanoTimestamp + 1000 * 60 * 2;
+
+		this.setState(
+			(prevState) => ({
+				...prevState,
+				filters: {
+					message: '',
+					player: null,
+					startDate: new Date(newStartTime),
+					endDate: new Date(newEndTime),
+				},
+			}),
+			() => {
+				this.onViewRecordsClicked();
+			}
+		);
+	};
+
 	onViewRecordsClicked = () => {
 		const {
 			message,
@@ -281,7 +311,6 @@ class ChatRecords extends Component {
 		} = this.state.filters;
 
 		const searchData = {};
-		const errors = {};
 
 		if (message) {
 			searchData.message = message.toString();
@@ -308,16 +337,21 @@ class ChatRecords extends Component {
 		searchData.offset = 0;
 
 		// Record current search data
-		this.setState((prevState) => ({
-			...prevState,
-			currentFilters: searchData,
-		}));
-
-		this.props.searchChatRecords(searchData);
+		this.setState(
+			(prevState) => ({
+				...prevState,
+				currentFilters: searchData,
+				searchWasRun: true,
+			}),
+			() => {
+				this.props.searchChatRecords(searchData);
+			}
+		);
 	};
 
 	render() {
 		const { errors, filters, searchWasRun, page } = this.state;
+		const { message, startDate, endDate, serverId, player } = filters;
 		const { results } = this.props;
 		const { results: searchResults, count } = results;
 
@@ -325,6 +359,8 @@ class ChatRecords extends Component {
 
 		return (
 			<>
+				<ReactTooltip delayShow={500} multiline={true} />
+
 				<div>
 					<Heading headingStyle={'title'}>Chat Records</Heading>
 				</div>
@@ -339,35 +375,41 @@ class ChatRecords extends Component {
 							size={'small'}
 							placeholder={'Message'}
 							onChange={this.onChange}
+							value={message}
 						/>
 						<DateTimeSelector
 							title={'start date'}
 							onChange={this.onDateChange('startDate')}
-							value={filters.startDate}
+							value={startDate}
 						/>
 						<DateTimeSelector
 							title={'end date'}
 							onChange={this.onDateChange('endDate')}
-							value={filters.endDate}
+							value={endDate}
 						/>
 						<ServerSelector
 							onChange={this.onChange}
 							name={'serverId'}
+							value={serverId}
 						/>
 						<PlayerSelector
 							title={'player'}
 							name={'playerId'}
-							value={
-								filters.player
-									? filters.player.currentName
-									: 'Select...'
-							}
+							value={player ? player.currentName : 'Select...'}
 							onSelect={this.onPlayerChange}
 						/>
 						<Button onClick={this.onViewRecordsClicked}>
 							View Records
 						</Button>
 					</FilterBox>
+
+					{!searchResults && searchWasRun && (
+						<div>
+							<Heading headingStyle={'subtitle'}>
+								No results found
+							</Heading>
+						</div>
+					)}
 
 					{searchResults && (
 						<ResultsBox
@@ -384,7 +426,13 @@ class ChatRecords extends Component {
 											<MobileLabel>ID: </MobileLabel>
 											{result.id}
 										</div>
-										<div>
+										<div
+											data-tip={`Click on a timestamp to display all messages
+												within two minutes of the clicked time.`}
+											onClick={this.onDateClick(
+												result.timestamp
+											)}
+										>
 											<MobileLabel>Date: </MobileLabel>
 											{timestampToDateTime(
 												result.timestamp
