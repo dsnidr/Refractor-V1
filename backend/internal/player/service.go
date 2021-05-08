@@ -102,6 +102,8 @@ func (s *playerService) SetPlayerWatch(id int64, watch bool) *refractor.ServiceR
 		return refractor.InternalErrorResponse
 	}
 
+	s.log.Info("Player ID %d has had their watched field set to %v", id, watch)
+
 	res := &refractor.ServiceResponse{
 		Success:    true,
 		StatusCode: http.StatusOK,
