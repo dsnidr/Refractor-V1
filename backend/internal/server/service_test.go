@@ -102,7 +102,7 @@ func Test_serverService_CreateServer(t *testing.T) {
 			mockServerRepo := mock.NewMockServerRepository(tt.fields.mockServers)
 			gameService := game.NewGameService()
 			gameService.AddGame(mock.NewMockGame())
-			serverService := NewServerService(mockServerRepo, gameService, testLogger)
+			serverService := NewServerService(mockServerRepo, gameService, nil, testLogger)
 
 			server, res := serverService.CreateServer(tt.args.body)
 
@@ -170,7 +170,7 @@ func Test_serverService_EditServer(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockServerRepo := mock.NewMockServerRepository(tt.fields.mockServers)
-			serverService := NewServerService(mockServerRepo, nil, testLogger)
+			serverService := NewServerService(mockServerRepo, nil, nil, testLogger)
 
 			gotServer, gotRes := serverService.UpdateServer(tt.args.id, tt.args.body)
 

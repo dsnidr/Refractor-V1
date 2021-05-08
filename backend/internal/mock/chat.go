@@ -77,6 +77,6 @@ func (r *mockChatRepo) FindMany(args refractor.FindArgs) ([]*refractor.ChatMessa
 	return messages, nil
 }
 
-func (r *mockChatRepo) Search(args refractor.FindArgs, limit int, offset int) (int, []*refractor.ChatMessage, error) {
+func (r *mockChatRepo) Search(args refractor.FindArgs, limit int, offset int, getPlayerName refractor.PlayerNameGetter) (int, []*refractor.ChatMessage, error) {
 	panic("implement me")
 }
