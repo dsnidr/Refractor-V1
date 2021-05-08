@@ -94,6 +94,7 @@ const onMessage = () => (msg) => {
 					playerGameId: body.playerGameId,
 					currentName: body.name,
 					infractionCount: body.infractionCount,
+					watched: body.watched,
 				})
 			);
 			break;

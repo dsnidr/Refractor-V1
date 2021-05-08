@@ -26,6 +26,7 @@ import WarnModal from '../../components/modals/WarnModal';
 import KickModal from '../../components/modals/KickModal';
 import BanModal from '../../components/modals/BanModal';
 import Button from '../../components/Button';
+import ReactTooltip from 'react-tooltip';
 
 const Header = styled.div`
 	button {
@@ -88,6 +89,8 @@ const Player = styled.div`
 		text-overflow: ellipsis;
 		overflow: hidden;
 		grid-row: auto;
+
+		${props.watched ? `color: ${props.theme.colorDanger}` : ``}
 	`}
 `;
 
@@ -329,6 +332,8 @@ class Server extends Component {
 					reload={false}
 				/>
 
+				<ReactTooltip delayShow={100} />
+
 				<Header>
 					<Heading headingStyle={'title'}>{server.name}</Heading>
 					<ServerSummary>
@@ -367,59 +372,67 @@ class Server extends Component {
 					)}
 
 					<PlayerList>
-						{players.map((player) => (
-							<Player watched={player.watched}>
-								<PlayerHeader
-									onClick={this.onPlayerClick(player.id)}
-								>
-									<h1>{player.currentName}</h1>
-									{player.infractionCount > 0 && (
-										<span>{player.infractionCount}</span>
-									)}
-								</PlayerHeader>
-								<PlayerButtons>
-									<RequirePerms
-										mode={'all'}
-										perms={[flags.LOG_WARNING]}
+						{players.map((player) => {
+							return (
+								<Player watched={player.watched}>
+									<PlayerHeader
+										onClick={this.onPlayerClick(player.id)}
 									>
-										<div
-											onClick={this.showModal(
-												'warn',
-												player
-											)}
+										<h1>{player.currentName}</h1>
+										{player.infractionCount > 0 && (
+											<span
+												data-tip={
+													'The number of infractions this player has'
+												}
+											>
+												{player.infractionCount}
+											</span>
+										)}
+									</PlayerHeader>
+									<PlayerButtons>
+										<RequirePerms
+											mode={'all'}
+											perms={[flags.LOG_WARNING]}
 										>
-											Warn
-										</div>
-									</RequirePerms>
-									<RequirePerms
-										mode={'all'}
-										perms={[flags.LOG_KICK]}
-									>
-										<div
-											onClick={this.showModal(
-												'kick',
-												player
-											)}
+											<div
+												onClick={this.showModal(
+													'warn',
+													player
+												)}
+											>
+												Warn
+											</div>
+										</RequirePerms>
+										<RequirePerms
+											mode={'all'}
+											perms={[flags.LOG_KICK]}
 										>
-											Kick
-										</div>
-									</RequirePerms>
-									<RequirePerms
-										mode={'all'}
-										perms={[flags.LOG_BAN]}
-									>
-										<div
-											onClick={this.showModal(
-												'ban',
-												player
-											)}
+											<div
+												onClick={this.showModal(
+													'kick',
+													player
+												)}
+											>
+												Kick
+											</div>
+										</RequirePerms>
+										<RequirePerms
+											mode={'all'}
+											perms={[flags.LOG_BAN]}
 										>
-											Ban
-										</div>
-									</RequirePerms>
-								</PlayerButtons>
-							</Player>
-						))}
+											<div
+												onClick={this.showModal(
+													'ban',
+													player
+												)}
+											>
+												Ban
+											</div>
+										</RequirePerms>
+									</PlayerButtons>
+								</Player>
+							);
+						})}
 					</PlayerList>
 				</div>
 			</>

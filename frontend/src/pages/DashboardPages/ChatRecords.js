@@ -25,7 +25,10 @@ import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
 import DateTimeSelector from '../../components/DateTimeSelector';
 import { timestampToDateTime } from '../../utils/timeUtils';
-import { searchChatRecords } from '../../redux/chat/chatActions';
+import {
+	searchChatRecords,
+	setChatSearchResults,
+} from '../../redux/chat/chatActions';
 import { Link } from 'react-router-dom';
 import {
 	DisabledPageSwitcherButton,
@@ -34,6 +37,9 @@ import {
 	PageSwitcherLabel,
 } from './Players';
 import ReactTooltip from 'react-tooltip';
+import { setSearchResults } from '../../redux/infractions/infractionActions';
+import { setSuccess } from '../../redux/success/successActions';
+import { setErrors } from '../../redux/error/errorActions';
 
 const ChatRecordsBox = styled.div``;
 
@@ -155,6 +161,10 @@ class ChatRecords extends Component {
 			searchWasRun: false,
 			errors: {},
 		};
+	}
+
+	componentDidMount() {
+		this.props.clearResults();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -498,6 +508,9 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
 	searchChatRecords: (searchData) => dispatch(searchChatRecords(searchData)),
+	clearResults: () => dispatch(setChatSearchResults([])),
+	clearSuccess: () => dispatch(setSuccess('chatrecords', undefined)),
+	clearErrors: () => dispatch(setErrors('chatrecords', undefined)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChatRecords);

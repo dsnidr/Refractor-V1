@@ -87,6 +87,7 @@ type playerJoinQuitData struct {
 	PlayerGameID    string `json:"playerGameId"`
 	Name            string `json:"name"`
 	InfractionCount int    `json:"infractionCount,omitempty"`
+	Watched         bool   `json:"watched"`
 }
 
 func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
@@ -111,6 +112,7 @@ func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64,
 			PlayerGameID: fields[idField],
 			Name:         player.CurrentName,
 			InfractionCount: count,
+			Watched: player.Watched,
 		},
 	})
 }
