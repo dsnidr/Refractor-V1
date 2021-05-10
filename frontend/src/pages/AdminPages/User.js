@@ -37,6 +37,7 @@ import {
 	EDIT_ANY_INFRACTION,
 	DELETE_OWN_INFRACTIONS,
 	DELETE_ANY_INFRACTION,
+	VIEW_CHAT_RECORDS,
 	flags,
 	isRestricted,
 	getGrantedPerms,
@@ -401,6 +402,14 @@ class User extends Component {
 								disabled={adminBoxChecked}
 								onChange={this.handlePermChange(
 									DELETE_ANY_INFRACTION
+								)}
+							/>
+							<Checkbox
+								label={'View chat records'}
+								checked={!!perms[VIEW_CHAT_RECORDS]}
+								disabled={adminBoxChecked}
+								onChange={this.handlePermChange(
+									VIEW_CHAT_RECORDS
 								)}
 							/>
 						</PermissionCheckboxes>
