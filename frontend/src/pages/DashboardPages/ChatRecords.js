@@ -137,6 +137,10 @@ const Result = styled.div`
 		}
 
 		> :nth-child(4) {
+			width: 100%;
+			overflow-wrap: break-word;
+			word-wrap: break-word;
+			word-break: break-word;
 			flex: 1;
 		}
 	`}
