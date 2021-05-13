@@ -18,6 +18,7 @@ import styled, { css } from 'styled-components';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { typeHasDuration } from '../utils/infractionUtils';
+import respondTo from '../mixins/respondTo';
 
 const InfractionBox = styled(Link)`
 	${(props) => css`
@@ -26,9 +27,14 @@ const InfractionBox = styled(Link)`
 		border-radius: ${props.theme.borderRadiusNormal};
 
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-		grid-template-rows: 2rem auto;
-		grid-row-gap: 0.5rem;
+		grid-template-columns: auto;
+		grid-template-rows: auto auto auto auto auto;
+
+		${respondTo.medium`
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+          grid-template-rows: 2rem auto;
+          grid-row-gap: 0.5rem;
+		`}
 
 		// Override annoying react router link styling. Why do they do this?
 		text-decoration: none;
@@ -49,8 +55,15 @@ const MetaDisplay = styled.div`
 
 const InfractionReason = styled.div`
 	${(props) => css`
-		grid-row: 2;
-		grid-column: span 5;
+		${respondTo.medium`
+          grid-row: 2;
+          grid-column: span 5;
+		`}
+
+		width: 100%;
+		overflow-wrap: break-word;
+		word-wrap: break-word;
+		word-break: break-word;
 
 		font-size: 1.4rem;
 	`}

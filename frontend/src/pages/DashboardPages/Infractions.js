@@ -39,6 +39,7 @@ import {
 	PageSwitcherButton,
 	PageSwitcherLabel,
 } from './Players';
+import respondTo from '../../mixins/respondTo';
 
 const RecentInfractionsBox = styled.div`
 	> :first-child {
@@ -60,6 +61,8 @@ const RecentInfractions = styled.div`
 `;
 
 const InfractionSearchBox = styled.div`
+	width: 100%;
+
 	> :nth-child(1) {
 		margin-bottom: 0.5rem;
 	}
@@ -71,9 +74,18 @@ const InfractionSearchBox = styled.div`
 `;
 
 const SearchBox = styled.div`
+	width: 100%;
+
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+	grid-template-columns: auto;
 	grid-column-gap: 1rem;
+	grid-row-gap: 1rem;
+
+	${respondTo.medium`
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      grid-column-gap: 1rem;
+	`}
 
 	button {
 		height: 4rem;

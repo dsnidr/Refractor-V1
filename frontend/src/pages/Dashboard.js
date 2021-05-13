@@ -218,6 +218,21 @@ class Dashboard extends Component {
 							<SidebarItem to="/infractions" icon={<List />}>
 								Infractions
 							</SidebarItem>
+							<RequirePerms
+								mode={'any'}
+								perms={[
+									flags.VIEW_CHAT_RECORDS,
+									flags.SUPER_ADMIN,
+									flags.FULL_ACCESS,
+								]}
+							>
+								<SidebarItem
+									to="/chatrecords"
+									icon={<Notifications />}
+								>
+									Chat Records
+								</SidebarItem>
+							</RequirePerms>
 
 							<div>
 								{games.map((game) => {
