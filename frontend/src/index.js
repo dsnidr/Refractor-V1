@@ -42,3 +42,8 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals(console.log);
+
+// getVersion function to return the current version in production. Call it from the developer console.
+// It will not work in development.
+window.getVersion = () =>
+	console.info(document.querySelector('meta[name="version"]').content);
