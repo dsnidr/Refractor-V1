@@ -22,6 +22,7 @@ import {
 	hasPermission,
 	flags,
 } from '../permissions/permissions';
+import respondTo from '../mixins/respondTo';
 
 const borderFlashKeyframes = (color) => keyframes`
 	0% {
@@ -39,14 +40,22 @@ const borderFlashKeyframes = (color) => keyframes`
 
 const InfractionBox = styled.div`
 	${(props) => css`
+		width: 100%;
 		padding: 1rem;
 		background-color: ${props.theme.colorAccent};
 		border-radius: ${props.theme.borderRadiusNormal};
+		overflow: hidden;
 
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr 0.2fr;
-		grid-template-rows: 2rem auto;
+		grid-template-rows: auto auto auto auto;
+		grid-template-columns: auto;
+
 		grid-row-gap: 0.5rem;
+
+		${respondTo.medium`
+          	grid-template-columns: 1fr 1fr 1fr 1fr 0.2fr;
+          	grid-template-rows: 2rem auto;
+		`}
 
 		animation: ${props.highlight
 			? css`
@@ -72,8 +81,10 @@ const UtilBox = styled.div`
 	${(props) => css`
       display: flex;
       justify-content: right;
-	  
-	  grid-column: 5;
+
+      ${respondTo.medium`
+        grid-column: 5;
+	  `}
 
       > * {
         font-size: 1rem;
@@ -89,9 +100,15 @@ const UtilBox = styled.div`
 
 const InfractionInfo = styled.div`
 	${(props) => css`
-		grid-row: 2;
-		grid-column: span 5;
+		${respondTo.medium`
+          grid-row: 2;
+          grid-column: span 5;
+	  	`}
 
+		width: 100%;
+		overflow-wrap: break-word;
+		word-wrap: break-word;
+		word-break: break-word;
 		font-size: 1.4rem;
 	`}
 `;

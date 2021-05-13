@@ -59,13 +59,14 @@ const PlayerInfo = styled.div`
 
 const LogButtons = styled.div`
 	${(props) => css`
-		display: flex;
+		display: grid;
+		grid-template-columns: auto auto;
+		grid-row-gap: 1rem;
+		grid-column-gap: 1rem;
 
-		margin-top: 2rem;
-
-		> * {
-			margin-right: 1rem;
-		}
+		${respondTo.medium`
+			grid-template-columns: auto auto auto auto;
+		`}
 	`}
 `;
 
@@ -86,6 +87,9 @@ const InfractionSection = styled.div`
 	${(props) => css`
 		display: flex;
 		flex-direction: column;
+		width: 100%;
+		overflow-wrap: break-word;
+		word-wrap: break-word;
 
 		> * {
 			margin-bottom: 1rem;

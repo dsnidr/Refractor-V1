@@ -134,6 +134,7 @@ export const UsernameTopbarItem = styled(TopbarItem)`
 
 export const Content = styled.div`
 	${(props) => css`
+		width: 100%;
 		grid-row: 2;
 		grid-column: 2;
 		background-color: ${props.theme.colorBackgroundDark};
@@ -142,6 +143,7 @@ export const Content = styled.div`
 			: 0};
 
 		> * {
+			width: 100%;
 			padding: 3rem;
 			margin-bottom: 2rem;
 			background-color: ${props.theme.colorBackground};
