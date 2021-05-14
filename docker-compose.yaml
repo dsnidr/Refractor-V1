@@ -24,8 +24,8 @@ services:
   frontend:
     restart: unless-stopped
     build:
-      dockerfile: Dockerfile
-      context: ./frontend
+      dockerfile: frontend/Dockerfile
+      context: .
     container_name: refractor-frontend
     networks:
       - sub-etha

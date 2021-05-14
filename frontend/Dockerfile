@@ -1,15 +1,14 @@
 FROM node:15-alpine
 WORKDIR /app
 
-# Install build dependencies
-#RUN apk --no-cache --virtual build-dependencies add \
-#    python \
-#    make \
-#    g++ \
-#    bash
+# Install git
+RUN apk --no-cache add git
+
+# Copy git info into container
+COPY ./.git ./
 
 # Install dependencies
-COPY package*.json ./
+COPY ./frontend/package*.json ./
 RUN yarn install --silent
 RUN yarn global add react-scripts --silent
 RUN yarn global add serve --silent
@@ -18,7 +17,7 @@ RUN yarn global add serve --silent
 #RUN apk del build-dependencies
 
 # Copy source into container
-COPY . .
+COPY ./frontend/. .
 
 # Build
 RUN yarn run build
