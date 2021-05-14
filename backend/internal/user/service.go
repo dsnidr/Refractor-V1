@@ -28,6 +28,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type userService struct {
@@ -43,9 +44,13 @@ func NewUserService(userRepo refractor.UserRepository, logger log.Logger) refrac
 }
 
 func (s *userService) CreateUser(body params.CreateUserParams) (*refractor.User, *refractor.ServiceResponse) {
+	// Normalize username
+	username := strings.TrimSpace(body.Username)
+	username = strings.ToLower(body.Username)
+
 	// Make sure username isn't already taken
 	exists, err := s.repo.Exists(refractor.FindArgs{
-		"Username": body.Username,
+		"Username": username,
 	})
 
 	if err != nil {
@@ -92,7 +97,7 @@ func (s *userService) CreateUser(body params.CreateUserParams) (*refractor.User,
 	// Create the new user
 	newUser := &refractor.User{
 		Email:       body.Email,
-		Username:    body.Username,
+		Username:    username,
 		Password:    string(hashAndSalt),
 		Permissions: perms.DEFAULT_PERMS,
 	}

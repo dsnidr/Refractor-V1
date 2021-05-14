@@ -25,6 +25,7 @@ import (
 	"github.com/sniddunc/refractor/refractor"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strings"
 )
 
 type authService struct {
@@ -42,9 +43,12 @@ func NewAuthService(userRepo refractor.UserRepository, logger log.Logger, jwtSec
 }
 
 func (s *authService) LogInUser(body params.LoginParams) (*refractor.TokenPair, *refractor.ServiceResponse) {
+	username := strings.TrimSpace(body.Username)
+	username = strings.ToLower(username)
+
 	// Check if an account with the provided username exists
 	args := refractor.FindArgs{
-		"Username": body.Username,
+		"Username": username,
 	}
 
 	foundUser, err := s.repo.FindOne(args)
