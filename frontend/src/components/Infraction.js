@@ -79,22 +79,29 @@ const MetaDisplay = styled.div`
 
 const UtilBox = styled.div`
 	${(props) => css`
-      display: flex;
-      justify-content: right;
+		display: flex;
+		grid-row: 1;
 
-      ${respondTo.medium`
-        grid-column: 5;
-	  `}
+		> * {
+			font-size: 1rem;
+			color: ${props.theme.colorTextPrimary};
+			user-select: none;
+			margin-right: 1rem;
 
-      > * {
-        font-size: 1rem;
-        color: ${props.theme.colorTextPrimary};
-        margin-left: 1rem;
-        user-select: none;
+			:hover {
+				cursor: pointer;
+			}
+		}
 
-        :hover {
-          cursor: pointer;
-        }
+		${respondTo.medium`
+			grid-column: 5;
+			justify-content: right;
+			
+			> * {
+			  margin-left: 1rem;
+			  margin-right: 0;
+			}
+		`}
 	`}
 `;
 

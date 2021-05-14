@@ -65,7 +65,8 @@ const LogButtons = styled.div`
 		grid-column-gap: 1rem;
 
 		${respondTo.medium`
-			grid-template-columns: auto auto auto auto;
+			display: flex;
+		  	margin-top: 1rem;
 		`}
 	`}
 `;
