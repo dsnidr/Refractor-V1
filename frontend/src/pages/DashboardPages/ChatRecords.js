@@ -354,6 +354,7 @@ class ChatRecords extends Component {
 		this.setState(
 			(prevState) => ({
 				...prevState,
+				page: 0,
 				currentFilters: searchData,
 				searchWasRun: true,
 			}),
