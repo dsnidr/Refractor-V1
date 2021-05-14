@@ -161,7 +161,9 @@ const Infraction = (props) => {
 			{props.remaining && (
 				<MetaDisplay>
 					<span>Time left:</span>{' '}
-					{buildTimeRemainingString(props.remaining)}
+					{props.duration !== 0
+						? buildTimeRemainingString(props.remaining)
+						: 'permanent'}
 				</MetaDisplay>
 			)}
 			<UtilBox>
