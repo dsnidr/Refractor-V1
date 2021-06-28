@@ -32,13 +32,15 @@ type playerService struct {
 	log               log.Logger
 	recentPlayers     *recentPlayers
 	updateSubscribers []refractor.PlayerUpdateSubscriber
+	websocketService  refractor.WebsocketService
 }
 
-func NewPlayerService(repo refractor.PlayerRepository, log log.Logger) refractor.PlayerService {
+func NewPlayerService(repo refractor.PlayerRepository, ws refractor.WebsocketService, log log.Logger) refractor.PlayerService {
 	return &playerService{
-		repo:          repo,
-		log:           log,
-		recentPlayers: newRecentPlayers(config.RecentPlayersMaxSize),
+		repo:             repo,
+		log:              log,
+		recentPlayers:    newRecentPlayers(config.RecentPlayersMaxSize),
+		websocketService: ws,
 	}
 }
 
@@ -236,8 +238,22 @@ func (s *playerService) SubscribeUpdate(sub refractor.PlayerUpdateSubscriber) {
 	s.updateSubscribers = append(s.updateSubscribers, sub)
 }
 
+type playerUpdateBody struct {
+	PlayerID int64             `json:"playerId"`
+	Updated  *refractor.Player `json:"updated"`
+}
+
 func (s *playerService) notifyPlayerUpdate(updated *refractor.Player) {
 	for _, sub := range s.updateSubscribers {
 		sub(updated)
 	}
+
+	// Broadcast player update to websocket clients
+	s.websocketService.Broadcast(&refractor.WebsocketMessage{
+		Type: "player-update",
+		Body: playerUpdateBody{
+			PlayerID: updated.PlayerID,
+			Updated:  updated,
+		},
+	})
 }

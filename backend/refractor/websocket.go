@@ -29,7 +29,7 @@ type WebsocketMessage struct {
 
 type WebsocketDirectMessage struct {
 	ClientID int64
-	Message *WebsocketMessage
+	Message  *WebsocketMessage
 }
 
 type ChatSendSubscriber func(msgBody *ChatSendBody)

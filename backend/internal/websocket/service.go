@@ -27,20 +27,20 @@ import (
 
 type websocketService struct {
 	pool                    *websocket.Pool
-	userService             refractor.UserService
-	playerService           refractor.PlayerService
+	userRepo                refractor.UserRepository
+	playerRepo              refractor.PlayerRepository
 	playerInfractionService refractor.PlayerInfractionService
 	log                     log.Logger
 	chatSendSubscribers     []refractor.ChatSendSubscriber
 }
 
-func NewWebsocketService(playerService refractor.PlayerService, userService refractor.UserService,
+func NewWebsocketService(playerRepo refractor.PlayerRepository, userRepo refractor.UserRepository,
 	playerInfractionService refractor.PlayerInfractionService, log log.Logger) refractor.WebsocketService {
 	return &websocketService{
 		pool:                    websocket.NewPool(log),
-		playerService:           playerService,
+		playerRepo:              playerRepo,
 		playerInfractionService: playerInfractionService,
-		userService:             userService,
+		userRepo:                userRepo,
 		log:                     log,
 		chatSendSubscribers:     []refractor.ChatSendSubscriber{},
 	}
@@ -59,9 +59,9 @@ func (s *websocketService) CreateClient(userID int64, conn net.Conn) {
 
 func (s *websocketService) sendChatHandler(msgBody *websocket.SendChatBody) {
 	// Get user's name
-	user, res := s.userService.GetUserByID(msgBody.UserID)
-	if user == nil {
-		s.log.Error("Could get get user ID. Res message: %s", res.Message)
+	user, err := s.userRepo.FindByID(msgBody.UserID)
+	if err != nil {
+		s.log.Error("Could not get user by ID %d. Error: %v", msgBody.UserID, err)
 		return
 	}
 
@@ -93,11 +93,11 @@ type playerJoinQuitData struct {
 func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
 	idField := gameConfig.PlayerGameIDField
 
-	player, res := s.playerService.GetPlayer(refractor.FindArgs{
+	player, err := s.playerRepo.FindOne(refractor.FindArgs{
 		idField: fields[idField],
 	})
 
-	if !res.Success {
+	if err != nil {
 		s.log.Warn("Could not GetPlayer. PlayerGameIDField = %s, field value = %v", idField, fields[idField])
 		return
 	}
@@ -107,12 +107,12 @@ func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64,
 	s.Broadcast(&refractor.WebsocketMessage{
 		Type: "player-join",
 		Body: playerJoinQuitData{
-			ServerID:     serverID,
-			PlayerID:     player.PlayerID,
-			PlayerGameID: fields[idField],
-			Name:         player.CurrentName,
+			ServerID:        serverID,
+			PlayerID:        player.PlayerID,
+			PlayerGameID:    fields[idField],
+			Name:            player.CurrentName,
 			InfractionCount: count,
-			Watched: player.Watched,
+			Watched:         player.Watched,
 		},
 	})
 }
@@ -120,11 +120,11 @@ func (s *websocketService) OnPlayerJoin(fields broadcast.Fields, serverID int64,
 func (s *websocketService) OnPlayerQuit(fields broadcast.Fields, serverID int64, gameConfig *refractor.GameConfig) {
 	idField := gameConfig.PlayerGameIDField
 
-	player, res := s.playerService.GetPlayer(refractor.FindArgs{
+	player, err := s.playerRepo.FindOne(refractor.FindArgs{
 		idField: fields[idField],
 	})
 
-	if !res.Success {
+	if err != nil {
 		s.log.Warn("Could not GetPlayer. PlayerGameIDField = %s, field value = %v", idField, fields[idField])
 		return
 	}
@@ -174,7 +174,7 @@ type infractionCreateBody struct {
 func (s *websocketService) OnInfractionCreate(infraction *refractor.Infraction) {
 	sendParams := &refractor.WebsocketDirectMessage{
 		ClientID: 0,
-		Message:  &refractor.WebsocketMessage{
+		Message: &refractor.WebsocketMessage{
 			Type: "infraction-create",
 			Body: &infractionCreateBody{
 				InfractionID: infraction.InfractionID,

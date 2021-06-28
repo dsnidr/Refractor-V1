@@ -132,6 +132,14 @@ const onMessage = () => (msg) => {
 				}))
 			);
 			break;
+		case 'player-update':
+			store.dispatch(
+				updateOnlinePlayer(body.playerId, (player) => ({
+					...player,
+					...body.updated,
+				}))
+			);
+			break;
 		default:
 			console.log('Unknown message type received:', type);
 	}

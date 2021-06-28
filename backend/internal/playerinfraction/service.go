@@ -7,17 +7,17 @@ import (
 )
 
 type playerInfractionService struct {
-	playerRepo refractor.PlayerRepository
+	playerRepo     refractor.PlayerRepository
 	infractionRepo refractor.InfractionRepository
-	log         log.Logger
+	log            log.Logger
 }
 
 func NewPlayerInfractionService(playerRepo refractor.PlayerRepository,
 	infractionRepo refractor.InfractionRepository, log log.Logger) refractor.PlayerInfractionService {
 	return &playerInfractionService{
-		playerRepo: playerRepo,
+		playerRepo:     playerRepo,
 		infractionRepo: infractionRepo,
-		log: log,
+		log:            log,
 	}
 }
 
@@ -29,8 +29,8 @@ func (s *playerInfractionService) GetPlayerInfractionCount(playerID int64) (int,
 	}
 
 	return count, &refractor.ServiceResponse{
-		Success:          true,
-		StatusCode:       http.StatusOK,
-		Message:          "Fetched infraction count",
+		Success:    true,
+		StatusCode: http.StatusOK,
+		Message:    "Fetched infraction count",
 	}
 }

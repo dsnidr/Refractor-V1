@@ -51,10 +51,6 @@ const playerReducer = (state = initialState, action) => {
 };
 
 function setPlayerWatched(state, playerId, watched) {
-	console.log(state, playerId, watched);
-
-	console.log(state.currentPlayer.id === playerId);
-
 	if (state.currentPlayer && state.currentPlayer.id === playerId) {
 		return {
 			...state,

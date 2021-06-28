@@ -98,10 +98,13 @@ func main() {
 	authService := auth.NewAuthService(userRepo, loggerInst, os.Getenv("JWT_SECRET"))
 	authHandler := api.NewAuthHandler(authService, secureMode)
 
-	playerService := player.NewPlayerService(playerRepo, loggerInst)
-	playerHandler := api.NewPlayerHandler(playerService)
-
 	playerInfractionService := playerinfraction.NewPlayerInfractionService(playerRepo, infractionRepo, loggerInst)
+
+	websocketService := websocket.NewWebsocketService(playerRepo, userRepo, playerInfractionService, loggerInst)
+	go websocketService.StartPool()
+
+	playerService := player.NewPlayerService(playerRepo, websocketService, loggerInst)
+	playerHandler := api.NewPlayerHandler(playerService)
 
 	serverService := server.NewServerService(serverRepo, gameService, playerInfractionService, loggerInst)
 	serverHandler := api.NewServerHandler(serverService, playerService, loggerInst)
@@ -109,9 +112,6 @@ func main() {
 
 	gameServerService := gameserver.NewGameServerService(gameService, serverService, loggerInst)
 	gameServerHandler := api.NewGameServerHandler(gameServerService)
-
-	websocketService := websocket.NewWebsocketService(playerService, userService, playerInfractionService, loggerInst)
-	go websocketService.StartPool()
 
 	rconService := rcon.NewRCONService(gameService, playerService, loggerInst)
 	rconService.SubscribeJoin(playerHandler.OnPlayerJoin)
